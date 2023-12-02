@@ -20,7 +20,6 @@
     "@react-native-firebase/firestore": "^18.5.0",
     "@react-native-firebase/remote-config": "^18.5.0",
     "@react-native-firebase/storage": "^18.5.0",
-    "@react-native-picker/picker": "^2.5.1",
     "@react-navigation/drawer": "^6.6.4",
     "@react-navigation/native": "^6.1.8",
     "axios": "^1.6.2",

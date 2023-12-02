@@ -1,6 +1,6 @@
 import React from 'react';
 // import { Picker } from 'react-native';
-import {Picker} from '@react-native-picker/picker';
+// import {Picker} from '@react-native-picker/picker';
 import lang from "./../localize";
 import { useSelector } from "react-redux";
 
