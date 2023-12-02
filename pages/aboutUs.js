@@ -19,8 +19,8 @@ export default ({ navigation }) => {
 
   getDynamicDataFromSettings = async (Language)=>{
     let customizedValues = await getAppSettings();
-    let local_des = customizedValues.length>0?customizedValues[0].aboutUsSaathiText[selectedLanguage]:""
-    let loc_images = customizedValues.length>0?customizedValues[0].aboutUs:[]
+    let local_des = customizedValues?.aboutUsText[Language] ||"";
+    let loc_images = customizedValues?.aboutUs||[]
      
     setDescription(local_des);
     setOfficersImages(loc_images);

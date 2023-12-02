@@ -8,15 +8,12 @@ import ErrorModal from "./components/ErrorModal";
 import { Provider } from "react-redux";
 import store from "./store";
 import LanguageChangeModal from "./components/languageChangeModal";
-import Camera from "./components/camera";
-// import OneSignal from 'react-native-onesignal';
 import * as Updates from 'expo-updates';
-// import {  } from "./global/util";
 import Route from "./route";
 
 export default () => {
 
-  updateOperations = async () => {
+  const updateOperations = async () => {
     try {
       const update = await Updates.checkForUpdateAsync();
       if (update.isAvailable) {
@@ -31,7 +28,7 @@ export default () => {
 
   useEffect(() => {
     // oneSignalOperations();
-    // updateOperations();
+    updateOperations();
   }, []);
 
   return (
@@ -41,7 +38,6 @@ export default () => {
       <ConfirmModal />
       <ErrorModal />
       <LanguageChangeModal />
-      <Camera />   
     </Provider>
   );
 }
