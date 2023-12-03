@@ -279,6 +279,7 @@ export default {
   saving_complaint : "बचत शिकायत",
   keep_our_mun : "अपना जगदलपुर स्वच्छ रखें",
   your_feedback_submitted : "आपकी प्रतिक्रिया सफलतापूर्वक सबमिट की गई",
+  app_version : "एप्लिकेशन वेरीज़न :",
   
   //  your_house_holding : ""
 

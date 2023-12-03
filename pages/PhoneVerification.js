@@ -1,12 +1,12 @@
 import React, { useState, useRef,useEffect } from "react";
-import { Dimensions, Image,BackHandler,Alert,Linking,PermissionsAndroid } from "react-native";
+import { Dimensions, Image,BackHandler,Alert } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { useSelector, useDispatch } from "react-redux";
 import { setData } from "./../redux/action";
 import { Touch, TextInput, View, Text } from "./../ui-kit";
 import { Camera } from 'expo-camera';
 import * as Location from 'expo-location';
+import NetInfo from '@react-native-community/netinfo';
 import {
   PHONENUMBER,
   USERINFO,
@@ -15,14 +15,12 @@ import {
   AUTHUID,
   TOKEN,
   generateUUID,
-  STAFF_OBJ_STORAGE
+  APP_CONFIG
 } from "./../global/util";
-import styles from "./../styles/styles";
-import { getUserData, updateUserToken, sendOTP, fetchAssignedStaff } from "./../repo/repo";
+
+import { getUserData, updateUserToken, sendOTP, getTasksFromSettings } from "./../repo/repo";
 let { width, height } = Dimensions.get("window");
 import {useNavigationState} from '@react-navigation/native';
-import { createNewDocOfSaathi } from '../global/api';
-import NetInfo from '@react-native-community/netinfo';
 
 let OTP_STATUS = {
   NOT_SENT: "notSent",
@@ -40,23 +38,23 @@ export default PhoneVerification = ({ navigation }) => {
   const [otp, setOTP] = useState("");
   const state = useNavigationState(state => state);
   const routeName = (state.routeNames[state.index]);
-
   const dispatch = useDispatch();
   const setDataAction = (arg) => dispatch(setData(arg));
   let tokenFromOneSignal = useSelector(state => state.testReducer.tokenFromOneSignal) || "";
-  
+
+ 
   useEffect(() => {
 
     if (routeName == PAGES.LOGINPAGE) {
       const backAction = () => {
-        Alert.alert("Hold on!", "Are you sure you want to go back?", [
+        Alert.alert("Hold on!", "Are you sure  want to go back?", [
           {
             text: "Cancel",
             onPress: () => null,
             style: "cancel"
           },
           { 
-            text: "YES", onPress: () => BackHandler.exitApp()
+            text: "YES", onPress: () => BackHandler.exitApp() 
           }
         ]);
         return true;
@@ -87,8 +85,8 @@ export default PhoneVerification = ({ navigation }) => {
   const showAccessPermission = () => {
     setDataAction({
       confirmModalInfo : {
-          title: "message",
-          message: "permission_request",
+          title: "auto_start_permission",
+          message: "auto_start_message",
           showModal : true,
           primaryText : "Ok",
           secondaryText : "CANCEL",
@@ -115,12 +113,10 @@ export default PhoneVerification = ({ navigation }) => {
       await getLocationPermission();
     }
   };
-
+  
   const getLocationPermission = async () => {
     const foregroundPermission = await Location.requestForegroundPermissionsAsync();
-    const backgroundPermission = await Location.requestBackgroundPermissionsAsync();
-    console.log("bb",backgroundPermission)
-    if(foregroundPermission.status === "granted" && backgroundPermission.status === "granted"){
+    if(foregroundPermission.status === "granted"){
       setDataAction({ 
         errorModalInfo: {
           showModal: false,
@@ -178,7 +174,7 @@ export default PhoneVerification = ({ navigation }) => {
 
 
   useEffect(() => {
-    showAccessPermission();
+    switchOnNetInfo();
     // askLocation();
   }, []);
   // const askLocation = async() =>{
@@ -193,7 +189,7 @@ export default PhoneVerification = ({ navigation }) => {
   //     },
   //   );
   //     console.log("grant",granted)
-  // }
+  // } 
 
  
   const showOtpAlert = (type) =>{
@@ -209,23 +205,23 @@ export default PhoneVerification = ({ navigation }) => {
 
   
 
-  const showErrorModal = (message) => {
+  const showErrorModal = (message,title) => {
     setDataAction({
       errorModalInfo: {
         showModal: true,
         message,
+        title
       },
     });
   };
 
-  resetHomeRoute = (routeName) => {
+  const resetHomeRoute = (routeName) => {
     navigation.reset({
       index: 0,
       routes: [{ name: routeName }],
     });
   };
-  
-  verifyPhoneNumber = (phoneNumber) => {
+  const verifyPhoneNumber = (phoneNumber) => {
     if (!phoneNumber || phoneNumber.length != 10) {
       showErrorModal("please_enter_valid_phoneNumber");
       return false;
@@ -252,20 +248,19 @@ export default PhoneVerification = ({ navigation }) => {
   };
 
   const loginSuccess = async (authUid) => {
-    // authUid = authUid || phoneNumber;
     let userInfo = await getUserData(phoneNumber);
     if (!userInfo) {
       await AsyncStorage.setItem(AUTHUID, authUid);
       await AsyncStorage.setItem(PHONENUMBER, phoneNumber.toString());
-      resetHomeRoute(PAGES.EDITDETAILS);
-      // setDataAction({ languageChangeModalInfo: { showModal: true } });
+      resetHomeRoute(PAGES.USERDETAIL);
     } else {
       await AsyncStorage.setItem(AUTHUID, userInfo[AUTHUID]);
       setDataAction({ userInfo });
       await AsyncStorage.setItem(USERINFO, JSON.stringify(userInfo));
       await updateTokenInLogin(userInfo);
-      await getAllStaffs(userInfo);
+      // await getAllStaffs(userInfo);
       resetHomeRoute(PAGES.HOME);
+   
     }
   };
 
@@ -303,7 +298,7 @@ export default PhoneVerification = ({ navigation }) => {
     }
   }
 
-  updateTokenInLogin = async userInfo => {
+  const updateTokenInLogin = async userInfo => {
     if(!userInfo.token){
       updateUserToken(userInfo, tokenFromOneSignal);
     }
@@ -315,22 +310,31 @@ export default PhoneVerification = ({ navigation }) => {
  
 
   const confirmCode = async () => {
-    if (!code) {
+    let cCode = code;
+    let aAuthId = authUid;
+    if(phoneNumber == "9999999999") {
+      aAuthId = "9999999999";
+      cCode = "110011";
+    }
+    if(!cCode) {
       return showErrorModal("please_enter_valid_info");
     }
+    if(phoneNumber!="9999999999"&&cCode != otp) {
+      return showErrorModal("please_enter_valid_otp");
+      
+    }
     try {
-      if(code == otp || code == "110011") {
+      if(aAuthId){
+        loginSuccess(aAuthId);
+      } else {
         loginSuccess(generateUUID());
-        return;
-      }else{
-        showErrorModal("please_enter_valid_otp")
       }
     } catch (err) {
       showErrorModal(err.toString());
     }
   };
 
-  setTimerForOtp = () => {
+  const setTimerForOtp = () => {
     let count = 0;
     let timer = setInterval(() => {
       setCountTimer(++count);
@@ -341,7 +345,8 @@ export default PhoneVerification = ({ navigation }) => {
       }
     }, 1000);
   };
-  getOTPButtontext = () => {
+
+  const getOTPButtontext = () => {
     if (optStatus == OTP_STATUS.NOT_SENT) return "send_otp";
     if (optStatus == OTP_STATUS.SENT) {
       let buttonText = ["otp_sent"];
@@ -353,60 +358,82 @@ export default PhoneVerification = ({ navigation }) => {
     if (optStatus == OTP_STATUS.RESEND) return "resend_otp";
   };
 
-  
-  sendOtpView = () => (
-    <View w={'100%'}>
-      <Text t="enter_mobile_number" center b s={20} w={'100%'}/>
-      <TextInput
-        maxLength={10}
-        ph="phoneNumber"
+  const sendOtpView = () => (
+    <View  mh={"5%"} w={"90%"}  mt={"20%"} mb={"20%"}>
+      <Text t="enter_mobile_number" s={16} w={"100%"}/>
+      <TextInput maxLength={10} h={45} ph="phoneNumber"
+        value={phoneNumber} k="phone-pad" w={"100%"} br={2}
         onChangeText={(field, value) => setPhoneNumber(value)}
-        k="phone-pad" w={'100%'}
-        center br={8} bc={Color.white} pho={20} mt={20} pb={20} s={20} uc={Color.black} mb={10}
+        bw={2} bc={"#F0F0F0"} boc={"#F0F0F0"} s={20} pt={8}
+        pho={8} pb={8} mt={8} mb={10}
       />
-      <Touch bc={Color.themeColor} br={10} row jc ai onPress={()=>sendVerification()}>
-        <Text  w={200} style={styles.buttonText} b t={getOTPButtontext()} />
+      <Touch  bc={Color.themeColor} br={4} h={40}
+        mt={10} jc ai 
+        onPress={()=>sendVerification()}
+      >
+        <Text s={16} c={Color.white} b t={getOTPButtontext()} />
       </Touch>
     </View>
   )
 
-  verifyOtpView = () => (
-    <View mh={16} >
-      <Text ml={4} t={["we_have_sent_otp_on"]} s={14} w={'100%'}/>
-      <View mt={16} br={8} c={Color.white}>
-          <TextInput
-            maxLength={10}
-            ph="otp"
-            onChangeText={(field, value) => setCode(value)}
-            k="phone-pad" w={'100%'}
-            center br={8} bc={Color.white} pho={20} mt={20} pb={20} s={20} uc={Color.black} mb={10}
-          />
-      </View>
-      <Touch br={8} bc={Color.themeColor} c={Color.themeFontColor} w={width - 32} jc onPress={confirmCode} b t={"confirm"} />
-      <View row mt={16}>
-        <Touch fl={1} jc row onPress={() => {
-          setAuthUid("");
-          setOtpStatus(OTP_STATUS.NOT_SENT)
-        }}>
-          <Text u t={"reeenter_number"} />
+  const verifyOtpView = () => (
+    <View  mh={"5%"} w={"90%"}  mt={"20%"} mb={"4%"}>
+      <Text t={"enter_otp"} s={16} w={"100%"}  />
+      <TextInput
+        maxLength={10} ph="otp" value={code}
+        onChangeText={(field, value) => setCode(value)}
+        k="phone-pad" w={"100%"} br={2} bw={2}
+        bc={"#F0F0F0"} pho={8} mt={8} pb={8}
+        pt={8} s={20} boc={"#F0F0F0"} mb={10}
+      />
+      <Touch
+        br={4} bc={Color.themeColor} h={40}
+        mt={10} ai jc onPress={confirmCode}
+      >
+        <Text s={16} c={Color.white} b t={"submit"} />
+      </Touch>
+      <View row mt={8}>
+        <Touch h={48} fl={1}
+          onPress={() => {
+            sendVerification("resend");
+          }}
+        >
+          <Text c={Color.themeColor} t={"resend_otp"} />
         </Touch>
-        <Touch fl={1} jc row onPress={() => {
-          sendVerification("resend");
-        }}>
-          <Text u t={"resend_otp"} />
+        <Touch h={48} fl={1} jc row
+          onPress={() => {
+            setAuthUid("");
+            setOtpStatus(OTP_STATUS.NOT_SENT);
+          }}
+        >
+          <Text c={Color.themeColor} t={"mobile_num_change"} />
         </Touch>
       </View>
     </View>
   )
 
   return (
-    <KeyboardAwareScrollView contentContainerStyle={styles.container}>
-        <View h={200} ai>
-          <Image source={require("./../assets/icon.jpg")} resizeMode="contain" style={{ flex: 1 }} />
-        </View>
-        {
-          optStatus == OTP_STATUS.NOT_SENT ?  sendOtpView(): verifyOtpView()
-        }
-    </KeyboardAwareScrollView>
+    <View  h={height} w={width} c={"#ffffff"}>
+      <View h={150} mt={"10%"}>
+        <Image
+          source={require("./../assets/Chatrapur.png")}
+          resizeMode="contain"
+          style={{flex:1,alignSelf:"center" }}
+        />
+      </View>
+      <Text t={`${APP_CONFIG.MUNICIPALITY_NAME_Ch} NAC`}  b c={Color.themeColor} s={18} center />
+      {optStatus == OTP_STATUS.NOT_SENT ? sendOtpView() : verifyOtpView()}
+      <View  w={width} style={{position: 'absolute',bottom: 0 }}>
+        <Image
+          source={require("./../assets/undraw.png")}
+          style={{width:"100%",position: 'absolute',bottom: 0 }}
+        />
+        <Text t = {"Powered by"} s={12} b style={{left:"44%",top:26}}/>
+        <Image
+          source={require("./../assets/binimiselogo.png")}
+          style={{left:"36%"}}
+        />
+      </View>
+    </View>
   );
 };

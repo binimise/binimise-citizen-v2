@@ -208,13 +208,13 @@ const updateTaskPayments = (newObj, userInfo ) => {
  }
 
  const getAppSettings = async () => {
-    let data = await getSettingsAppRef().doc("dTRG0KsoPXOZkn70ruh5").get();
+    let data = await getSettingsAppRef().doc("aW6v6b4vlYxlbWxVUFGc").get();
     return data?.data?.() || {};
 }
 
 const getManagerDetails = async (ward_id)=>{
     let data = await getSettingsAppRef()
-                    .doc("dTRG0KsoPXOZkn70ruh5")
+                    .doc("aW6v6b4vlYxlbWxVUFGc")
                     .collection(COLLECTIONS.WARD_MANAGER)
                     .doc(ward_id)
                     .get();
@@ -283,7 +283,7 @@ const addUserData = async userInfo => {
     try{
         userInfo["fb_uid"] = userInfo[AUTHUID];
         userInfo["ward_id"] = userInfo.ward;
-        console.log("beforeadd",userInfo);
+       
         userInfo =encryptCitizenData(userInfo)
         await getUserRef()
         .doc(userInfo[AUTHUID])
@@ -358,7 +358,7 @@ const getUserTasks = async userInfo => {
 }
 
 const getUserComplaints = async userInfo => {
-    console.log("in",userInfo.phoneNumber)
+    
     let data = await getComplaintRef()
                     .where('phoneNumber', '==',userInfo.phoneNumber)
                     .get();
@@ -476,6 +476,17 @@ const getSettingsData = async () => {
      return data
 }
 
+const getCheckpointsFromSettings = async () => {
+    let data= await getSettingsRef().get()
+                .then(async (snapshot) => {
+                    let arr= snapshot?.data()?.Checkpoint_Types
+                    return arr;
+                });
+    return data;
+}
+
+
+
 const sendOTP = async (phoneNumber) => {
     let url = "https://us-central1-binimise-v1.cloudfunctions.net/users_login_otp?";
     url += "phoneNumber="+ phoneNumber + "&mun=" + APP_CONFIG.MUNICIPALITY_NAME_C;
@@ -486,34 +497,34 @@ const sendOTP = async (phoneNumber) => {
     
 }
 
-// const getComplaintsFromSettings = async () => {
-//     let data= await getSettingsRef().get()
-//            .then(async (snapshot) => {
-//              let arr= snapshot?.data()?.Complaint_Types
-//               return arr;
-//            });
+const getComplaintsFromSettings = async () => {
+    let data= await getSettingsRef().get()
+           .then(async (snapshot) => {
+             let arr= snapshot?.data()?.Complaint_Types
+              return arr;
+           });
 
-//      return data;
-// }
-
-const getComplaintsFromSettings = async (selectedLanguage) => {
-    let data= await getSettingsWebRef().doc("complaints").get()
-    return data.data()?.complaint_types?.[selectedLanguage]
+     return data;
 }
 
-const getTasksFromSettings = async (selectedLanguage) => {
-    let data= await getSettingsWebRef().doc("tasks").get()
-    return data.data()?.task_types?.[selectedLanguage]
-}
-
-// const getTasksFromSettings = async () => {
-//     let data= await getSettingsRef().get()
-//         .then(async (snapshot) => {
-//             let arr= snapshot?.data()?.Task_Types
-//             return arr;
-//         });
-//     return data;
+// const getComplaintsFromSettings = async (selectedLanguage) => {
+//     let data= await getSettingsWebRef().doc("complaints").get()
+//     return data.data()?.complaint_types?.[selectedLanguage]
 // }
+
+// const getTasksFromSettings = async (selectedLanguage) => {
+//     let data= await getSettingsWebRef().doc("tasks").get()
+//     return data.data()?.task_types?.[selectedLanguage]
+// }
+
+const getTasksFromSettings = async () => {
+    let data= await getSettingsRef().get()
+        .then(async (snapshot) => {
+            let arr= snapshot?.data()?.Task_Types
+            return arr;
+        });
+    return data;
+}
 
 const getCtpt = async() => {
     let data = await getCtptRef().get();

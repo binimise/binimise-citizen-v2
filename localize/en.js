@@ -269,7 +269,6 @@ export default {
   go_to_c : "Show Calendar",
   confirm_to_exit : "Confirmation to exit?",
   hold_on : "Hold on!",
-  exit_app : "Exit App",
   tag_added : "New Tag Added Sucessfully!",
   garbage_collected : "Garbage Collected",
   garbage_segregation : "Garbage seggregation not done",
@@ -282,7 +281,11 @@ export default {
   please_enter_suggerstion : "Please Enter Suggetion",
   please_enter_age : "Please Enter Age",
   your_feedback_submitted : "Your Feedback Sucessfully Submitted",
-
+  keep_our : "Keep Our", 
+  clean : "Clean",
+  //Newly Added
+  app_version : "App Version :",
+  exit_app : "Exit App",
 
 
 

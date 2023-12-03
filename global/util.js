@@ -132,10 +132,10 @@ export const TOKEN = "token";
 export const PHONENUMBER = "phoneNumber";
 export const AUTHUID = "authUid";
 export const SELECTEDLANGUAGE = "selectedLanguage";
-export const APP_VERSION = "1.0.1"
+export const APP_VERSION = "1.0"
 
 // prod
-export const ONESIGNAL_ID = "35ba0f07-fbd7-46e2-9e4a-f2c4860f0c2a";
+export const ONESIGNAL_ID = "35ba0f07-fbd7-46e2-9e4a-f2c4860f0c2a"; //needs to changed
 
 
 export const SHOW_LANGUAGE = [
@@ -164,15 +164,15 @@ export const APP_INFO = {
         hn : " का स्वागत करते हैं "
     },
     aboutUsText : {
-        en : "Jagdalpur presents 'Swachh Jagdalpur' mobile app to its citizens under Digital India initiative.\n\nThrough this app, citizens can directly connect with the Municipal Council and can avail desired information and services.\n\nThis app will give citizens an early notification about the arrival of garbage vehicles and citizens can also track the vehicle through GPS live feed.\n\nIt gives citizens an easy way to register their complaints with the  Municipal Council and  Municipal Council can provide information to citizens on timely manner.\n\nThis small initiative of Jagdalpur  Municipal Council affords to make a big contribution to the civic services.\n\nMake our city clean and beautiful with help of this app. Our city is our home.\n\nMy Jagdalpur, Clean Jagdalpur.",
+        en : "Chatrapur presents 'Swachh Chatrapur' mobile app to its citizens under Digital India initiative.\n\nThrough this app, citizens can directly connect with the Municipal Council and can avail desired information and services.\n\nThis app will give citizens an early notification about the arrival of garbage vehicles and citizens can also track the vehicle through GPS live feed.\n\nIt gives citizens an easy way to register their complaints with the  Municipal Council and  Municipal Council can provide information to citizens on timely manner.\n\nThis small initiative of Chatrapur  Municipal Council affords to make a big contribution to the civic services.\n\nMake our city clean and beautiful with help of this app. Our city is our home.\n\nMy Chatrapur, Clean Chatrapur.",
         hn : "बक्सर नगर परिषद डिजिटल इंडिया पहल के तहत अपने नागरिकों को 'स्वच्छ बक्सर' मोबाइल ऐप प्रस्तुत करता है।\n\nइस ऐप के माध्यम से, नागरिक सीधे परिषद से जुड़ सकते हैं और वांछित जानकारी और सेवाओं का लाभ उठा सकते हैं।\n\nयह ऐप नागरिकों को जल्द से जल्द कचरा वाहनों के आगमन के बारे में अधिसूचना और नागरिक जीपीएस लाइव फीड के माध्यम से भी वाहन को ट्रैक कर सकते हैं।\n\nयह नागरिकों को परिषद के साथ अपनी शिकायत दर्ज करने का एक आसान तरीका देता है और परिषद नागरिकों को समय पर जानकारी प्रदान कर सकता है।\n\nयह बक्सर नगर परिषद की छोटी सी पहल नागरिक सेवाओं में एक बड़ा योगदान देती है।\n\nइस ऐप की मदद से हमारे शहर को स्वच्छ और सुंदर बनाएं। हमारा शहर हमारा घर है।\n\nमेरा बक्सर, स्वच्छ बक्सर"
     },
     nagar_nigam_c : {
-        en : "Jagdalpur Municipal Council",
+        en : "Chatrapur Municipal Council",
         hn : "बक्सर नगर परिषद"
     },
     notif_default_msg : {
-        en : "Welcome !!! \n\n Jagdalpur welcomes you.",
+        en : "Welcome !!! \n\n Chatrapur welcomes you.",
         hn : "स्वागत !!! \n\n बक्सर आपका स्वागत करता है।",
     }
 }
@@ -183,7 +183,7 @@ export const APP_CONFIG = {
     MUNICIPALITY_NAME_T : "chatrapur",
     MUNICIPALITY_NAME_Ch: "Chatrapur",
     MUNICIPALITY : "mun",
-    COORDINATES : {coords: { latitude: 19.8129511, longitude: 84.7926768, latitudeDelta: 0.01, longitudeDelta: 0.01}}
+    COORDINATES : {coords: { latitude: 19.360019102474105, longitude: 84.98701565910743, latitudeDelta: 0.01, longitudeDelta: 0.01}}
 }
 
 export const FEATURES = {

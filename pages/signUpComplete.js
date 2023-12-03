@@ -18,7 +18,7 @@ export default ({ navigation }) => {
         <View style={styles.container}  c={ '#FFFFFF'} >   
       
             <View  mt={115} ml={20}> 
-              <Text t={"Congrats!"} c={Color.themeColor} center s={30} />
+              <Text t={"congrats"} c={Color.themeColor} center s={30} />
               <Text  t={userInfo?.authUid?"update_account":"create_account"} s={12} center />
               <View h={200} mt={70}>
                 <Image 
@@ -30,7 +30,7 @@ export default ({ navigation }) => {
               <View row mt={16} ml={12} mr={20}>
 
                 <Touch ai jc h={48} br={4} onPress={() => {navigation.navigate(PAGES.HOME)}}
-                    s={16} c={Color.themeFontColor}  bc={Color.themeColor} b t={"Proceed"} 
+                    s={16} c={Color.themeFontColor}  bc={Color.themeColor} b t={"proceed"} 
                 />
               </View>
             </View>

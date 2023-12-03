@@ -1,139 +1,82 @@
-import React, { useEffect, useState,useMemo } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useEffect, useState } from 'react';
 import MapView,{Marker} from 'react-native-maps';
-import {Image,Linking} from "react-native";
-import { View } from "./../ui-kit";
-import { useDispatch, useSelector } from 'react-redux';
-import { getVehiclesInWard,getRouteOfVehicle } from "./../repo/repo";
-import { PAGES, Color } from "./../global/util";
-import Polygon from '../Markers/polygon';
-import TrackViewMarker from '../Markers/TVMarker';
+import {Image} from "react-native";
+import { View,Text } from "./../ui-kit";
+import { APP_CONFIG } from '../global/util';
+import { getDevicesInWard, driverLocationsInWard } from "./../repo/repo";
 
- const UserMarker = props => {
+export default props => {
 
     const [driverLocations, setDriverLocations] = useState([]);
-    let selectedArea = props?.selectedArea || null;
-    
-    
+    const [driverDetails, setDriverDetails] = useState([]);
+    const [deviceList, setDeviceList] = useState([]);
+
     useEffect(() => {
-        syncMap(props.wards);
-    }, [props.wards]);
+        syncMap(props.userInfo.ward);
+    }, [props.userInfo.ward]);
 
     const syncMap = async wardId => {
-      const jsonValue = await AsyncStorage.getItem("vehicleRouteData");
-      const storedTime = await AsyncStorage.getItem("vehicleTimestamp");
-      if (jsonValue !== null) {
-        const parsedArray = JSON.parse(jsonValue);
-        getWardWiseDriverLocations(parsedArray);
-        // setDriverLocations(parsedArray);
-      }
-      let wardTime = 0;
-      if (storedTime !== null) {
-        wardTime = parseInt(storedTime, 10);
-      } 
-      const currentTimestamp = Date.now();
-      const timeDifferenceInSeconds = (currentTimestamp - wardTime) / 1000;
-      if(timeDifferenceInSeconds>600){
         if(!wardId) return;
-        let vehicles = await getVehiclesInWard(wardId);
-        let veh_data = [];
-        vehicles?.docs?.map(item =>{
-          let obj = {};
-          obj["name"] =item?.data?.()?.vehicle_name || "",
-          obj["phoneNumber"] = item?.data?.()?.phone_num || "",
-          obj["device_id"] = item?.data?.()?.device_id
-          obj["ward_id"] =  item?.data?.()?.ward_id
-          veh_data.push(obj);
-        });
-        if(veh_data && Array.isArray(veh_data) &&veh_data.length > 0) {
-            getDriverLocations(veh_data);
+        let devices = await getDevicesInWard(wardId);
+        setDeviceList(devices);
+        let ids = devices.map(item => item.id);
+        if(ids && Array.isArray(ids) && ids.length > 0) {
+            getDriverLocations(ids);
         } else {
             setDriverLocations([]);
         }
       }
-        
-    }
-
-
-   const getDriverLocations = async (ids) => {
-     try {
-       let vehicleArray = [];
-       await Promise.all([...ids].map((eachDoc) => getRouteOfVehicle(eachDoc)))
-         .then(async(querySnapshot) => {
-           querySnapshot.forEach((doc) => {
-             vehicleArray.push(doc);
-           });
-           getWardWiseDriverLocations(vehicleArray);
-           const jsonValue = JSON.stringify(vehicleArray);
-           if(jsonValue!=null){
-            await AsyncStorage.setItem("vehicleRouteData", jsonValue);
-           }
-            const timestamp = Date.now();
-            await AsyncStorage.setItem("vehicleTimestamp",timestamp.toString());
-         }).catch((error) => {
-           // toggleLoading(false);
-           console.log('Error querying documents:', error);
-         });
-          
-      //  setDriverLocations(vehicleArray);
-          
-
-     } catch (e) {
-       console.log("e", e)
-     }
-
-
-   }
-
-   const getWardWiseDriverLocations = (arr)=>{
     
-    let temp = [];
-    if(selectedArea){
-      temp = arr.length>0&&arr.filter((each)=>each?.ward_id?.includes(selectedArea))
-    }else{
-      temp = [...arr];
+    const getDriverLocations = async (ids) => {
+        driverLocationsInWard(ids).
+        onSnapshot(data => {
+            data = data.docs || [];
+            data = data.map(item => item.data());
+            mergeData(data)
+            // setDriverLocations(data);
+        });
     }
-    setDriverLocations(temp);
-   }
 
-  
-
-
-    if (driverLocations == null || driverLocations.length === 0) {
-      return null;
+    const mergeData = (data)=>{
+        let mergedArr = [],locations=[]
+        deviceList.length>0&&deviceList.map((eachDevice)=>{
+            data.map((eachData)=>{
+                if(eachDevice.id === eachData.imei){
+                    let obj={}
+                    obj.vehicle_name = eachDevice.vehicle_name
+                    obj.phone_num = eachDevice.phone_num
+                    obj.geo =eachData.geo
+                    mergedArr.push(obj);
+                    locations.push(eachData.geo);
+                }
+            })
+        })
+        setDriverLocations(locations);
+        setDriverDetails(mergedArr);
     }
-   
-    return driverLocations.map((item, index) => {
-      let veh_routes = item.routes || [];
-      let intialLatAndLng = veh_routes.length>0&&veh_routes[0]||{};
-      let finalLatAndLng = veh_routes.length>0&&veh_routes[veh_routes.length-1]|| {};
-       return <View key={index}>
-          {intialLatAndLng?.latitude&&
-          <TrackViewMarker
-            id = {item.phoneNumber+"intial"}
-            coord ={intialLatAndLng}
-            name = {item.name}
-            phoneNumber = {item.phoneNumber}
-            type = "vehicle"
-            count = "intial"
-          />
-          }
-          {finalLatAndLng?.latitude&&
-          <TrackViewMarker
-            id = {item.phoneNumber+"final"}
-            coord ={finalLatAndLng}
-            name = {item.name}
-            phoneNumber = {item.phoneNumber}
-            type = "vehicle"
-            count = "final"
-          />
-          }
-          
-          {
-            veh_routes?.length>0&&<Polygon routes = {veh_routes}/>
-          }                
-        </View>
-    })
+    
+    if(driverLocations == null || driverLocations.length === 0)
+        return null;
+
+    return ( <View> 
+        {
+            driverLocations
+            .map((item, index) => (
+                <View key={index}>
+                    <Marker
+                        coordinate={{
+                            latitude: item?._latitude || APP_CONFIG.COORDINATES.coords.latitude, 
+                            longitude: item?._longitude || APP_CONFIG.COORDINATES.coords.latitude
+                        }}
+                        title={driverDetails[index]?.vehicle_name}
+                        description={driverDetails[index]?.phone_num}
+                    >
+
+                        <Image source={require('./../assets-images/car.webp')} style={{ width: 30, height: 30 }} />
+                    </Marker>
+                </View>)
+            )
+        }
+    </View>
+    );
 }
-
-export default UserMarker;

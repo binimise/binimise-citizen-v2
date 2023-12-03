@@ -1,14 +1,15 @@
 import React, { useState, useEffect }  from 'react';
-import { Image as RNImageView, FlatList, Dimensions ,BackHandler} from "react-native";
+import { Image as RNImageView, FlatList, Dimensions ,BackHandler, ScrollView,StyleSheet} from "react-native";
 import { useDispatch, useSelector } from 'react-redux';
 import { setData } from "../redux/action";
 import { View, Text, Touch } from "../ui-kit";
 import Header from "../components/header";
 import { Color, PAGES } from '../global/util';
 import PlacesFilter from "./../components/placesFilter";
-import FilterButton from "./../components/filterButton";
 import { getPlaces,getAppSettings } from "./../repo/repo";
-let { width,height } = Dimensions.get("window");
+import Icon from 'react-native-vector-icons/FontAwesome';
+import {getDistance, getPreciseDistance} from 'geolib';
+import * as Location from 'expo-location';
 
 export default ({ navigation }) => {
 
@@ -21,8 +22,23 @@ export default ({ navigation }) => {
 
     filterMapView = () => setMapModal(true);
 
-    getPlacesData = async () => {
+    const getPlacesData = async () => {
         let places = await getPlaces(userInfo);
+        let location = {};
+        try{
+          location = await Location.getLastKnownPositionAsync({enableHighAccuracy: true});
+        }catch(e){}
+        places.length>0&&places.map((eachplace,index)=>{
+            let pdis = getDistance(
+                {latitude: location? location?.coords?.latitude:userInfo.lat, 
+                    longitude:location? location?.coords?.longitude:userInfo.long},
+                {latitude:eachplace.lat,longitude: eachplace.long},
+            );
+           
+            eachplace.dist =Math.trunc( pdis/1000);
+            eachplace.userlat = location?.coords?.latitude ||userInfo.lat;
+            eachplace.userlong =location?.coords?.longitude||userInfo.long
+        })
         setPlaces(places);
     }
 
@@ -32,38 +48,25 @@ export default ({ navigation }) => {
     }, [selectedLanguage]);
    
     
-    getWelcomeMessageFromSettings = async (Language)=>{
+    const getWelcomeMessageFromSettings = async (Language)=>{
         let customizedValues = await getAppSettings();
         let local_val = customizedValues.length>0?customizedValues[0].notif_welcome_msg[Language]:""
          
         setWelcomeMessage(local_val);
     
       }
-
-    showPlaceDetail = item => {
+   
+    const showPlaceDetail = item => {
         setDataAction({place: item});
         navigation.navigate(PAGES.PLACESDETAILS);
     }
 
     return (
-        <View bc={Color.lightGrayColor} c={"white"} pb={48} h={height}>
-            <Header navigation={navigation} headerText={"places"} />
-            <View mh={"6%"}  mb={"6%"} w={"90%"} bw={1} bc={"#CCCCCC"}/>
-            <View row ph={16} mv={8}>
-                <Text s={16} t={["welcome", " "]} />
-                <Text s={16} b t={[userInfo.name]} />
-            </View>
-            <View ph={16} mb={16} bw={1} br={8} mh={16}  pv={8} bc={Color.lightGrayColor}>
-                <Text s={14} t={welcomeMessage} />
-            </View>
-            <View mb={16} mh={16} row ai style={{ justifyContent: "space-between" }}>
-                <Text s={16} t={"places_around_you"} /> 
-                <FilterButton color={Color.themeColor} onPress={filterMapView} />
-            </View>
-            
-            {
-                places.length === 0 ? (
-                    <View ph={16} mb={16} bw={1} br={8} mh={16}  pv={8} bc={Color.lightGrayColor}>
+        <View w={"100%"} h={"100%"}>
+            <Header navigation={navigation} headerText={"places"}/>
+            <ScrollView>
+                {places.length === 0 ? (
+                    <View ph={16} mb={16} bw={1} br={8} mh={16} mt={16} pv={8} bc={Color.lightGrayColor}>
                         <View h={300} jc ai mh={16}>
                             <View h={200} w={'100%'} ai>
                                 <RNImageView source={require("./../assets/noPlaces.png")} resizeMode="contain" style={{ flex: 1 }} />
@@ -71,28 +74,38 @@ export default ({ navigation }) => {
                             <Text s={20} b mb={16} t={"no_places_yet"} /> 
                             <Text s={16} mb={16} t={"no_places_message"} />
                         </View>
-                    </View>) : (
-                    <FlatList
-                        data={ places }
-                        keyExtractor={(item, index) => index.toString()}
-                        renderItem={({ item, index }) => (
-                                <Touch ml={16} mr={16} w={width - 32} row key={index} bw={1} pt={10} mb={10} pb={10} br={4} h={170} boc={Color.lightGrayColor}
+                    </View>):
+                    <View style={styles.placesView}>
+                        {places.map((item,index)=>{
+                            return <Touch w={"48%"} mb={"4%"} mr={"2%"} br={4} h={200} bc={"white"} key={index.toString()}
+                                     onPress={() => { showPlaceDetail(item); }}>
+                                <RNImageView 
+                                    source={item.pictures ? { uri: item.pictures } : require("./../assets/Chatrapur.png")} 
+                                    resizeMode="cover" style={{ height:"75%",width: "100%" }} 
+                                /> 
+                                <Text t={item.placeName?.[selectedLanguage]} ml={"2%"} b mt={"2%"}/>
+                                <View row ai ml={"2%"} mt={"2%"} h={30} mb={"2%"} 
                                     onPress={() => {  showPlaceDetail(item); }}>
-                                    <View w={"60%"} ph={16}>
-                                        <RNImageView source={item.pictures ? { uri: item.pictures } : require("./../assets/icon.png")} resizeMode="cover" style={{ height: 150, width: "100%" }} />                      
-                                    </View>
-                                    <View row ai>
-                                        <Text center s={16} t={item.name.split(" ").join("\n")} />
-                                    </View>
-                                </Touch>
-                            )
-                        }
-                    />)
-            }
-            {
-                mapModal ? <PlacesFilter headerText={"placesFilter"}
-                    onPress={() => setMapModal(false)} /> : null
-            }
+                                    <Icon size={20} name={"location-arrow"} /> 
+                                    <Text t={item.dist+" "+"km"}/>
+                                </View>
+                            </Touch>                    
+                        })}
+                    </View>     
+                }
+            </ScrollView>
         </View>
     );
+
 }
+
+const styles=StyleSheet.create({
+    placesView:{
+        display:"flex",
+        flexWrap:"wrap",
+        flexDirection:"row",
+        marginHorizontal:"5%",
+        marginTop:"4%",
+        width:"90%"
+    }
+})
