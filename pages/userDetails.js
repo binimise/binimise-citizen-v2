@@ -279,12 +279,14 @@ export default ({ navigation }) => {
           ]
         );
     }
+    
 
     const selectLocationFromMap = () => {
         setUpdateLocation(region);
         setIsHideMap(true);
         setIsExpandLocation(false);
-        showSucessAlert();
+        // showSucessAlert();
+        showErrorModalMsg("location_updated","dear_user")
     }
   
     const getSignUpView = (text, ph, name, value,flag,keyboardType, maxLength) => {
@@ -540,11 +542,11 @@ export default ({ navigation }) => {
                     <View row>
                         <Touch onPress={()=>openImagePickerAsync()} w={"49%"} mr={"2%"}>
                             <Icon size={40} name={"photo"} style={{alignSelf:"center",color:"green"}}/> 
-                            <Text t={"choose image"} s={20} center c={"green"}/>
+                            <Text t={"choose_image"} s={20} center c={"green"}/>
                         </Touch>
                         <Touch   onPress={()=>{setShowImageLibrary(false);setStartCamera(true);}} w={"49%"}>
                             <Icon size={40} name={"camera"} style={{alignSelf:"center",color:"green"}}/> 
-                            <Text t={"click image"} s={20} center c={"green"}/>
+                            <Text t={"click_image"} s={20} center c={"green"}/>
                         </Touch>
                     </View>
                 </View>

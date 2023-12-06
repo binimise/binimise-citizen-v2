@@ -286,6 +286,13 @@ export default {
   //Newly Added
   app_version : "App Version :",
   exit_app : "Exit App",
+  enter_your_text : "Enter Your Text",
+  choose_image : "Choose Image",
+  click_image : "Click Image",
+  dear_user : "Dear User",
+  location_updated : "Your Location Sucessfully Updated"
+
+
 
 
 
