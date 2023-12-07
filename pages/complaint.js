@@ -55,7 +55,7 @@ export default ({ navigation }) => {
 
     const getComplaintsList = async () => {
       try{
-        
+        loadingInComplaint(true);
         let complaints = await getUserComplaints(userInfo);
         if(complaints){
           let Active = [],Assigned = [],Closed = [];

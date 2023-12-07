@@ -174,6 +174,7 @@ export const APP_INFO = {
     notif_default_msg : {
         en : "Welcome !!! \n\n Chatrapur welcomes you.",
         hn : "स्वागत !!! \n\n बक्सर आपका स्वागत करता है।",
+        or : "ସ୍ୱାଗତ !!! \ n \ n ଚାଟପୁର ଆପଣଙ୍କୁ ସ୍ୱାଗତ କରୁଛି।"
     }
 }
 

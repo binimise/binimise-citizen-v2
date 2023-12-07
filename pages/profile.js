@@ -84,17 +84,21 @@ export default ({ navigation }) => {
         }
     }, []);
 
-    __updateLocationFromDb = () => {
-        let obj = { latitude: userInfo?.lat, longitude: userInfo?.long, latitudeDelta: 0.01, longitudeDelta: 0.01};
+    const __updateLocationFromDb = () => {
+        let obj = { 
+          latitude: userInfo?.lat || APP_CONFIG.COORDINATES.coords.latitude,
+          longitude: userInfo?.long || APP_CONFIG.COORDINATES.coords.longitude, 
+          latitudeDelta: 0.01, longitudeDelta: 0.01
+        };
         setRegion(obj);
     }
 
 
-    formOnChangeText = (field, value) => {
+    const formOnChangeText = (field, value) => {
         dispatchStateAction({ field, value });
     }
 
-    getSignUpView = (text, ph, name, value,keyboardType, maxLength,icon,icontext) => {
+    const getSignUpView = (text, ph, name, value,keyboardType, maxLength,icon,icontext) => {
       return (
         <View mb={12}>
           <Text s={12} t={text} c={"black"} b/>
@@ -107,10 +111,10 @@ export default ({ navigation }) => {
       )
     }
 
-    toggleAlertSwitch = () => setIsAlertOn(previousState => !previousState);
-    toggleNotificationSwitch = () => setIsNotificationOn(previousState => !previousState);
+    const toggleAlertSwitch = () => setIsAlertOn(previousState => !previousState);
+    const toggleNotificationSwitch = () => setIsNotificationOn(previousState => !previousState);
 
-    showLocation = ()=>(
+    const showLocation = ()=>(
       <View w={"100%"} mb={20} bw={1} bc={'#F0F0F0'}>
         <Touch w={"100%"} boc={"#F0F0F0"}  h={48} bc={"#F8F8F8"} jc onPress={() =>{setIsExpandLocation(false)}}>
           <Text c={Color.themeColor} le={2} s={14}  b lh={18} t={"location"}/>
@@ -126,7 +130,7 @@ export default ({ navigation }) => {
       </View>
     )
 
-    _showAlerts = (text1,text2,text3)=>(
+    const _showAlerts = (text1,text2,text3)=>(
       <View row mb={16} mt={20} width={"90%"}>
         <Text s={18} c={"black"} t={text1} b />
         <Switch
@@ -140,7 +144,7 @@ export default ({ navigation }) => {
       </View>
     )
 
-    showAlerts = ()=>(
+    const showAlerts = ()=>(
       <View w={"100%"} mb={20} bw={1} bc={'#F0F0F0'}>
         <Touch w={"100%"} h={48} boc={"#F0F0F0"} jc bc={"#F8F8F8"} onPress={() =>{setIsExpandAlert(false)}}>
           <Text c={Color.themeColor} le={2} s={14}  b lh={18} t={"alert"}/>
@@ -150,7 +154,7 @@ export default ({ navigation }) => {
       </View>
     )
  
-    showAssignedTags = ()=>(
+    const showAssignedTags = ()=>(
         <View w={"100%"} mb={20} bw={1} bc={'#F0F0F0'}>
           <Touch w={"100%"} h={48} boc={"#F0F0F0"} bc={"#F8F8F8"} jc onPress={() =>{setIsExpandAssignedTags(false)}}>
             <Text le={2} c={Color.themeColor} s={14} b lh={18} t={"assigned_tags"}/>
@@ -169,7 +173,7 @@ export default ({ navigation }) => {
         </View>
     )
 
-    showWards = ()=>(
+    const showWards = ()=>(
       <View w={"100%"} mb={20} bw={1} bc={'#F0F0F0'}>
         <Touch w={"100%"} h={48} boc={"#F0F0F0"} bc={"#F8F8F8"} jc onPress={() =>{setIsExpandWard(false)}}>
           <View row>
@@ -180,7 +184,7 @@ export default ({ navigation }) => {
       </View>
     )
 
-    editIcon = () =>(
+    const editIcon = () =>(
       <IconAnt size={24}
         name={"edit"}
         color={"white"}

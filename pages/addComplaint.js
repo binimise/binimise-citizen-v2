@@ -106,6 +106,9 @@ export default ({ navigation }) => {
     if(!complaintObj.message) {
       return errorModal("please_enter_complaint_message");
     }
+    if(!imageUrl){
+      return errorModal("upload_image");
+    }
     loadingInAddComplaint(true,"saving_complaint");
     complaintObj["photo_url"] = imageUrl;
     complaintObj["typesOfComplaint"] = complaintObj.typesOfComplaint;

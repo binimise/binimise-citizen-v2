@@ -290,7 +290,11 @@ export default {
   choose_image : "Choose Image",
   click_image : "Click Image",
   dear_user : "Dear User",
-  location_updated : "Your Location Sucessfully Updated"
+  location_updated : "Your Location Sucessfully Updated",
+  pick_image : "PickImage",
+  home_message : "Keep Our Chatrapur Clean",
+  upload_image : "Please upload image"
+
 
 
 

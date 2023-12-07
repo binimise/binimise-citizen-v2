@@ -231,7 +231,7 @@ export default ({ navigation }) => {
       }
 
       <View br={4} h={120} bw={2} w={"90%"} mh={"5%"} mt={"8%"} bc={"#F0F0F0"} c={"#B6BC5C"}ai row>
-        <Text s={20} c={"#FFFFFF"} w={"55%"} ml={"6%"} t={selectedLanguage == "en"?`Keep Our ${APP_CONFIG.MUNICIPALITY_NAME_Ch} Clean`:"हमारे छत्रपुर को स्वच्छ रखें"}/>
+        <Text s={20} c={"#FFFFFF"} w={"55%"} ml={"6%"} t={"home_message"}/>
         <Image source={require("./../assets/deogharhomepageimage.png")} 
           style={{position:"absolute",right:8}}resizeMode="cover"/>
       </View>

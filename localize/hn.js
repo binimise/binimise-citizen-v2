@@ -283,6 +283,9 @@ enter_your_text: "अपना पाठ दर्ज करें",
 choose_image: "तस्वीर चुनें",
 click_image: "तस्वीर लें",
 dear_user: "प्रिय उपयोगकर्ता",
-location_updated: "आपका स्थान सफलतापूर्वक अपडेट किया गया है"
+location_updated: "आपका स्थान सफलतापूर्वक अपडेट किया गया है",
+pick_image : "छवि चुनें",
+home_message : "हमारे छत्रपुर को स्वच्छ रखें",
+upload_image : "कृपया छवि अपलोड करें"
 
 } 

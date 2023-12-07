@@ -22,7 +22,7 @@ export default ({ navigation }) => {
     const [isLoading, setIsLoading] = useState(false);
     let { userInfo, blockedNotifications } = useSelector(state => state.testReducer) || {};
     
-    getAllNotifications = async () => {
+    const getAllNotifications = async () => {
         let notifications = await userInfo?.ward?.length>0?getNotifications(userInfo):[];
         if(!notifications || !notifications.length){
             notifications = [];

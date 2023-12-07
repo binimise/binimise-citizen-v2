@@ -103,7 +103,12 @@ export default ({ navigation }) => {
     useEffect(() => {
         if(routeName === "UserDetails"){
           const backAction = () => {
-            navigation.navigate(PAGES.PROFILE)
+            if(userInfo?.authUid){
+                navigation.navigate(PAGES.PROFILE)
+            }else{
+                BackHandler.exitApp();
+            }
+            
             return true;
           };
           const backHandler = BackHandler.addEventListener(
@@ -538,7 +543,7 @@ export default ({ navigation }) => {
                     onPress={()=>{setShowImageLibrary(false)}} 
                 />
                 <View w={width - 48} br={8} c={Color.white} jc pa={16} mt={20}>
-                    <Text center b s={16} mb={14} t="PickImage"/>
+                    <Text center b s={16} mb={14} t="pick_image"/>
                     <View row>
                         <Touch onPress={()=>openImagePickerAsync()} w={"49%"} mr={"2%"}>
                             <Icon size={40} name={"photo"} style={{alignSelf:"center",color:"green"}}/> 
@@ -756,7 +761,7 @@ export default ({ navigation }) => {
                                 t={userInfo?.authUid? 'update' : 'signup'} 
                             />
                         </View>
-                        <View row mb={20} mt={20} width={"96%"}>
+                        {/* <View row mb={20} mt={20} width={"96%"}>
                             <Touch ai jc h={48} 
                                 onPress={() => {
                                     userInfo?.authUid? 
@@ -765,7 +770,7 @@ export default ({ navigation }) => {
                                 }}
                                 s={16} c={"green"}  t={"skip"} 
                             />
-                        </View>
+                        </View> */}
                        
        
                     </ScrollView>
