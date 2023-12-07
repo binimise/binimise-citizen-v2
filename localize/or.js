@@ -61,8 +61,6 @@ export default {
     enter_mobile_number: "ଆପଣଙ୍କ ମୋବାଇଲ ନମ୍ବର ଦିଅନ୍ତୁ",
     we_have_sent_otp_on: "ଆମେ OTP ପଠାଇଛୁ",
     reeenter_number: "ନମ୍ବର ପୁଣି ଦିଅନ୍ତୁ",
-    resend_otp: "OTP ପୁଣି ପଠାନ୍ତୁ",
-    please_grant_location_permission: "ସ୍ଥାନ ଅନୁମୋଦନ ଦେବାକୁ ଦୟାକରି",
     see_nearby_garbage_vehicles: "ନଜିକରେ ଆସୁନିବା କଚରା ଗାଡି ଦେଖନ୍ତୁ",
     we_will_access_your_location: "ଆମେ ଆପଣଙ୍କ ସ୍ଥାନ ଅଭିଗମନ କରିବୁ",
     allow_c: "ଅନୁମୋଦନ ଦିଅନ୍ତୁ",
