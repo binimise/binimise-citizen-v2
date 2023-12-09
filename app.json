@@ -3,6 +3,15 @@
     "name": "binimisevendor",
     "slug": "binimisevendor",
     "version": "1.0.0",
+    "jsEngine": "jsc",
+    "ios": {
+      "jsEngine": "jsc"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0,
+      "checkAutomatically": "ON_LOAD",
+      "useClassicUpdates": true
+    },
     "assetBundlePatterns": [
       "**/*"
     ]
