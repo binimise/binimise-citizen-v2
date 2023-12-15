@@ -135,7 +135,7 @@ export const SELECTEDLANGUAGE = "selectedLanguage";
 export const APP_VERSION = "1.0"
 
 // prod
-export const ONESIGNAL_ID = "35ba0f07-fbd7-46e2-9e4a-f2c4860f0c2a"; //needs to changed
+export const ONESIGNAL_ID = "fbbe319f-6c8d-4aec-afbf-4d01b9bccc2c"; //needs to changed
 
 
 export const SHOW_LANGUAGE = [
