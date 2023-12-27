@@ -21,13 +21,13 @@ import Iamhere from "./pages/iamhere";
 import ContactUs from "./pages/contactUs";
 import Bookings from  "./pages/booking";
 import AddBooking from  "./pages/addNewBooking";
-import PaymentReceipt from  "./pages/paymentReceipt";
+// import PaymentReceipt from  "./pages/paymentReceipt";
 // import Payment from  "./pages/payment";
 import Profile from  "./pages/profile";
 import History from  "./pages/history";
 import SelectLanguage from  "./pages/selectLanguage";
 import Share from  "./pages/share";
-import { useDispatch } from 'react-redux';
+import { useDispatch,useSelector } from 'react-redux';
 import { setData } from "./redux/action";
 import OneSignal from 'react-native-onesignal';
 import { updateUserToken, getUserData, getUserBlockedNotifications } from "./repo/repo";
@@ -44,7 +44,7 @@ export default () => {
     const [screenType, setScreenType] = useState("");
     const dispatch = useDispatch();
     const setDataAction = arg => dispatch(setData(arg));
-    const [oneSignalToken,setOneSignalToken] = useState("");
+    let { tokenFromOneSignal } = useSelector(state => state.testReducer) || {};
 
    const setLanguage = async () => {
         let selectedLanguage = await AsyncStorage.getItem(SELECTEDLANGUAGE);
@@ -56,7 +56,6 @@ export default () => {
         OneSignal.setAppId(ONESIGNAL_ID);
         setTimeout(async () => {
             const deviceState = await OneSignal.getDeviceState();
-            setOneSignalToken(deviceState.userId);
 
             if(deviceState.userId!=null){
                 setDataAction({tokenFromOneSignal:deviceState.userId ||""}); 
@@ -84,8 +83,8 @@ export default () => {
         if(!userInfo){
             return setScreenType(PAGES.SELECTLANGUAGE);
         }
-        setDataAction({ userInfo, loading: { show: false } });
-        // await updateToken(userInfo); //not there in saathi app
+        setDataAction({ userInfo});
+        await updateToken(userInfo);
         setScreenType(PAGES.HOME);
         // initApps(userInfo);
         AsyncStorage.setItem(USERINFO, JSON.stringify(userInfo));
@@ -98,18 +97,17 @@ export default () => {
         // setConfig();
     }
     
-    getBlockedNotifications = async userInfo => {
-        let blockedNotifications = await getUserBlockedNotifications(userInfo);
-        setDataAction({ blockedNotifications })
-    }
+  
 
-    // updateToken = async userInfo => {
-    //     if(userInfo.token) return;
-    //     setTimeout(async () => {
-    //         // let token = await AsyncStorage.getItem(TOKEN);
-    //         updateUserToken(userInfo,oneSignalToken);
-    //     }, 1000);
-    // }
+    const updateToken = async userInfo => {
+        if(userInfo?.token) return;
+        let token = await AsyncStorage.getItem(TOKEN) || tokenFromOneSignal || "";
+        userInfo.token = token;
+        updateUserToken(userInfo,token);
+        setDataAction({ userInfo });
+        AsyncStorage.setItem(USERINFO, JSON.stringify(userInfo));
+      
+    }
 
     if(!screenType) return null;
 
@@ -151,7 +149,7 @@ export default () => {
                 <Drawer.Screen component={ContactUs} name={PAGES.CONTACTUS} />
                 <Drawer.Screen component={Bookings} name={PAGES.BOOKING} />
                 <Drawer.Screen component={AddBooking} name={PAGES.ADDNEWBOOKING} />
-                <Drawer.Screen component={PaymentReceipt} name={PAGES.PAYMENTRECEIPT} />
+                {/* <Drawer.Screen component={PaymentReceipt} name={PAGES.PAYMENTRECEIPT} /> */}
                 <Drawer.Screen component={Profile} name={PAGES.PROFILE} />
                 <Drawer.Screen component={History} name={PAGES.HISTORY} />
                 <Drawer.Screen component={SelectLanguage} name={PAGES.SELECTLANGUAGE}/>

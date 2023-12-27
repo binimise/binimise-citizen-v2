@@ -7,8 +7,8 @@ import Header from "../components/header";
 
 import {getAcknowledge,getVehicleGeo } from "./../repo/repo";
 import {Calendar,LocaleConfig} from 'react-native-calendars';
-import {Color,getCurrentDateFmt,getCurrentDate} from "./../global/util";
-import { useFocusEffect } from '@react-navigation/native';
+import {Color,getCurrentDateFmt,getCurrentDate,PAGES} from "./../global/util";
+import { useFocusEffect,useIsFocused,useNavigationState } from '@react-navigation/native';
 const { width, height } = Dimensions.get('window');  
 import IconAnt from 'react-native-vector-icons/AntDesign';
 import Icon from 'react-native-vector-icons/FontAwesome5';
@@ -37,57 +37,71 @@ LocaleConfig.locales["or"] = {
   today: "ଆଜ",
 };
 
-const showGarbageTypeColor = (colorType,text) =>{
-  return  <View row ml={10} mt={30}>
-  <Text h={20} w={20} bc={colorType}/>
-  <Text h={20} ml={10} t={text}/>
-</View>
-}
+
 const showTextAndValue = (text,value) =>{
   return <View row ml={10} mt={30}>
   <Text h={20} t={text} b/>
   <Text t={" : "}/>
   <Text h={20} ml={10} t={value}/>
 </View>
-}
+};
 
 export default ({ navigation }) => {
 
-    const dispatch = useDispatch();
-    const setDataAction = (arg) => dispatch(setData(arg));
-    const [isShowCalendar,setIsShowCalendar] = useState(true);
-    const [day,setDay] =useState("");
-    const [deviceGeo,setDeviceGeo] = useState("");
-    const [vehicles, setVehicles] = useState([]);
-    const [vehicleHistory,setVehicleHistory] = useState([]);
-    const [index,setIndex] =useState(0);
-    const [isMapShow, setIsMapShow] = useState(false);
-    const [date,setDate]=useState("")
-    const [allDaysOfMonth,setAllDaysofMonth] = useState([]);
-    const [routes, setroutes] = useState([]);
-    let { userInfo,selectedLanguage } = useSelector(state => state.testReducer) || {};
-    const [saathiMonthlyAttendance,setSaathiMonthlyAttendance] = useState([])
-    const [remainingDatesOfMonth,setRemainingDatesOfMonth] = useState([])
-    const [acknowledgeArray,setAcknowledgeArray] = useState([]);
-    const [datesObj,setDatesObj] = useState({});
-    const [selectedAckObj,setSelectedAckObj] = useState({})
-    LocaleConfig.defaultLocale = selectedLanguage;
+  const dispatch = useDispatch();
+  const setDataAction = (arg) => dispatch(setData(arg));
+  let { userInfo, selectedLanguage } = useSelector(state => state.testReducer) || {};
+  const [acknowledgeArray, setAcknowledgeArray] = useState([]);
+  const [datesObj, setDatesObj] = useState({});
+  const [selectedAckObj, setSelectedAckObj] = useState({});
+  const navigationValue = useNavigationState(state => state);
+  const routeName = (navigationValue.routeNames[navigationValue.index]);
+  const isFocus = useIsFocused();
+  LocaleConfig.defaultLocale = selectedLanguage;
 
+  const getBackgroundColorOfDate = (eachDoc) => {
+    return eachDoc?.segregation ? "green" : (eachDoc?.acknowledge ? '#F6BE00' : '#800000')
+  }
 
-    useEffect(() => {
-        // getSaathiAttendanceData(getCurrentDate())
-        getDateAndMonthInHistory(getCurrentDate())
-    }, []);
+  useEffect(() => {
+    if (routeName === PAGES.HISTORY) {
+      const backAction = () => {
+        navigation.navigate(PAGES.HOME);
+        return true;
+      };
+      const backHandler = BackHandler.addEventListener(
+        "hardwareBackPress",
+        backAction
+      );
+      return () => backHandler.remove();
+    }
+  });
 
-    const getDateAndMonthInHistory = (selectedDate)=>{
-      let currentMonth = new Date().getMonth()+1
+  useEffect(() => {
+    if(isFocus){
+      getDateAndMonthInHistory(getCurrentDate());
+    }
+    
+    setSelectedAckObj({});
+  }, [isFocus]);
+
+  const getDateAndMonthInHistory = (selectedDate) => {
+    setSelectedAckObj({});
+    let selectedMonth = new Date(selectedDate);
+    let currentDate = new Date();
+    if (
+      selectedMonth.getFullYear() <= currentDate.getFullYear() ||
+      (selectedMonth.getFullYear() === currentDate.getFullYear() &&
+        selectedMonth.getMonth() <= currentDate.getMonth())
+    ) {
+      let currentMonth = new Date().getMonth() + 1
       let d_arr = [];
       let dt = new Date(selectedDate);
       let month = dt.getMonth() + 1;
       let day = dt.getDate();
       let year = dt.getFullYear();
       let daysInMonth = new Date(year, month, 0).getDate();
-      let TotalDays= (currentMonth == month)?day:daysInMonth;
+      let TotalDays = (currentMonth == month) ? day : daysInMonth;
       for (let i = 1; i <= TotalDays; i++) {
         if (i.toString().length < 2) {
           i = "0" + i;
@@ -98,53 +112,58 @@ export default ({ navigation }) => {
         let d = (year + "-" + month + "-" + i).toString();
         d_arr.push(d)
       }
-      setAllDaysofMonth(d_arr);
-      getSaathiAttendanceData(d_arr)
-    }
-     
+      getSaathiAttendanceData(d_arr);
 
-  const getSaathiAttendanceData =async(daysInMonth) =>{
-    try{
-      toggleLoading(true);
+    } else {
       setAcknowledgeArray([]);
-      let Ack_arr=[]
-      for (let i = 0; i < daysInMonth.length; i++) {
-        let d= daysInMonth[i]
-        await getAcknowledge(d,userInfo?.authUid).then((querySnapshot) => {
-          let queryData=querySnapshot.data()
-          if(queryData?.acknowledge && !queryData?.segregation){
-            queryData.d=d;queryData.type ="Ack"
-            Ack_arr.push(queryData);
-          }else if(queryData?.acknowledge &&queryData?.segregation){
-            queryData.d=d;queryData.type ="seg"
-            Ack_arr.push(queryData);
-          }else{
-            Ack_arr.push({d:d,type:"rem"})
-          }
-        });
-      }
-      const obj = {}
-      Ack_arr.forEach((elem, i) => {
-        if(elem.type=="rem"){
-          obj[elem.d] = {customStyles:{container: {backgroundColor: '#800000'},text:{color:"black"}}}
-        }else if(elem.type=="Ack"){
-          obj[elem.d] = {customStyles:{container: {backgroundColor: '#F6BE00'},text:{color:"black"}}}
-        }else if(elem.type=="seg"){
-          obj[elem.d] = {customStyles:{container: {backgroundColor: 'green'},text:{color:"black"}}}
-        }
-      })
-      setAcknowledgeArray(Ack_arr);
-      setDatesObj(obj);
-      toggleLoading(false);
-    }catch(e){
-      console.log(e)
+      setDatesObj({});
+      setSelectedAckObj({});
     }
   }
 
-  const toggleLoading = show => {
-    setDataAction({"loading": {show}});
+  const getSaathiAttendanceData = async (daysInMonth) => {
+    try {
+      setDataAction({ loading: { show:true } });
+      setAcknowledgeArray([]);
+      let Ack_arr = [];
+      await Promise.all([...daysInMonth].map((date) => getAcknowledge(date, userInfo?.authUid))).then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          Ack_arr.push(doc);
+        });
+        getDateWiseStatusOfStaff(Ack_arr);
+        setAcknowledgeArray(Ack_arr);
+      })
+        .catch((error) => {
+          setDataAction({ loading: { show:false } });
+          console.log('Error querying documents:', error);
+        });
+    } catch (e) {
+      setDataAction({ loading: {show:false } });
+    }
+  }
+  
+  const getDateWiseStatusOfStaff = (monthlyreport) =>{
+    try{
+      const obj = {};
+      monthlyreport.forEach((elem, i) => {
+          obj[elem?.id] = {
+              customStyles:{container: {backgroundColor: getBackgroundColorOfDate(elem?.item)},
+              text:{color:"black"}}
+          }
+      })
+      setDatesObj(obj);
+      if(monthlyreport?.length>0){
+        let dateStirng = monthlyreport[monthlyreport.length-1].id ||getCurrentDateFmt();
+        _onDayPress(dateStirng,monthlyreport);
+    }
+
+    }catch(e){
+      setDataAction({ loading: { show:false } });
+      console.log("e",e)
+    }
   }
 
+ 
   const showErrorModalMsg = (message, title = "message") => {
     setDataAction({ 
       errorModalInfo : {
@@ -153,73 +172,92 @@ export default ({ navigation }) => {
     })
   };
 
-  const _onDayPress = async (da) => {
-
+  const _onDayPress = async (s_date,acknowledgeArray) => {
     try{
         let filterdata = acknowledgeArray.find(function (element) {
-          return element.d == da.dateString&&element.id;
+          return element.id == s_date&&element?.item?.id;
       });
-      if(filterdata){
-        let c_t=  new Date(filterdata?.time_stamp?.seconds).toLocaleString();
-        // console.log("y",c_t.getUTCFullYear(),"m",c_t.getUTCMonth(),"d",c_t.getUTCDate(),"t",c_t.getUTCHours(),c_t.getUTCMinutes())
-        filterdata.c_t =c_t;
-        setSelectedAckObj(filterdata);
-        setIsShowCalendar(false);
+     
+      if(filterdata?.item){
+        let convertedTime = "";
+        if(filterdata?.item?.timestamp){
+          const date = new Date(filterdata?.item?.timestamp);
+          console.log("date.getMinutes().length",date.getMinutes().length,typeof(date.getMinutes().length))
+          let dd = date?.getDate();
+          let mm = date?.getMonth()+1;
+          let hr = date?.getHours();
+          let min = date?.getMinutes();
+          dd = dd.toString().length<2? '0' + dd :dd;
+          mm = mm.toString().length<2? '0' + mm :mm;
+          hr = hr.toString().length<2? '0' + hr :hr;
+          min = min.toString().length<2? '0' + min :min;
+         
+          let yy = date.getFullYear();
+          convertedTime = `${dd}-${mm}-${yy} ${hr} : ${min}`;
+        }
+        filterdata.item.dateId = s_date?.split("-").reverse("").join("-") ||"";
+        filterdata.item.c_t = convertedTime;
+        setSelectedAckObj(filterdata?.item);
+        setDataAction({ "loading": { show:false } });
       }else{
-        return showErrorModalMsg("no_data_found");
+        setDataAction({ "loading": { show:false } });
+        let revDate = s_date?.split("-").reverse("").join("-") || getCurrentDateFmt()
+        return showErrorModalMsg(["no_data_found"," ",revDate]);
       }
-    }catch(e){console.log(e)}
+    }catch(e){
+      setDataAction({ "loading": { show:false } });
+    }
   
   }
-
-
-
-  return <View c={"white"} h={height} w={width}>
-    <Header navigation={navigation} headerText={"history"}/>
-    {isShowCalendar?<View>
+  return (
+    <View w={"100%"} h={"100%"} c={"white"}>
+      <Header navigation={navigation} headerText={"history"} />
+      <ScrollView style={{ marginBottom: 20 }}>
+        <View mt={10} />
         <Calendar
-          onDayPress={_onDayPress}
-          onMonthChange={month => {  getDateAndMonthInHistory(month.dateString)}}
+          onDayPress={(date) => {
+            // toggleLoading(true);
+            setSelectedAckObj({})
+            _onDayPress(date.dateString,acknowledgeArray)
+          }}
+          onMonthChange={month => { getDateAndMonthInHistory(month.dateString) }}
           markedDates={datesObj}
           markingType={'custom'}
         />
-        {
-          showGarbageTypeColor(Color.green,"garbage_collected")
+        <View mt={10} />
+         {Object.keys(selectedAckObj).length === 0?null:
+        
+        <View ml={"5%"}>
+                <Text t={["history_t","  ",selectedAckObj?.dateId]} b s={20} />
+                {
+                  showTextAndValue("name", selectedAckObj?.name)
+                }
+                {
+                  showTextAndValue("phoneNumber", selectedAckObj?.phoneNumber)
+                }
+                {
+                  showTextAndValue("area", selectedAckObj?.ward_id)
+                }
+                {
+                  showTextAndValue("attended_by", selectedAckObj?.saathiUser?.name)
+                }
+                {
+                  showTextAndValue("time", selectedAckObj?.c_t)
+                }
+                {
+                  showTextAndValue("acknowledgement", selectedAckObj?.acknowledge ? selectedAckObj?.acknowledge.toString() : "false")
+                }
+                {
+                  showTextAndValue("segregation", selectedAckObj?.segregation ? selectedAckObj?.segregation.toString() : "false")
+                }
+
+        </View>
+        
+                
         }
-        {
-          showGarbageTypeColor("#F6BE00","garbage_segregation")
-        }
-        {
-          showGarbageTypeColor("#800000","garbage_picker_absent")
-        }
-      </View>:
-      <View w={"90%"} bw={1} h={"100%"} ml={10} mt={10} mb={10}>
-        {
-          showTextAndValue("name",selectedAckObj?.name)
-        }
-        {
-          showTextAndValue("phoneNumber",selectedAckObj?.phoneNumber)
-        }
-        {
-          showTextAndValue("area",selectedAckObj?.ward_id)
-        }
-        {
-          showTextAndValue("attended_by",selectedAckObj?.saathiUser?.name)
-        }
-        {
-          showTextAndValue("time",selectedAckObj?.c_t)
-        }
-        {
-          showTextAndValue("acknowledgement",selectedAckObj?.acknowledge?selectedAckObj?.acknowledge.toString():"false")
-        }
-        {
-          showTextAndValue("segregation",selectedAckObj?.segregation?selectedAckObj?.segregation.toString():"false")
-        }
-        <Touch jc bc={Color.themeColor} h={48} mt={20} c={Color.themeFontColor} 
-           w={"90%"}  br={4} mh={10} s={16} t={'go_to_c'} onPress={()=>{setIsShowCalendar(true)}} 
-        />
        
-      </View>}
-  </View>
+      </ScrollView>
+    </View>
+  )
   
 }

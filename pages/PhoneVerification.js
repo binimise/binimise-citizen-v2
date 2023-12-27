@@ -68,18 +68,7 @@ export default PhoneVerification = ({ navigation }) => {
     }
   });
 
-  // const getCameraPermission = async ()  => {
-  //   await Camera.requestCameraPermissionsAsync();
-  // }
-
-  // const getLocationPermission = async () => {
-  //   try {
-  //      await Location.requestForegroundPermissionsAsync();
-  //      await Location.enableNetworkProviderAsync();
-  //   }catch(e){
-  //     console.log(e);
-  //   }
-  // }
+ 
 
 
 
@@ -166,6 +155,10 @@ export default PhoneVerification = ({ navigation }) => {
     });
   };
   const verifyPhoneNumber = (phoneNumber) => {
+    if(!phoneNumber){
+      showErrorModal("please_enter_number");
+      return false;
+    }
     if (!phoneNumber || phoneNumber.length != 10) {
       showErrorModal("please_enter_valid_phoneNumber");
       return false;
@@ -202,54 +195,19 @@ export default PhoneVerification = ({ navigation }) => {
       setDataAction({ userInfo });
       await AsyncStorage.setItem(USERINFO, JSON.stringify(userInfo));
       await updateTokenInLogin(userInfo);
-      // await getAllStaffs(userInfo);
       resetHomeRoute(PAGES.HOME);
    
     }
   };
 
-  const getAllStaffs = async (userObj) => {
-    let s_name = userObj.name;
-    try {
-      if(userObj.isSupervisor){
-        let staffObj = await AsyncStorage.getItem(STAFF_OBJ_STORAGE);
-        if (!staffObj) {
-          let saathi_list = {};
-          let message = "Getting staff data";
-          setDataAction({ loading: { show: true, message } });
-          let s_data = await fetchAssignedStaff(s_name);
-          s_data?.docs?.map((eachSaathi) => {
-              let doc_id = eachSaathi.id;
-              let obj = createNewDocOfSaathi(eachSaathi.data());
-              saathi_list[doc_id] = obj;
-          });
-          saathi_list[userObj[AUTHUID]] = userObj;
-         
-          setDataAction({ 
-            allSaathiObj: saathi_list, 
-            loading: { show: false } 
-          });
-          await AsyncStorage.setItem(STAFF_OBJ_STORAGE, JSON.stringify(saathi_list));
-        }else{
-          let parsedObj = JSON.parse(staffObj);
-          setDataAction({ allSaathiObj: parsedObj});
-        }
-      }
-     } catch (e) {
-      
-        setDataAction({loading:{show:false}})
-        throw e;
-    }
-  }
-
   const updateTokenInLogin = async userInfo => {
     if(!userInfo.token){
-      updateUserToken(userInfo, tokenFromOneSignal);
+      let token = await AsyncStorage.getItem(TOKEN) || tokenFromOneSignal || "";
+      userInfo.token = token;
+      updateUserToken(userInfo, token);
+      setDataAction({ userInfo });
+      AsyncStorage.setItem(USERINFO, JSON.stringify(userInfo));
     }
-    // if(userInfo.token) return;
-    // setTimeout(async () => {
-    //   await updateUserToken(userInfo, tokenFromOneSignal);
-    // }, 2000);
   }
  
 

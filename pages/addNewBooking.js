@@ -9,7 +9,7 @@ import {updateTasks,getTasksFromSettings } from "./../repo/repo";
 import { Color, PAGES,getCurrentDate,TOKEN,AUTHUID,APP_CONFIG} from '../global/util';
 import IconAnt from 'react-native-vector-icons/AntDesign';
 import {Calendar} from 'react-native-calendars';
-import {useNavigationState} from '@react-navigation/native';
+import {useNavigationState,useIsFocused} from '@react-navigation/native';
 let {height,width} = Dimensions.get("window")
 
 
@@ -22,18 +22,41 @@ export default ({ navigation }) => {
   // let userInfo = useSelector(state => state.testReducer.userInfo) || {};
   const [selectedWasteType, setSelectedWasteType] = useState({});
   const [isCalendarShow, setIsCalendarShow] = useState(false);
-  const [day, setDay] = useState();
-  const [bookingType,setBookingType] =useState();
+  const [day, setDay] = useState("");
   const [bookingObj, setBookingObj] = useState({});
   const [typesOfRequestVehicle,setTypesOfRequestVehicle] = useState([]);
   const [isBookingListShow,setIsBookingListShow] = useState(false);
   const navigationValue = useNavigationState(state => state);
   const routeName = (navigationValue.routeNames[navigationValue.index]);
   let { userInfo,selectedLanguage} = useSelector(state => state.testReducer) || {};
+  const isFocus = useIsFocused();
+
+  const toggleLoadingInNewB = show => {
+    setDataAction({"loading": {show}});
+  } 
+  const showErrorModalMsg = (message, title = "message") => {
+    setDataAction({ 
+      errorModalInfo : {
+        showModal : true, title, message
+      }
+    })
+  };
  
   useEffect(() => {
-    if(routeName === "AddNewBooking"){
+    if(routeName === PAGES.ADDNEWBOOKING){
       const backAction = () => {
+        if(isBookingListShow){
+          setIsBookingListShow(false);
+          return true;
+        }
+        if(isConfirmPayment){
+          setIsConfirmPayment(false);
+          return true;
+        }
+        if(isCalendarShow){
+          setIsCalendarShow(false);
+          return true;
+        }
         navigation.navigate(PAGES.BOOKING)
         return true;
       };
@@ -44,11 +67,19 @@ export default ({ navigation }) => {
       return () => backHandler.remove();
     }
   });
+  
+  useEffect(() =>{
+    if(isFocus){
+      setBookingObj(Object.assign({}, bookingObj, {name:userInfo.name, phoneNumber : userInfo.phoneNumber }));
+    }else{
+      setBookingObj({});
+      setSelectedWasteType({});
+      setDay("");
+    }
+  },[isFocus])
 
   useEffect(() => {
-    setBookingObj(Object.assign({}, bookingObj, {name:userInfo.name, phoneNumber : userInfo.phoneNumber }));
-    getTasksSetting();
-     
+   getTasksSetting();
   }, []);
 
   const getTasksSetting = async() => {
@@ -68,17 +99,26 @@ export default ({ navigation }) => {
       setIsCalendarShow(false)
   }
 
+  const handleCloseSaveModal = () =>{
+    if(!selectedWasteType?.name){
+      showErrorModalMsg("please_select_b_type");
+      return;
+    }
+    setIsBookingListShow(false);
+    
+  }
+
   if(isBookingListShow){
     return(
       <View a c={Color.backgroundModalColor} jc ai zi={999} to={0} le={0} h={height} w={width}>
-          <View w={width - 48} br={8} c={Color.white} jc pa={16} h={"80%"}>
-            <Text t={"select_type"} center s={20} />
+          <View w={width - 48} br={8} c={Color.white} jc pa={16} style={{height:"auto",minHeight:100}}>
+            <Text t={"please_select_b_type"} center s={20} />
             <View w={"90%"} bw={0.5} mh={"5%"} bc={"black"} mb={"4%"}/>
             <ScrollView>
               {typesOfRequestVehicle.length>0&&typesOfRequestVehicle.map((each,index)=>{
                 return(
                   <Touch h={40} w={"90%"} ml={"5%"} row key={index} ai
-                    onPress={() => {setSelectedWasteType(each);  setBookingType(each.name);}}>
+                    onPress={() => {setSelectedWasteType(each);}}>
                     <View style={styles.radioCircle}>
                       {each.name===selectedWasteType?.name && <View style={styles.selectedRb} />}
                     </View>
@@ -90,27 +130,22 @@ export default ({ navigation }) => {
             <View w={"90%"} bw={0.5} mh={"5%"} bc={"black"}/>
               <View row jc>
                 <Touch h={40} w={"40%"} jc ai t={"close_c"} mb={4} boc={"#F0F0F0"} bc={"red"}
-                  mt={2} mr={10} bw={2} br={8} onPress={() =>{setIsBookingListShow(false)}}/>
+                  mt={2} mr={10} bw={2} br={8} onPress={() =>{
+                    setIsBookingListShow(false);
+                    setSelectedWasteType({})}}
+                  />
                 <Touch h={40} w={"40%"} jc ai t={"submit"} mb={4} boc={"#F0F0F0"} bc={"green"}
-                  mt={2} bw={2} br={8} onPress={() =>{setIsBookingListShow(false)}}/>
+                  mt={2} bw={2} br={8} onPress={handleCloseSaveModal}/>
               </View>
           </View>
       </View>
     )
   }
-  const toggleLoadingInNewB = show => {
-        setDataAction({"loading": {show}});
-  }
+  
    
   const formOnChangeTask = (field, value) => setBookingObj(Object.assign({}, bookingObj, {[field] : value}));
 
-  const showErrorModalMsg = (message, title = "message") => {
-      setDataAction({ 
-        errorModalInfo : {
-          showModal : true, title, message
-        }
-      })
-  };
+  
 
   const newBookingObjForUser = ({userInfo}) => {
     let _userObj={}
@@ -122,7 +157,7 @@ export default ({ navigation }) => {
     _userObj["name"] = userInfo.name ;
     _userObj["address"] = userInfo.address ||"";
     _userObj["phoneNumber"] = userInfo.phoneNumber ;
-    _userObj["municipality"] = userInfo.municipality  || "buguda";
+    _userObj["municipality"] = userInfo.municipality  || "chatrapur";
     return _userObj;
   }
 
@@ -131,13 +166,13 @@ export default ({ navigation }) => {
       toggleLoadingInNewB(true);
       bookingObj["bookingFor"] = day;
       bookingObj["selectedWasteType"] = selectedWasteType;
-  
       let location = {};
       try{
         location = await Location.getLastKnownPositionAsync({enableHighAccuracy: true});
         
       }catch(e){}
-      bookingObj["location"] = { latitude : location?.coords?.latitude ||19.0840319, longitude : location?.coords?.longitude || 82.0222439 }
+      bookingObj["location"] = { latitude : location?.coords?.latitude ||APP_CONFIG.COORDINATES.coords.latitude, 
+                longitude : location?.coords?.longitude || APP_CONFIG.COORDINATES.coords.longitude }
       let __userObj = newBookingObjForUser({ userInfo });
       updateTasks(bookingObj, __userObj);
       toggleLoadingInNewB(false);
@@ -272,10 +307,7 @@ export default ({ navigation }) => {
                 showConfirmDetails("mobile_num",userInfo.phoneNumber,8)
               }
               {
-                showConfirmDetails("emailid",userInfo.email,8)
-              }
-              {
-                showConfirmDetails("req_veh",bookingType,8)
+                showConfirmDetails("req_veh",selectedWasteType?.name,8)
               }
               {
                 showConfirmDetails("bookedFor",day,8)

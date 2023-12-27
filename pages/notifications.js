@@ -8,7 +8,7 @@ import Header from "../components/header";
 import Modal from "./../components/modal";
 import { Color, generateUUID, TOKEN, FEATURES,PAGES } from '../global/util';
 import { getNotifications } from "./../repo/repo";
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect,useNavigationState } from '@react-navigation/native';
 let { height } = Dimensions.get("window");
 
 export default ({ navigation }) => {
@@ -20,8 +20,24 @@ export default ({ navigation }) => {
     const [notification, setNotification] = useState({});
     const [isFetching, setIsFetching] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const navigationValue = useNavigationState(state => state);
+    const routeName = (navigationValue.routeNames[navigationValue.index]);
     let { userInfo, blockedNotifications } = useSelector(state => state.testReducer) || {};
     
+    useEffect(() => {
+        if(routeName === PAGES.NOTIFICATIONS){
+          const backAction = () => {
+            navigation.navigate(PAGES.HOME);
+            return true;
+          };
+          const backHandler = BackHandler.addEventListener(
+            "hardwareBackPress",
+            backAction
+          );
+          return () => backHandler.remove();
+        }
+    });
+
     const getAllNotifications = async () => {
         let notifications = await userInfo?.ward?.length>0?getNotifications(userInfo):[];
         if(!notifications || !notifications.length){

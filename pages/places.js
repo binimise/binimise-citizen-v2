@@ -9,6 +9,7 @@ import PlacesFilter from "./../components/placesFilter";
 import { getPlaces,getAppSettings } from "./../repo/repo";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {getDistance, getPreciseDistance} from 'geolib';
+import { useNavigationState,useIsFocused } from '@react-navigation/native';
 import * as Location from 'expo-location';
 
 export default ({ navigation }) => {
@@ -18,7 +19,23 @@ export default ({ navigation }) => {
     const setDataAction = (arg) => dispatch(setData(arg));
     const [places, setPlaces] = useState([]);
     const [welcomeMessage,setWelcomeMessage] = useState("");
+    const navigationValue = useNavigationState(state => state);
+    const routeName = (navigationValue.routeNames[navigationValue.index]);
     let { userInfo,selectedLanguage } = useSelector(state => state.testReducer) || {};
+
+    useEffect(() => {
+        if(routeName === PAGES.PLACES){
+          const backAction = () => {
+            navigation.navigate(PAGES.HOME);
+            return true;
+          };
+          const backHandler = BackHandler.addEventListener(
+            "hardwareBackPress",
+            backAction
+          );
+          return () => backHandler.remove();
+        }
+    });
 
     filterMapView = () => setMapModal(true);
 

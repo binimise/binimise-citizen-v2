@@ -44,7 +44,7 @@ export default ({ navigation }) => {
     let { userInfo,selectedLanguage} = useSelector(state => state.testReducer) || {};
 
     
-    _onPressSidebar = async (item) => {
+    const _onPressSidebar = async (item) => {
         if(item.id == PAGES.LOGOUT) {
             setDataAction({
                 confirmModalInfo : {
@@ -81,20 +81,25 @@ export default ({ navigation }) => {
         navigation.closeDrawer();
     }
 
+    const showErrorModalMsg = (message, title = "message") => {
+        
+    };
+
     const exitFromApp = ()=>{
-        let text1=selectedLanguage == "en"?"Hold on!":"पकड़ना!"
-        let text2 = selectedLanguage == "en"?"Confirmation to exit?":"बाहर निकलने की पुष्टि?"
-        let c_text = selectedLanguage == "en"?"Cancel":"बंद करे"
-        let y_text = selectedLanguage == "en"?"Yes":"हां"
-        Alert.alert(
-            text1,
-            text2,
-            [
-              {text: c_text, onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-              {text: y_text, onPress: () => {navigation.closeDrawer();BackHandler.exitApp()}},
-            ],
-            { cancelable: false });
-            return true;
+        setDataAction({ 
+            confirmModalInfo : {
+                showModal : true,
+                title : "message",
+                message : "confirm_to_exit",
+                primaryAction : () =>{
+                    setDataAction({confirmModalInfo:{showModal: false}})
+                    navigation.closeDrawer();
+                    navigation.navigate(PAGES.HOME);
+                    BackHandler.exitApp();
+                }
+            }
+        })
+      
     }
 
     return <SafeAreaView style={{ flex : 1}}>

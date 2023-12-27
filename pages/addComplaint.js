@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Dimensions, BackHandler,StyleSheet,TouchableOpacity,Image , ScrollView} from "react-native";
+import { Dimensions, BackHandler,StyleSheet,TouchableOpacity,Image , ScrollView,Linking} from "react-native";
 import { View, Text, TextInput, Touch, Picker, Loading } from "../ui-kit";
 import Header from "../components/header";
 import { AUTHUID, Color, generateUUID, PAGES, TOKEN,APP_CONFIG } from "../global/util";
 import { useDispatch, useSelector } from 'react-redux';
 import { setData } from "./../redux/action";
-import { Camera } from 'expo-camera';
+import { Camera,CameraType } from 'expo-camera';
 import { updateComplaints,getComplaintsFromSettings } from "./../repo/repo";
 import firebase from "./../repo/firebase";
 import * as Location from 'expo-location';
@@ -13,7 +13,8 @@ import MapView,{Marker} from 'react-native-maps';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import IconAnt from 'react-native-vector-icons/AntDesign';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import {useNavigationState} from '@react-navigation/native';
+import MaterialIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import {useIsFocused, useNavigationState} from '@react-navigation/native';
 let { width, height } = Dimensions.get("window");
 
 
@@ -25,7 +26,6 @@ export default ({ navigation }) => {
   const [complaintObj, setComplaintObj] = useState({});
   const navigationValue = useNavigationState(state => state);
   const routeName = (navigationValue.routeNames[navigationValue.index]);
-  const [hasPermission, setHasPermission] = useState(null);
   const [type, setType] = useState(Camera.Constants.Type.back);
   const [camera, setCamera] = useState({});
   const [imageUrl, setImageUrl] = useState("");
@@ -35,13 +35,29 @@ export default ({ navigation }) => {
   const [ispickerShow,setIsPickerShow] = useState(false);
   const storageRef = firebase().firebase.storage();
   const [typesOfGarbageDump,setTypesOfGarbageDump] = useState([]);
-  // let userInfo = useSelector(state => state.testReducer.userInfo) || {};
+  const isFocus = useIsFocused();
   let { userInfo,selectedLanguage} = useSelector(state => state.testReducer) || {};
 
+  const loadingInAddComplaint = show => {
+    setDataAction({"loading": {show:show,message:"image_loading"}});
+  }
+  
   useEffect(() => {
     if(routeName === "AddComplaint"){
       const backAction = () => {
-        navigation.navigate(PAGES.COMPLAINT)
+        if(ispickerShow){
+          setIsPickerShow(false);
+          return true;
+        }
+        if(startCamera){
+          setStartCamera(false);
+          return true;
+        }
+        if(imageModal){
+          setImageModal(false);
+          return true;
+        }
+        navigation.navigate(PAGES.COMPLAINT);
         return true;
       };
       const backHandler = BackHandler.addEventListener(
@@ -52,33 +68,38 @@ export default ({ navigation }) => {
     }
   });
 
+  useEffect(() =>{
+    if(isFocus){
+      setComplaintObj(Object.assign({}, complaintObj, {name:userInfo.name, phoneNumber : userInfo.phoneNumber }));
+      getCurrentLocation();
+    }else{
+      setComplaintObj({});
+      setImageUrl("")
+    }
+  },[isFocus])
+
   useEffect(() => {
-    setComplaintObj(Object.assign({}, complaintObj, {name:userInfo.name, phoneNumber : userInfo.phoneNumber }));
-    (async () => {
-      const { status } = await Camera.requestCameraPermissionsAsync();
-      setHasPermission(status === 'granted');
-    })();
-    getComplaintsSettings();
-    getAddress();
+   getComplaintsSettings();
   }, []);
 
 
   const getComplaintsSettings = async() => {
     let complaintsData = await getComplaintsFromSettings();
-    console.log("c",complaintsData)
+  
     let complaintsArray = [];
     (complaintsData || []).map((key) => {
       complaintsArray.push({name :key,id:key});
     });
     setTypesOfGarbageDump(complaintsArray);
   }
-  console.log("t",typesOfGarbageDump)
-  const getAddress =async ()=>{
-    let location = await Location.getLastKnownPositionAsync({enableHighAccuracy: true});
-    let lat = location?.coords?.latitude ||APP_CONFIG.COORDINATES.coords.latitude ,
-      long = location?.coords?.longitude ||APP_CONFIG.COORDINATES.coords.longitude ;
-    let _latlng = { latitude : lat, longitude : long }
-    formOnChangeComText("location",_latlng);
+
+  const getCurrentLocation = async () => {  
+        let location = await Location.getLastKnownPositionAsync({enableHighAccuracy: true});
+            let lat = location?.coords?.latitude ||APP_CONFIG.COORDINATES.coords.latitude ;
+            let long = location?.coords?.longitude ||APP_CONFIG.COORDINATES.coords.longitude ;
+            let _latlng = { latitude : lat, longitude : long };
+            formOnChangeComText("location",_latlng);
+     
   };
 
   const _updateUserData = ({userInfo}) => {
@@ -122,7 +143,7 @@ export default ({ navigation }) => {
     navigation.navigate(PAGES.COMPLAINT);
     
   }
-
+  console.log("cc",complaintObj)
   const errorModal = message => {
     setDataAction({
       errorModalInfo : {
@@ -132,9 +153,7 @@ export default ({ navigation }) => {
     });
   }
 
-  const loadingInAddComplaint = show => {
-    setDataAction({"loading": {show:show,message:"image_loading"}});
-  }
+  
 
   const formOnChangeComText = (field, value) => setComplaintObj(Object.assign({}, complaintObj, {[field] : value}));
  
@@ -176,11 +195,20 @@ export default ({ navigation }) => {
     )
   }
 
+  const handleCloseSaveModal = () =>{
+    if(!complaintObj?.typesOfComplaint){
+      errorModal("please_select_c_type");
+      return;
+    }
+    setIsPickerShow(false);
+    
+  }
+
   if(ispickerShow){
     return(
       <View a c={Color.backgroundModalColor} jc ai zi={999} to={0} le={0} h={height} w={width}>
-          <View w={width - 48} br={8} c={Color.white} jc pa={16} h={"90%"}>
-            <Text t={"select_type"} center s={20} />
+          <View w={width - 48} br={8} c={Color.white} jc pa={16} style={{height:"auto",minHeight:100}}>
+            <Text t={"please_select_c_type"} center s={20} />
             <View w={"90%"} bw={0.5} mh={"5%"} bc={"black"} mb={"4%"}/>
             <ScrollView>
               {typesOfGarbageDump.length>0&&typesOfGarbageDump.map((each,index)=>{
@@ -189,7 +217,7 @@ export default ({ navigation }) => {
                   <Touch h={40} w={"90%"} ml={"5%"} row key={index} ai
                     onPress={() => {formOnChangeComText("typesOfComplaint", each.name)}}>
                     <View style={styles.radioCircle}>
-                      {each.name===complaintObj?.typesOfComplaint && <View style={styles.selectedRb} />}
+                      {each.name === complaintObj?.typesOfComplaint && <View style={styles.selectedRb} />}
                     </View>
                     <Text center ml={2} s={18} t={each.name} />
                   </Touch>
@@ -202,7 +230,7 @@ export default ({ navigation }) => {
                   mt={2} mr={10} bw={2} onPress={() =>{ formOnChangeComText("typesOfComplaint", "");
                   setIsPickerShow(false)}} br={8}/>
                 <Touch h={40} w={"40%"} jc ai t={"submit"} mb={4} boc={"#F0F0F0"} bc={"green"}
-                  mt={2} bw={2} onPress={() =>{setIsPickerShow(false)}} br={8}/>
+                  mt={2} bw={2} onPress={handleCloseSaveModal} br={8}/>
               </View>
           </View>
       </View>
@@ -227,25 +255,42 @@ export default ({ navigation }) => {
     </View> 
   } 
 
-  if(startCamera){
-    return( 
+  if (startCamera) {
+    return (
       <Camera
-        style={{height,width}}
-        ratio="4:3"
+        style={{ height: "100%", width: "100%" }}
         type={type}
         ref={(ref) => setCamera(ref)}
       >
-        <View a to={height-50} row jc w={width}>
-          <Touch fl={1} h={48} c={Color.white} s={16} t={"cancel"} w={width/2}
-            onPress={()=> {setStartCamera(false);}} />
-          <Touch fl={1} h={48} c={Color.white} s={16} t={"save_c"} w={width/2}
-            onPress={takePicture} />
-        </View>
-      </Camera> 
+        <Touch a to={20} le={20} h={60} bc={Color.white}
+          br={32} w={60} jc ai onPress={() => setStartCamera(false)}
+        >
+          <IconAnt size={36}
+            name={"close"}
+            color={Color.themeColor}
+          />
+        </Touch>
+        <Touch a bo={10} le={20} h={60} bc={Color.white} br={32} w={60} jc ai
+          onPress={() => { type == CameraType.front ? setType(CameraType.back) : setType(CameraType.front) }}
+        >
+          <MaterialIcons size={36}
+            name={"camera-flip-outline"}
+            color={Color.themeColor}
+          />
+        </Touch>
+        <Touch a bo={10} h={60} bc={Color.white} br={32} w={60} jc ai
+          style={{ alignSelf: "center" }} onPress={takePicture}
+        >
+          <IconAnt size={36}
+            name={"camera"}
+            color={Color.themeColor}
+          />
+        </Touch>
+      </Camera>
     )
   }
 
- 
+ console.log("c_type",complaintObj.typesOfComplaint)
   
   return (
     <ScrollView>
@@ -255,7 +300,7 @@ export default ({ navigation }) => {
         <View  w={"100%"}  bw={1} bc={"#CCCCCC"}/>
         <Touch br={4} s={16} w={'90%'} mh={"5%"} mt={"2%"} mb={"2%"} ai jc bc={"#FFFFFF"} bw={1}
           onPress={()=> {setIsPickerShow(true)}} h={48}
-          t={complaintObj?.typesOfComplaint!=null?complaintObj?.typesOfComplaint:"select_complaint"}/>
+          t={complaintObj?.typesOfComplaint ||"select_complaint"}/>
       </View>
      
       {
@@ -314,7 +359,7 @@ export default ({ navigation }) => {
           s={16} c={Color.themeFontColor} bc={"red"} b
             onPress={() => {
               setImageUrl("");
-              setComplaintObj(Object.assign({}, complaintObj, {typesOfComplaint:null,message:"" }));
+              setComplaintObj(Object.assign({}, complaintObj, {typesOfComplaint:"",message:"" }));
               navigation.navigate(PAGES.COMPLAINT);
             }}
         />
@@ -357,14 +402,7 @@ const styles = StyleSheet.create({
        height: 10,
        borderRadius: 50,
        backgroundColor: '#808080',
-       },
-       pickerContainer: {
-        width: "100%",
-        alignSelf: 'center',
-        backgroundColor:"white"
-        
-      }
-  
+       }
 
 });
 

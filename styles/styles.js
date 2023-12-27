@@ -102,4 +102,19 @@ export default StyleSheet.create({
      shadowRadius: 8,
      elevation: 8,
    },
+   edContainer : {
+      flex: 1,
+      alignItems: "center",
+      backgroundColor : "white"
+   },
+   mapView: {
+    width: '100%',
+    height: "90%",
+    backgroundColor: '#F0F0F0',
+    position: 'absolute', 
+    bottom: 0, 
+    borderTopLeftRadius:50,
+    borderTopRightRadius:50,
+    overflow: 'hidden'
+}
 });

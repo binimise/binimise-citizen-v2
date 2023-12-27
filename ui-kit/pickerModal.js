@@ -8,13 +8,17 @@ import Touch from "./touch";
 import Text from "./text";
 import Seperator from "./seperator";
 import Icon from 'react-native-vector-icons/AntDesign';
+import { useDispatch, useSelector } from 'react-redux';
+import { setData } from "./../redux/action";
 let { height ,width} = Dimensions.get('window');
 
 export default props => {
-    let {height_in,items,selectedKey,selectedValue,selectedPicker,isClosedModal,isFromAddRquest} = props;
+    let {height_in,items,selectedKey,selectedValue,selectedPicker,isClosedModal,isFromAddRquest,sType} = props;
     const [searchText,setSearchText] = useState("");
     const [arrayList,setArrayList] = useState(props?.items||[]);
     let originalData = props?.items || [];
+    const dispatch = useDispatch();
+    const setDataAction = (arg) => dispatch(setData(arg));
 
 
     const getDataFromList = (field,value) =>{
@@ -23,19 +27,27 @@ export default props => {
       let searchResult = [];
       searchResult = customSearch(originalData, textSearch);
       setArrayList(searchResult);
-  }
+    }
+
+    const showErrorModalMsg = (message, title = "message") => {
+        setDataAction({ 
+            errorModalInfo : {
+                showModal : true, title, message
+            }
+        })
+    };
   
-  const customSearch = ( temp, search) => {
+    const customSearch = ( temp, search) => {
       if (undefined === search || search === "") return temp;
       return temp.filter((searchdata) => {
         return Object.values(searchdata).join(" ").toLowerCase().includes(search);
       });
-  }
+    }
   
-  const onRemoveSearchText = () =>{
+    const onRemoveSearchText = () =>{
       setSearchText("");
       setArrayList(originalData);
-  }
+    }
 
     const showSearchBar = () =>{
       return(
@@ -44,16 +56,25 @@ export default props => {
                   onChangeText={getDataFromList} 
                   value={searchText}
               />
-              <Icon 
+              {searchText?.length>0 &&
+                <Icon 
                   style={{position:"absolute",right:10}}
                   size={20} 
                   name={"close"}
                   color={Color.red}
                   onPress={onRemoveSearchText}
-              />
+              />}
           </View>
       )
-  }
+    }
+    const handleSubmitClick = () =>{
+      let message = sType!=null&&sType=="checkpoint"?"please_select_chk_type":"select_your_ward";
+      console.log("s",selectedValue);
+      if(!selectedValue){
+        return showErrorModalMsg(message);
+      }
+      isClosedModal();
+    }
 
     return (
         <View a c={Color.backgroundModalColor} jc ai zi={999} to={0} le={0} h={height} w={width}>
@@ -86,9 +107,11 @@ export default props => {
           <View w={"90%"} bw={0.5} mh={"5%"} bc={"black"}/>
             <View row jc>
               <Touch h={40} w={"40%"} jc ai t={"close_c"} mb={4} boc={"#F0F0F0"} bc={"red"}
-                mt={2} mr={10} bw={2} br={16} onPress={() =>{isClosedModal()}}/>
+                mt={2} mr={10} bw={2} br={16} onPress={() =>{
+                  selectedPicker(selectedKey,"");
+                  isClosedModal()}}/>
               <Touch h={40} w={"40%"} jc ai t={"submit"} mb={4} boc={"#F0F0F0"} bc={"green"}
-                mt={2} bw={2} onPress={() =>{isClosedModal()}} br={16}/>
+                mt={2} bw={2} onPress={() =>handleSubmitClick()} br={16}/>
             </View>
         </View>
     </View>

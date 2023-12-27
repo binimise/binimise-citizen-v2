@@ -39,17 +39,13 @@ export default PhoneVerification = ({ navigation }) => {
   }
 
   useEffect(() => {
-
-    if(routeName === "SelectLanguage" && !(userInfo?.authUid)){
+    if(routeName === PAGES.SELECTLANGUAGE){
       const backAction = () => {
-        Alert.alert("Hold on!", "Are you sure you want to go back?", [
-          {
-            text: "Cancel",
-            onPress: () => null,
-            style: "cancel"
-          },
-          { text: "YES", onPress: () => BackHandler.exitApp() }
-        ]);
+        if(userInfo?.authUid){
+          navigation.navigate(PAGES.HOME);
+          return true;
+        }
+        () =>BackHandler.exitApp();
         return true;
       };
       const backHandler = BackHandler.addEventListener(
@@ -58,7 +54,7 @@ export default PhoneVerification = ({ navigation }) => {
       );
       return () => backHandler.remove();
     }
-  });
+});
 
   const setLanguage = (lang) => {
     console.log("l", lang);

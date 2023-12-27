@@ -1,17 +1,33 @@
 import React, { useEffect, useState } from "react";
-import { Image, ScrollView} from "react-native";
+import { Image, ScrollView,BackHandler} from "react-native";
 import { useSelector } from "react-redux";
 import {View, Text} from "../ui-kit";
 import Header from "../components/header";
-import { ABOUTUS} from '../global/util';
+import { ABOUTUS,PAGES} from '../global/util';
 import {getAppSettings} from "./../repo/repo";
+import { useNavigationState } from "@react-navigation/native";
 
 export default ({ navigation }) => {
 
   const [description,setDescription] = useState("");
   const [officersImages,setOfficersImages] = useState([]);
   let selectedLanguage = useSelector(state => state.testReducer.selectedLanguage) || {};
-  
+  const navigationValue = useNavigationState(state => state);
+  const routeName = (navigationValue.routeNames[navigationValue.index]);
+
+  useEffect(() => {
+    if(routeName === PAGES.ABOUTUS){
+      const backAction = () => {
+        navigation.navigate(PAGES.HOME);
+        return true;
+      };
+      const backHandler = BackHandler.addEventListener(
+        "hardwareBackPress",
+        backAction
+      );
+      return () => backHandler.remove();
+    }
+});
 
   useEffect(() => {
     getDynamicDataFromSettings(selectedLanguage);

@@ -284,6 +284,25 @@ dear_user: "प्रिय उपयोगकर्ता",
 location_updated: "आपका स्थान सफलतापूर्वक अपडेट किया गया है",
 pick_image : "छवि चुनें",
 home_message : "हमारे छत्रपुर को स्वच्छ रखें",
-upload_image : "कृपया छवि अपलोड करें"
+upload_image : "कृपया छवि अपलोड करें",
+please_enter_number: "कृपया फोन नंबर दर्ज करें",
+please_enter_valid_info: "कृपया OTP दर्ज करें",
+please_select_image: "कृपया छवि चुनें",
+permission_to_acess_storage: "स्टोरेज तक पहुंच की अनुमति आवश्यक है। कृपया स्टोरेज में 'केवल मीडिया तक पहुंच दें' का चयन करें।",
+while_storing_image: "ओहो!! छवि संग्रह करते समय त्रुटि हुई है",
+map: "नक्शा",
+satelite: "सैटलाइट",
+failed_to_insert_user: "उपयोगकर्ता डालने में विफल रहा",
+please_select_c_type: "शिकायत का प्रकार चुनें",
+please_enter_comment: "कृपया टिप्पणी दर्ज करें",
+comment: "टिप्पणी",
+please_select_b_type: "बुकिंग का प्रकार चुनें",
+please_select_waste_type: "कृपया बुकिंग का प्रकार चुनें",
+req_veh: "बुकिंग प्रकार",
+select_task: "बुकिंग चुनें",
+confirm_to_exit: "निकास की पुष्टि करें?",
+history_t: "का इतिहास",
+please_select_all: "कृपया सभी प्रश्नों का उत्तर दें"
+
 
 } 

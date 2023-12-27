@@ -539,14 +539,14 @@ const updateSaathiWorkDoneImage = async (uid, obj) => {
     }, { merge: true }).then(() => {});
 }
 
-// const getAcknowledge = async(eachDate,userId) => {
-//     let data =await acknowledgeUserRef(eachDate).doc(userId).get()
-//     return data.docs.map(item => Object.assign({}, {id : item.id}, item.data()));
-// }
+const getAcknowledge = async(dateString, document) => {
+    let obj = {
+        id:dateString
+    };
+    let doc = await acknowledgeUserRef(dateString).doc("f6d3f9a5de484644892e82a802404681").get();
+    obj.item = doc?.data() || {};
+    return obj;
 
-const getAcknowledge = async(eachDate,userId) => {
-    return acknowledgeUserRef(eachDate).doc(userId).get()
-    // return data.docs.map(item => Object.assign({}, {id : item.id}, item.data()));
 }
 
 // export function getMonthlySaathiAttendance(date, id) {

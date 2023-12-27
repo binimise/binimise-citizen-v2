@@ -6,7 +6,7 @@ import { View, Text, Touch, TextInput, Picker } from "./../ui-kit";
 import Header from "../components/header";
 import { addSuggestion,getAllSuggestions} from "./../repo/repo";
 import { Color, PAGES,getCurrentDate } from '../global/util';
-import { useFocusEffect } from '@react-navigation/native';
+import { useNavigationState,useIsFocused } from '@react-navigation/native';
 
 
 export default ({ navigation }) => {
@@ -15,7 +15,23 @@ export default ({ navigation }) => {
     const setDataAction = (arg) => dispatch(setData(arg));
     let { userInfo} = useSelector(state => state.testReducer) || {};
     const [suggestion, setSuggestion] = useState('');
-    const [suggestionList,setSuggestionList]= useState([]);  
+    const [suggestionList,setSuggestionList]= useState([]); 
+    const navigationValue = useNavigationState(state => state);
+    const routeName = (navigationValue.routeNames[navigationValue.index]); 
+
+    useEffect(() => {
+        if(routeName === PAGES.SUGGESTION){
+          const backAction = () => {
+            navigation.navigate(PAGES.HOME);
+            return true;
+          };
+          const backHandler = BackHandler.addEventListener(
+            "hardwareBackPress",
+            backAction
+          );
+          return () => backHandler.remove();
+        }
+    });
 
     const toggleLoading = show => {
         setDataAction({"loading": {show}});
@@ -103,7 +119,7 @@ export default ({ navigation }) => {
                                      </View>
                                      <View w={'50%'} mr={120}>
                                         <Text  b t={"date"} />
-                                        <Text t={item.created_date} />
+                                        <Text t={item?.created_date?.split("-").reverse("").join("-") || "N/A"} />
                                      </View>
                                   
                                     </View>

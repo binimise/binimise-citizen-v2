@@ -301,6 +301,25 @@ loading_com: "ଅଭିଯାନ ଲୋଡ ହେଉଛି",
 loading_book: "ବୁକିଂ ଲୋଡ ହେଉଛି",
 pick_image : "ପିକ୍ ଇମେଜ୍ |",
 home_message : "ଆମର ଚାଟ୍ରାପୁରକୁ ସଫା ରଖନ୍ତୁ |",
-upload_image : "ଦୟାକରି ପ୍ରତିଛବି ଅପଲୋଡ୍ କରନ୍ତୁ |"
+upload_image : "ଦୟାକରି ପ୍ରତିଛବି ଅପଲୋଡ୍ କରନ୍ତୁ |",
+please_enter_number: "ଫୋନ ନମ୍ବର ଦୟାକରି ଦିଅନ୍ତୁ",
+please_enter_valid_info: "OTP ଦୟାକରି ଦିଅନ୍ତୁ",
+please_select_image: "ଛବି ଚୟନ କରନ୍ତୁ",
+permission_to_acess_storage: "ସ୍ଟୋରେଜ୍ ପ୍ରବେଶ ଅନୁମତି ଆବଶ୍ୟକ। ଦୟାକରି 'ସିରଫ ମିଡିଆ ପାଇଁ ପ୍ରବେଶ ଦିଅନ୍ତୁ' ରେ ଚୟନ କରନ୍ତୁ।",
+while_storing_image: "ଉଫ୍ !! ଛବି ରଖିବାକୁ ଭୁଲିଆଗଲା",
+map: "ମ୍ୟାପ୍",
+satelite: "ସେଟେଲାଇଟ୍",
+failed_to_insert_user: "ବ୍ୟବହାରକାରୀ ଯୋଗା ହେଉନାହିଁ",
+please_select_c_type: "ଅଭିଯୋଗ ପ୍ରକାର ଚୟନ କରନ୍ତୁ",
+please_enter_comment: "ଦୟାକରି ମତାମତ ଦିଅନ୍ତୁ",
+comment: "ମତାମତ",
+please_select_b_type: "ବୁକିଂ ପ୍ରକାର ଚୟନ କରନ୍ତୁ",
+please_select_waste_type: "ଦୟାକରି ବୁକିଂ ପ୍ରକାର ଚୟନ କରନ୍ତୁ",
+req_veh: "ବୁକିଂ ପ୍ରକାର",
+select_task: "ବୁକିଂ ଚୟନ କରନ୍ତୁ",
+confirm_to_exit: "ବାହାରିବା ପୁଷ୍ଟି?",
+history_t: "ଇତିହାସ",
+please_select_all: "ସମସ୍ତ ପ୍ରଶ୍ନ ଉତ୍ତର ଦିଅନ୍ତୁ"
+
    
 }

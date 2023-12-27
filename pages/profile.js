@@ -1,19 +1,16 @@
 import React, {useState, useEffect, useReducer}  from 'react';
-import { ScrollView,Switch, Image,StyleSheet,Dimensions,Alert} from "react-native";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ScrollView,Switch, Image,StyleSheet,BackHandler} from "react-native";
 import { useDispatch, useSelector } from 'react-redux';
 import { setData } from "./../redux/action";
-import { View, Text, Touch, TextInput, Picker } from "./../ui-kit";
+import { View, Text, Touch, TextInput } from "./../ui-kit";
 import { Checkbox } from 'react-native-paper';
-import * as Location from 'expo-location';
-import { addUserData, getAllAreas, getUserData ,getAppSettings,} from "./../repo/repo";
 import { Color, PAGES, PHONENUMBER, APP_CONFIG, USERINFO, AUTHUID, TOKEN } from '../global/util';
 import MapView,{Marker} from 'react-native-maps';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import IconAnt from 'react-native-vector-icons/AntDesign';
 import IconF from 'react-native-vector-icons/FontAwesome5';
 import Header from "../components/header";
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused,useNavigationState } from '@react-navigation/native';
 
 
 const initialState = {
@@ -70,19 +67,30 @@ export default ({ navigation }) => {
     const [isExpandBox, setIsExpandBox] = useState(false);
     const[userTags,setUserTags] = useState([]);
     const [_mapType,setMapType] = useState("hybrid");
+    const navigationValue = useNavigationState(state => state);
+    const routeName = (navigationValue.routeNames[navigationValue.index]);
+    const isFocus = useIsFocused();
     
-    useFocusEffect(
-      React.useCallback(()=>{
-        __updateLocationFromDb();
-      },[])
-    )
+    useEffect(() => {
+      if(routeName === PAGES.PROFILE){
+        const backAction = () => {
+          navigation.navigate(PAGES.HOME);
+          return true;
+        };
+        const backHandler = BackHandler.addEventListener(
+          "hardwareBackPress",
+          backAction
+        );
+        return () => backHandler.remove();
+      }
+  });
     useEffect(() => {
       __updateLocationFromDb();
         if(userInfo?.holdingNo){
             house_no= (selectedLanguage=="en"?"Your Householding Number is":"आपका हाउसहोल्डिंग नंबर है")+"    "+ userInfo.holdingNo
-            return showErrorModalMsg(house_no);
+            // return showErrorModalMsg(house_no);
         }
-    }, []);
+    }, [isFocus]);
 
     const __updateLocationFromDb = () => {
         let obj = { 
@@ -94,17 +102,14 @@ export default ({ navigation }) => {
     }
 
 
-    const formOnChangeText = (field, value) => {
-        dispatchStateAction({ field, value });
-    }
 
-    const getSignUpView = (text, ph, name, value,keyboardType, maxLength,icon,icontext) => {
+    const getProfileView = (text, ph, name, value,keyboardType, maxLength,icon,icontext) => {
       return (
         <View mb={12}>
           <Text s={12} t={text} c={"black"} b/>
           <TextInput ml nl={1} ph={ph} pl={16} h={40} bc={'#FFFFFF'}
             k={keyboardType} maxLength={maxLength} bbc={'#F0F0F0'}
-            onChangeText={formOnChangeText} name={name}
+            name={name}
              w={'100%'} bbw= {1} editable={false} value={value}
           />
         </View>
@@ -122,6 +127,8 @@ export default ({ navigation }) => {
         <MapView
           language={"hn"}
           mapType={"hybrid"}
+          followUserLocation = {true}
+          // showsUserLocation = {true}
           style={{ alignSelf: 'stretch', height: 120,width:"100%" }}
           initialRegion={region || APP_CONFIG.COORDINATES.coords}
         >
@@ -210,16 +217,16 @@ export default ({ navigation }) => {
             />
           </View>
           {
-            getSignUpView('name', 'firstName_lastName', 'name', userInfo?.name)
+            getProfileView('name', 'firstName_lastName', 'name', userInfo?.name)
           }
           {
-            getSignUpView('phoneNumber', '9954672326', 'phoneNumber', userInfo?.phoneNumber, "numeric", 10)
+            getProfileView('phoneNumber', '9954672326', 'phoneNumber', userInfo?.phoneNumber, "numeric", 10)
           }
           {
-            getSignUpView('emailid', 'email', 'email', userInfo?.email)
+            getProfileView('emailid', 'email', 'email', userInfo?.email)
           }
           {
-            getSignUpView('address', 'm.g. road', 'address', userInfo?.address,"","","crosshairs","Locate Me")
+            getProfileView('address', 'm.g. road', 'address', userInfo?.address,"","","crosshairs","Locate Me")
           }
           {showLocation()}
           <View bw={1} w={"100%"}  bc={'#F0F0F0'} mb={20}/>

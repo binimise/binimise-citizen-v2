@@ -9,6 +9,7 @@ let { width, height } = Dimensions.get('window');
 export default () => {
 
         let loading = useSelector(state => state.testReducer.loading) || {};
+        console.log("l",loading)
         if(!loading.show)
             return null;
         let message = loading.message || "loading";
@@ -19,7 +20,7 @@ export default () => {
                 <View jc ai bw={1} w={200} h={120} c={Color.lightGrayColor}
                     bc={Color.themeColor} br={8}>
                     <ActivityIndicator size="large" color={Color.themeColor} />
-                    <Text mt={10} s={18} c={Color.themeColor} mt={16} t={message} />
+                    <Text mt={10} s={18} c={Color.themeColor}  t={message} />
                 </View>
             </View>
         );

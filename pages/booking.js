@@ -5,7 +5,7 @@ import { setData } from "./../redux/action";
 import { View, Text, Touch } from "./../ui-kit";
 import { Color, PAGES } from '../global/util';
 import Header from "../components/header";
-import { useFocusEffect,useIsFocused } from '@react-navigation/native';
+import { useNavigationState,useIsFocused } from '@react-navigation/native';
 import IconF from 'react-native-vector-icons/FontAwesome';
 import IconAnt from 'react-native-vector-icons/AntDesign';
 import Icon from 'react-native-vector-icons/FontAwesome5';
@@ -21,27 +21,48 @@ export default ({ navigation }) => {
   const [bookings,setBookings] =useState([]);
   const [index,setIndex] = useState(0);
   const [displayDate,setDisplayDate] =useState("");
-  const [isShowMonthPicker,setIsShowMonthPicker] = useState(false);
   const [month, setMonth] = useState("");
   const [year, setYear] = useState("");
-  const [monthDates, setMonthDates] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   let userInfo = useSelector(state => state.testReducer.userInfo) || {};
   const isFocusedBooking = useIsFocused();
-
-  useEffect(() => {
-    if(isFocusedBooking){
-      loadingInBooking(true);
-      setTimeout(() => {
-        getDateAndMonth();
-      }, 2000);
-    }
-  }, [isFocusedBooking]);
+  const navigationValue = useNavigationState(state => state);
+  const routeName = (navigationValue.routeNames[navigationValue.index]);
 
   const loadingInBooking = show => {
     setDataAction({"loading": {show:show,message:"loading_book"}});
   }
     
+  useEffect(() => {
+    if(routeName === PAGES.BOOKING){
+      const backAction = () => {
+        if(isViewDetails){
+          setIsViewDetails(false);
+          return true;
+        }
+        navigation.navigate(PAGES.HOME);
+        return true;
+      };
+      const backHandler = BackHandler.addEventListener(
+        "hardwareBackPress",
+        backAction
+      );
+      return () => backHandler.remove();
+    }
+  });
+
+  useEffect(() => {
+    if(isFocusedBooking){
+      loadingInBooking(true);
+      // setTimeout(() => {
+        getDateAndMonth();
+      // }, 2000);
+    }else{
+      loadingInBooking(false);
+    }
+  }, [isFocusedBooking]);
+
+ 
   const getDateAndMonth = ()=>{
     let CurrentDate =new Date();
     let CurrentMonth =CurrentDate.getMonth();
@@ -61,7 +82,6 @@ export default ({ navigation }) => {
      i =i<10? "0"+i:i
       allDatesOfMonth.push(selectedYear+"-"+mm+"-"+i)
     }
-    setMonthDates(allDatesOfMonth);
     getMonthWiseBookings(allDatesOfMonth);
   }
 
@@ -186,9 +206,9 @@ export default ({ navigation }) => {
         {Array.isArray(bookings)?
           bookings.map((each, index)=>{
             let bookedDate= each.created_date.split("-").reverse().join("/")
-            let bookedForDate =!each.bookingFor?"unavailable":each.bookingFor
-            let task_id =!each.t_id?"unavailable":each.t_id
-            let tasktype =!each.taskType?"unavailable" :each.taskType
+            let bookedForDate =!each.bookingFor?"N/A":each.bookingFor
+            let task_id =!each.t_id?"N/A":each.t_id
+            let tasktype =!each.taskType?"N/A" :each.taskType
             let state_type =!each.state?"ACTIVE":each.state
 
             return <Touch key={index} mh={"2%"} w={"96%"} h={120} mt={40} br={2} bw={2} 
@@ -198,7 +218,7 @@ export default ({ navigation }) => {
                       <View row pa={10}>
                         <Text t={each?.selectedWasteType?.name || "N/A"} b/>
                         <Text t={state_type} a c={"white"} center w={140} to={10} ri={4} style={{borderRadius:10}}
-                          bc={ state_type === "ACTIVE"?"orange": state_type === "ASSIGNED"?"green":"#888888"} 
+                          bc={ state_type === "ACTIVE"?"blue": state_type === "ASSIGNED"?"red":"#009900"} 
                         />
                       </View>
                       <View bw={1} w={"100%"} bc={"#CCCCCC"}/>
@@ -217,7 +237,7 @@ export default ({ navigation }) => {
         <View a c={'#00000066'} jc ai h={"100%"}  w={"100%"}>
           <View style={styles.bookingbottomView}>
             <View mt={20} mb={20}>
-              <Text s={20} c={"black"} b  center t={bookings[index].selectedWasteType.name}/>
+              <Text s={20} c={"black"} b  center t={bookings[index].t_id || "N/A"}/>
             </View>
             <View mt={20} ml={40}>
               {
@@ -227,19 +247,16 @@ export default ({ navigation }) => {
                 showTaskList("mobile_num",userInfo.phoneNumber,8)
               }
               {
-                showTaskList("emailid",userInfo.email,8)
+                showTaskList("req_veh",bookings[index]?.selectedWasteType?.name || "N/A",8)
               }
               {
-                showTaskList("requestType",bookings[index].selectedWasteType.name,8)
+                showTaskList("bookedOn",bookings[index]?.created_date?.split("-").reverse().join("/"),8)
               }
               {
-                showTaskList("bookedOn",bookings[index].created_date.split("-").reverse().join("/"),8)
+                showTaskList("bookedFor",bookings[index]?.bookingFor ||"N/A",8)
               }
               {
-                showTaskList("bookedFor",bookings[index].bookingFor?bookings[index].bookingFor:"unavailable",8)
-              }
-              {
-                showTaskList("assignedTo",bookings[index].assigneeName?bookings[index].assigneeName:"unavailable",8)
+                showTaskList("assignedTo",bookings[index]?.assigneeName ||"N/A",8)
               }
             </View>
             <IconAnt size={32}

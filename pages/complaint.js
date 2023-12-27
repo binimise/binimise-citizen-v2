@@ -6,7 +6,7 @@ import { View, Text, Touch,TextInput } from "./../ui-kit";
 import { Color, PAGES } from '../global/util';
 import Header from "../components/header";
 import { getUserComplaints,updateSaathiWorkDoneImage } from "./../repo/repo";
-import { useFocusEffect,useIsFocused } from '@react-navigation/native';
+import { useNavigationState,useIsFocused } from '@react-navigation/native';
 import Modal from "./../components/modal";
 import * as Location from 'expo-location';
 import Icon from 'react-native-vector-icons/FontAwesome5';
@@ -21,31 +21,61 @@ export default ({ navigation }) => {
 
     const dispatch = useDispatch();
     const setDataAction = (arg) => dispatch(setData(arg));
-    const [complaints, setCompliants] = useState([]);
     const [complaint, setComplaint] = useState({});
     const [activeComplaints, setActiveComplaints] = useState({});
     const [assignedComplaints, setAssignedCompliants] = useState({});
     const [closedComplaints, setClosedCompliants] = useState({});
     let userInfo = useSelector(state => state.testReducer.userInfo) || {};
-    const [isFetching,setIsFetching] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [comment, setComment] = useState("");
     const [showDoneModal, setShowDoneModal] = useState(false);
     const [imageUrl, setImageUrl] = useState("");
     const [selectedComplaint,setSelectedComplaint] = useState({})
     const isFocused = useIsFocused();
+    const navigationValue = useNavigationState(state => state);
+    const routeName = (navigationValue.routeNames[navigationValue.index]);
     
     const loadingInComplaint = show => {
-      setDataAction({"loading": {show:show,message:"loading_com"}});
+      setDataAction({"loading": {show,message:"loading_com"}});
     }
+    const errorModal = message => {
+      setDataAction({
+        errorModalInfo : {
+          showModal : true,
+          message,
+        }
+      });
+    }
+
+    useEffect(() => {
+      if(routeName === PAGES.COMPLAINT){
+        const backAction = () => {
+          if(showDoneModal){
+            setComment("");
+            setShowDoneModal(false)
+            return true;
+          }
+          navigation.navigate(PAGES.HOME);
+          return true;
+        };
+        const backHandler = BackHandler.addEventListener(
+          "hardwareBackPress",
+          backAction
+        );
+        return () => backHandler.remove();
+      }
+    });
 
     useEffect(() => {
       if(isFocused){
         loadingInComplaint(true);
-        setTimeout(() => {
+        // setTimeout(() => {
           getComplaintsList();
-        }, 2000);
+        // }, 2000);
+      }else{
+        loadingInComplaint(false);
       }
+      
     }, [isFocused]);
 
     const onRefresh = React.useCallback(() => {
@@ -91,37 +121,41 @@ export default ({ navigation }) => {
       getComplaintsList();
     }
 
-    const _showDoneModal = () => {
-   
+  const _showDoneModal = () => {
+
     return (
       <Modal>
         <View pa={8}>
-          <Text t={selectedComplaint?.typesOfComplaint} />
+          <Text t={selectedComplaint?.typesOfComplaint ||each.typesOfGarbageDump || "N/A"} />
         </View>
-          
-            <View pa={8}>
-                <TextInput  uc={Color.lightGrayColor} ph="remarks" nl={4}
-                onChangeText={(name, text) => {
-                    setComment(text);
-                }} name={"comment"} to={10} pb={4} />
-            </View>
-            <View row c={Color.white} mv={8}>
-                <Touch jc mb={5} h={36} w={'48%'} br={4} bw={1} mr={8}
-                    s={14} c={Color.black} b center t={ "close_c" }
-                    onPress={() => {
-                        setComment("");
-                        setShowDoneModal(false);
-                    }} />
-                <Touch jc mb={5} h={36} w={'48%'} br={4} bw={1}
-                    s={14} c={Color.black} b center t={ "submit" }
-                    onPress={e => {
-                        setShowDoneModal(false);
-                        updateWorkDone()
-                    }} />
-            </View>
-        </Modal>
+
+        <View pa={8}>
+          <TextInput uc={Color.lightGrayColor} ph="comment" nl={4}
+            onChangeText={(name, text) => {
+              setComment(text);
+            }} name={"comment"} to={10} pb={4} />
+        </View>
+        <View row c={Color.white} mv={8}>
+          <Touch jc mb={5} h={36} w={'48%'} br={4} bw={1} mr={8}
+            s={14} c={Color.black} b center t={"close_c"}
+            onPress={() => {
+              setComment("");
+              setShowDoneModal(false);
+            }} />
+          <Touch jc mb={5} h={36} w={'48%'} br={4} bw={1}
+            s={14} c={Color.black} b center t={"submit"}
+            onPress={e => {
+              if (!comment) {
+                errorModal("please_enter_comment");
+                return;
+              }
+              setShowDoneModal(false);
+              updateWorkDone()
+            }} />
+        </View>
+      </Modal>
     );
-    }
+  }
 
 
   
@@ -130,15 +164,15 @@ export default ({ navigation }) => {
     <Header navigation={navigation} headerText={"complaint"} />
 
     <View style={{display:"flex",flexWrap: 'wrap',flexDirection:"row"}} w={'90%'} mt={"10%"} mh={"6%"}>
-      <View ai jc c={"orange"} br={6} w={"30%"} h={100}>
+      <View ai jc c={"blue"} br={6} w={"30%"} h={100}>
         <Text s={22} b c={"white"} t={activeComplaints.length}/>
         <Text t={"active"} s={14} c={"white"}/>
       </View>
-      <View  ai jc c={"green"} br={6}  ml={"4%"} w={"30%"} h={100}>
+      <View  ai jc c={"red"} br={6}  ml={"4%"} w={"30%"} h={100}>
         <Text  t={assignedComplaints.length} b s={22} c={"white"}/>
         <Text t={"assign"} s={14} c={"white"}/>
       </View>
-      <View  ai jc c={"#888888"}  br={6} ml={"4%"} w={"30%"} h={100}>
+      <View  ai jc c={"#009900"}  br={6} ml={"4%"} w={"30%"} h={100}>
         <Text  t={closedComplaints.length}  b s={22} c={"white"}/>
         <Text t={"close"}  s={14} c={"white"}/>
       </View>
@@ -173,7 +207,7 @@ export default ({ navigation }) => {
                         }}
                       >
                         <View row mt={6} ml={10}>
-                          <Text s={14}  b lh={18}   t={each.typesOfComplaint} />
+                          <Text s={14}  b lh={18}   t={each.typesOfComplaint ||each.typesOfGarbageDump || "N/A"} />
                           <Icon size={18} 
                             style={{position:"absolute",right:8}}
                             name={"angle-down"}
@@ -187,7 +221,7 @@ export default ({ navigation }) => {
                         setComplaint(obj);
                       }}>
                         <View row mt={6} ml={10}>
-                         <Text s={14} b lh={18} t={each.typesOfComplaint}/>
+                         <Text s={14} b lh={18} t={each.typesOfComplaint ||each.typesOfGarbageDump || "N/A"}/>
                          <IconAnt 
                             size={18}
                             color={"red"}
@@ -213,7 +247,7 @@ export default ({ navigation }) => {
                     <IconAnt size={20}
                            name={"user"}
                            style={{right:"8%"}}/> 
-                        <Text s={16}  c={"black"} t={each?.assigneeName?each.assigneeName:""}/>
+                        <Text s={16}  c={"black"} t={each?.assigneeName?each.assigneeName:"N/A"}/>
                         <Text s={16} le={4} c={"black"} t={" "}/>
                         <Text s={16} le={4} c={"black"} t={each?.assigneePhoneNumber?each.assigneePhoneNumber:""}/>
                         
@@ -235,7 +269,7 @@ export default ({ navigation }) => {
                 
                    
                     <View h={40} ai row w={"100%"}
-                      c={each.state === "ACTIVE"?"orange":each.state === "ASSIGNED"?"green":"#888888"} 
+                      c={each.state === "ACTIVE"?"blue":each.state === "ASSIGNED"?"red":"#009900"} 
                       mt={20}>
                        <Text  s={12} c={"white"}  t={"complaint_date"}/>
                         <Text  s={12} c={"white"}  t={":"}/>

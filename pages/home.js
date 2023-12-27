@@ -31,11 +31,36 @@ export default ({ navigation }) => {
   const focusInHome = useIsFocused();
 
   useEffect(() => {
+    if(routeName === "Home"){
+      const backAction = () => {
+      setDataAction({ 
+        confirmModalInfo : {
+            showModal : true,
+            title : "message",
+            message : "confirm_to_exit",
+            primaryAction : () =>{
+                setDataAction({confirmModalInfo:{showModal: false}})
+                BackHandler.exitApp();
+            }
+        }
+    })
+        return true;
+      };
+      const backHandler = BackHandler.addEventListener(
+        "hardwareBackPress",
+        backAction
+      );
+      return () => backHandler.remove();
+    }
+  });
+
+  useEffect(() => {
     getPlacesData();
     getDynamicAppSettings();
     getLocationPermission();
-    oneSignalOperations();
-    
+    if(!userInfo.token){
+      oneSignalOperations();
+    }
   }, []);
 
   useEffect(() => {
@@ -44,7 +69,14 @@ export default ({ navigation }) => {
   }, [selectedLanguage]);
 
   useEffect(()=>{
-    setDataAction({"loading": {show:false}});
+    if(focusInHome){
+      setDataAction({
+        "loading": { show:false },
+        errorModalInfo : { showModal : false },
+        confirmModalInfo : { showModal : false }
+      })
+    }
+   ;
   },[focusInHome])
 
   const oneSignalOperations = async () => {
@@ -62,10 +94,9 @@ export default ({ navigation }) => {
   }
   
   const updateTokenInHome = async (userInfo,id) => {
-    if(!userInfo.token){
-      setDataAction({tokenFromOneSignal:id ||""}); 
-      updateUserToken(userInfo, id);
-    }
+    userInfo.token = id;
+    setDataAction({tokenFromOneSignal:id ||""},{userInfo}); 
+    updateUserToken(userInfo, id);
   }
 
   const getLocationPermission = async () => {
@@ -77,32 +108,7 @@ export default ({ navigation }) => {
     }
   }
 
-  useEffect(() => {
-    if(routeName === "Home"){
-      const backAction = () => {
-        let text1=selectedLanguage == "en"?"Hold on!":"पकड़ना!"
-        let text2 = selectedLanguage == "en"?"Confirmation to exit?":"बाहर निकलने की पुष्टि?"
-        let c_text = selectedLanguage == "en"?"Cancel":"बंद करे"
-        let y_text = selectedLanguage == "en"?"Yes":"हां"
-        Alert.alert(text1,text2,[
-          {
-            text: c_text,
-            onPress: () => null,
-            style: "cancel"
-          },
-          { 
-            text: y_text, onPress: () => BackHandler.exitApp()
-          }
-        ]);
-        return true;
-      };
-      const backHandler = BackHandler.addEventListener(
-        "hardwareBackPress",
-        backAction
-      );
-      return () => backHandler.remove();
-    }
-  });
+  
   
 
   const getPlacesData = async () => {

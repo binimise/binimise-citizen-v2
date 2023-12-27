@@ -1,40 +1,108 @@
 import React, { useState,useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector,useDispatch } from 'react-redux';
 import MapView,{Marker} from 'react-native-maps';
 import { View,Touch,Text} from "./../ui-kit";
 import UserMarker from "./userMarker";
 import Header from "../components/header";
 import { Color,APP_CONFIG, PAGES } from '../global/util';
-import { Linking,Image,Dimensions,StyleSheet, ScrollView } from 'react-native';
+import { Linking,Image,Dimensions,StyleSheet, ScrollView,BackHandler } from 'react-native';
 import { getCtpt} from "./../repo/repo";
 import * as Location from 'expo-location';
+import { useNavigationState,useIsFocused } from '@react-navigation/native';
+import { setData } from "../redux/action";
 let {width,height } = Dimensions.get("window");
 
 export default ({ navigation,route }) => {
+
+  const dispatch = useDispatch();
+  const setDataAction = arg => dispatch(setData(arg));
   const [toiletsList, setToiletsList] = useState([]);
   const [_mapType,setMapType] = useState("standard");
   const [liveLocation, setLiveLocation] = useState({});
+  const navigationValue = useNavigationState(state => state);
+  const routeName = (navigationValue.routeNames[navigationValue.index]);
   let userInfo = useSelector(state => state.testReducer.userInfo) || {};
-  let pageHeader = route?.params?.Text || "mapView"
+  let pageHeader = route?.params?.Text || "mapView";
+  const isFocus = useIsFocused();
 
   useEffect(() => {
-    getLiveLocationOfUser();
-    getAllToilets();
-  }, []);
+    if(routeName === PAGES.MAPVIEW){
+      const backAction = () => {
+        navigation.navigate(PAGES.HOME);
+        return true;
+      };
+      const backHandler = BackHandler.addEventListener(
+        "hardwareBackPress",
+        backAction
+      );
+      return () => backHandler.remove();
+    }
+  });
 
-  const getLiveLocationOfUser = async()=>{
-    let location = await Location.getLastKnownPositionAsync({enableHighAccuracy: true});
-    let lat = location?.coords?.latitude ||APP_CONFIG.COORDINATES.coords.latitude ,
-    long = location?.coords?.longitude ||APP_CONFIG.COORDINATES.coords.longitude ;
-    setLiveLocation({latitude:lat,longitude:long})
+  useEffect(() => {
+    if(isFocus){
+      getLiveLocationOfUser();
+      getAllToilets();
+    }
+    
+  }, [isFocus]);
+
+  const LocalNullModal = (message, title = "message") =>{
+    setDataAction({ 
+        errorModalInfo: {
+          showModal: true,
+          title,
+          message ,
+          onClose: ()=>getLiveLocationOfUser()
+        }
+    });
   }
+
+  const showErrorModalMsg = (message) => {
+    setDataAction({ 
+      errorModalInfo: {
+        showModal: true,
+        title : "message",
+        message,
+        onClose: () =>onCloseEvent() // Ask for permissions again
+      }
+    });
+  };
+
+  const onCloseEvent = async(text) =>{
+    Linking.openSettings();
+    getLiveLocationOfUser();
+  }
+
+  const getLiveLocationOfUser = async () => {
+    try {
+        let providerStatus = await Location.getProviderStatusAsync();
+        if (providerStatus.locationServicesEnabled) {
+            setDataAction({ 
+                errorModalInfo: {
+                  showModal: false
+                }
+            });
+            let location = await Location.getLastKnownPositionAsync({enableHighAccuracy: true});
+            let lat = location?.coords?.latitude ||APP_CONFIG.COORDINATES.coords.latitude ,
+            long = location?.coords?.longitude ||APP_CONFIG.COORDINATES.coords.longitude ;
+            setLiveLocation({latitude:lat,longitude:long});
+        } else {
+            return LocalNullModal("please_switch_location","switch_on_location");
+        }
+        
+    }catch(e){
+        showErrorModalMsg("location_permission") ; 
+    }
+  }
+
 
   const getAllToilets = async()=>{
     let _ctpt =await getCtpt();
     getTopThreeToilets(_ctpt);
   }
 
-  getTopThreeToilets = async(ToiletList)=>{
+  const getTopThreeToilets = async(ToiletList)=>{
     if(ToiletList.length>0&&liveLocation){
       for(let i = 0; i<ToiletList.length; i++) {
         let distance = getDistanceFromLatLonInKm(parseInt(liveLocation?.latitude), parseInt(liveLocation?.longitude),
@@ -111,6 +179,10 @@ export default ({ navigation,route }) => {
             </Marker>
           ))}
         </MapView>
+          <Touch a ri={10} h={20} to = {20} bc={Color.themeColor} 
+              t={"refresh"} br={10} c={Color.white} w={80}
+              onPress = {()=>getLiveLocationOfUser()}
+          />
         <View style={{ position: "absolute", bottom: "20%", right:10 }}c={"white"} row w={"40%"}>
           <Touch jc ai t={"Map"} h={48} w={"48%"} c={_mapType =="standard"?"green":"black"} onPress={()=>setMapType("standard")}/>
           <View w={1} c={"black"}/>

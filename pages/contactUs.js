@@ -1,16 +1,16 @@
 import React, { useState,useEffect}  from 'react';
-import {ScrollView,Linking,Platform, Image as RNImageView,} from "react-native";
+import {ScrollView,Linking,Platform, Image as RNImageView,BackHandler} from "react-native";
 import { useDispatch, useSelector} from 'react-redux';
 import { setData } from "../redux/action";
 import { View, Text, Touch} from "../ui-kit";
 import Header from "../components/header";
-import { Color} from '../global/util';
+import { Color,PAGES} from '../global/util';
 import {getAppSettings,getManagerDetails } from "./../repo/repo";
 import IconF from 'react-native-vector-icons/FontAwesome5';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import email from 'react-native-email';
 import { openComposer,openInbox } from "react-native-email-link";
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect,useNavigationState } from '@react-navigation/native';
 
 
 
@@ -26,7 +26,23 @@ export default ({ navigation }) => {
     const [wardImage,setWardImage] = useState("")
     const [muncipalOfcNum,setMuncipalOfcNum] = useState("");
     const [muncipalOfcMails,setMuncipalOfcMails] = useState([]);
+    const navigationValue = useNavigationState(state => state);
+    const routeName = (navigationValue.routeNames[navigationValue.index]);
     let {userInfo,selectedLanguage} = useSelector(state => state.testReducer) || {};
+
+    useEffect(() => {
+        if(routeName === PAGES.CONTACTUS){
+          const backAction = () => {
+            navigation.navigate(PAGES.HOME);
+            return true;
+          };
+          const backHandler = BackHandler.addEventListener(
+            "hardwareBackPress",
+            backAction
+          );
+          return () => backHandler.remove();
+        }
+    });
 
     useEffect(() => {
         getContactDetailsFromSettings();
