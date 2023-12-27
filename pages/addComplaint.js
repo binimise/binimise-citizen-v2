@@ -91,7 +91,7 @@ export default ({ navigation }) => {
     _userObj["ward"] = userInfo.areaCode;
     _userObj["ward_id"] = userInfo.areaCode;
     _userObj["address"] = userInfo.address || "";
-    _userObj["municipality"] = userInfo.municipality || "buguda";
+    _userObj["municipality"] = userInfo.municipality || "chatrapur";
     return _userObj;
   }
 
@@ -113,7 +113,7 @@ export default ({ navigation }) => {
     complaintObj["photo_url"] = imageUrl;
     complaintObj["typesOfComplaint"] = complaintObj.typesOfComplaint;
     complaintObj["status"] = true;
-     let userObj = _updateUserData({ userInfo });
+    let userObj = _updateUserData({ userInfo });
     updateComplaints(complaintObj,userObj);
     loadingInAddComplaint(false);
     errorModal("we_shall_contact_you_soon");

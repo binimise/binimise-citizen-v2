@@ -82,22 +82,6 @@ export default PhoneVerification = ({ navigation }) => {
   // }
 
 
-  const showAccessPermission = () => {
-    setDataAction({
-      confirmModalInfo : {
-          title: "auto_start_permission",
-          message: "auto_start_message",
-          showModal : true,
-          primaryText : "Ok",
-          secondaryText : "CANCEL",
-          primaryAction : async () => {
-            setDataAction({confirmModalInfo : { showModal : false }},
-              {errorModalInfo : { showModal : false }});
-            await switchOnNetInfo();
-          },
-      }
-    });
-  }
 
   const switchOnNetInfo = async () => {
     let state = await NetInfo.fetch();
@@ -159,51 +143,11 @@ export default PhoneVerification = ({ navigation }) => {
   }
 
 
-  // showAutoStartPermission = async () => {
-  //   setDataAction({
-  //     confirmModalInfo : {
-  //         title: "auto_start_permission",
-  //         message: "auto_start_message",
-  //         showModal : true,
-  //         primaryText : "allow",
-  //         secondaryText : "Later",
-  //         primaryAction : showAccessPermission,
-  //     }
-  //   });
-  // }
 
 
   useEffect(() => {
     switchOnNetInfo();
-    // askLocation();
   }, []);
-  // const askLocation = async() =>{
-  //   const granted = await PermissionsAndroid.request(
-  //     PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-  //     {
-  //       title: 'Location Permission',
-  //       message: 'App needs access to your location.',
-  //       buttonNeutral: 'Ask Me Later',
-  //       buttonNegative: 'Cancel',
-  //       buttonPositive: 'OK',
-  //     },
-  //   );
-  //     console.log("grant",granted)
-  // } 
-
- 
-  const showOtpAlert = (type) =>{
-    Alert.alert(
-      "Hello User",
-       type?"Otp Send": "You Will Get Otp Within A Minute,OtherWise Press Resend Button",
-      [
-        { text: "OK", onPress: () => console.log("OK Pressed") }
-      ]
-    );
-
-  }
-
-  
 
   const showErrorModal = (message,title) => {
     setDataAction({

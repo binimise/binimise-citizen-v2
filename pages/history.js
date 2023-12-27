@@ -37,6 +37,20 @@ LocaleConfig.locales["or"] = {
   today: "ଆଜ",
 };
 
+const showGarbageTypeColor = (colorType,text) =>{
+  return  <View row ml={10} mt={30}>
+  <Text h={20} w={20} bc={colorType}/>
+  <Text h={20} ml={10} t={text}/>
+</View>
+}
+const showTextAndValue = (text,value) =>{
+  return <View row ml={10} mt={30}>
+  <Text h={20} t={text} b/>
+  <Text t={" : "}/>
+  <Text h={20} ml={10} t={value}/>
+</View>
+}
+
 export default ({ navigation }) => {
 
     const dispatch = useDispatch();
@@ -158,14 +172,7 @@ export default ({ navigation }) => {
   
   }
 
-    const calendarIcon =()=>(
-     <IconAnt size={24}
-        name={"calendar"}
-        color={"white"}
-        style={{position:"absolute",right:"15%"}}
-        onPress={()=>{setIsShowCalendar(true)}}
-      /> 
-    )
+
 
   return <View c={"white"} h={height} w={width}>
     <Header navigation={navigation} headerText={"history"}/>
@@ -176,55 +183,38 @@ export default ({ navigation }) => {
           markedDates={datesObj}
           markingType={'custom'}
         />
-        <View row ml={10} mt={30}>
-          <Text h={20} w={20} bc={"green"}/>
-          <Text h={20} ml={10} t={"garbage_collected"}/>
-        </View>
-        <View row ml={10} mt={10}>
-          <Text h={20} w={20} bc={"#F6BE00"}/>
-          <Text h={20} ml={10} t={"garbage_segregation"}/>
-        </View>
-        <View row ml={10} mt={10}>
-          <Text h={20} w={20} bc={"#800000"}/>
-          <Text h={20} ml={10} t={"garbage_picker_absent"}/>
-        </View>
+        {
+          showGarbageTypeColor(Color.green,"garbage_collected")
+        }
+        {
+          showGarbageTypeColor("#F6BE00","garbage_segregation")
+        }
+        {
+          showGarbageTypeColor("#800000","garbage_picker_absent")
+        }
       </View>:
       <View w={"90%"} bw={1} h={"100%"} ml={10} mt={10} mb={10}>
-        <View row ml={10} mt={30}>
-          <Text h={20} t={"name"} b/>
-          <Text t={" : "}/>
-          <Text h={20} ml={10} t={selectedAckObj?.name}/>
-        </View>
-        <View row ml={10} mt={30}>
-          <Text h={20} t={"phoneNumber"} b/>
-          <Text t={" : "}/>
-          <Text h={20} ml={10} t={selectedAckObj?.phoneNumber}/>
-        </View>
-        <View row ml={10} mt={30}>
-          <Text h={20} t={"area"} b/>
-          <Text t={" : "}/>
-          <Text h={20} ml={10} t={selectedAckObj?.ward_id}/>
-        </View>
-        <View row ml={10} mt={30}>
-          <Text h={20} t={"attended_by"} b/>
-          <Text t={" : "}/>
-          <Text h={20} ml={10} t={selectedAckObj?.saathiUser?.name}/>
-        </View>
-        <View row ml={10} mt={30}>
-          <Text h={20} t={"time"} b/>
-          <Text t={" : "}/>
-          <Text h={20} ml={10} t={selectedAckObj?.c_t}/>
-        </View>
-        <View row ml={10} mt={30}>
-          <Text h={20} t={"acknowledgement"} b/>
-          <Text t={" : "}/>
-          <Text h={20} ml={10} t={selectedAckObj?.acknowledge?selectedAckObj?.acknowledge.toString():"false"}/>
-        </View>
-        <View row ml={10} mt={30}>
-          <Text h={20} t={"segregation"} b/>
-          <Text t={" : "}/>
-          <Text h={20} ml={10} t={ selectedAckObj?.segregation?selectedAckObj?.segregation.toString():"false"}/>
-        </View>
+        {
+          showTextAndValue("name",selectedAckObj?.name)
+        }
+        {
+          showTextAndValue("phoneNumber",selectedAckObj?.phoneNumber)
+        }
+        {
+          showTextAndValue("area",selectedAckObj?.ward_id)
+        }
+        {
+          showTextAndValue("attended_by",selectedAckObj?.saathiUser?.name)
+        }
+        {
+          showTextAndValue("time",selectedAckObj?.c_t)
+        }
+        {
+          showTextAndValue("acknowledgement",selectedAckObj?.acknowledge?selectedAckObj?.acknowledge.toString():"false")
+        }
+        {
+          showTextAndValue("segregation",selectedAckObj?.segregation?selectedAckObj?.segregation.toString():"false")
+        }
         <Touch jc bc={Color.themeColor} h={48} mt={20} c={Color.themeFontColor} 
            w={"90%"}  br={4} mh={10} s={16} t={'go_to_c'} onPress={()=>{setIsShowCalendar(true)}} 
         />
