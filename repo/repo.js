@@ -543,7 +543,7 @@ const getAcknowledge = async(dateString, document) => {
     let obj = {
         id:dateString
     };
-    let doc = await acknowledgeUserRef(dateString).doc("f6d3f9a5de484644892e82a802404681").get();
+    let doc = await acknowledgeUserRef(dateString).doc(document).get();
     obj.item = doc?.data() || {};
     return obj;
 
