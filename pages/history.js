@@ -60,7 +60,7 @@ export default ({ navigation }) => {
   LocaleConfig.defaultLocale = selectedLanguage;
 
   const getBackgroundColorOfDate = (eachDoc) => {
-    return eachDoc?.segregation ? "green" : (eachDoc?.acknowledge ? '#F6BE00' : '#800000')
+    return eachDoc?.segregation ? Color.themeColor : (eachDoc?.acknowledge ? '#F6BE00' :eachDoc?.id?"#4169e1":"#800000")
   }
 
   useEffect(() => {
@@ -123,7 +123,7 @@ export default ({ navigation }) => {
 
   const getSaathiAttendanceData = async (daysInMonth) => {
     try {
-      setDataAction({ loading: { show:true } });
+      setDataAction({ loading: { show:true,message:"getting_this_month_report" } });
       setAcknowledgeArray([]);
       let Ack_arr = [];
       await Promise.all([...daysInMonth].map((date) => getAcknowledge(date, userInfo?.authUid))).then((querySnapshot) => {
@@ -148,7 +148,7 @@ export default ({ navigation }) => {
       monthlyreport.forEach((elem, i) => {
           obj[elem?.id] = {
               customStyles:{container: {backgroundColor: getBackgroundColorOfDate(elem?.item)},
-              text:{color:"black"}}
+              text:{color:"white"}}
           }
       })
       setDatesObj(obj);
@@ -182,7 +182,7 @@ export default ({ navigation }) => {
         let convertedTime = "";
         if(filterdata?.item?.timestamp){
           const date = new Date(filterdata?.item?.timestamp);
-          console.log("date.getMinutes().length",date.getMinutes().length,typeof(date.getMinutes().length))
+          // console.log("date.getMinutes().length",date.getMinutes().length,typeof(date.getMinutes().length))
           let dd = date?.getDate();
           let mm = date?.getMonth()+1;
           let hr = date?.getHours();
@@ -230,19 +230,19 @@ export default ({ navigation }) => {
         <View ml={"5%"}>
                 <Text t={["history_t","  ",selectedAckObj?.dateId]} b s={20} />
                 {
-                  showTextAndValue("name", selectedAckObj?.name)
+                  showTextAndValue("name", selectedAckObj?.name || "N/A")
                 }
                 {
-                  showTextAndValue("phoneNumber", selectedAckObj?.phoneNumber)
+                  showTextAndValue("phoneNumber", selectedAckObj?.phoneNumber || "N/A")
                 }
                 {
-                  showTextAndValue("area", selectedAckObj?.ward_id)
+                  showTextAndValue("area", selectedAckObj?.ward_id || "N/A")
                 }
                 {
-                  showTextAndValue("attended_by", selectedAckObj?.saathiUser?.name)
+                  showTextAndValue("attended_by", selectedAckObj?.saathiUser?.name || selectedAckObj?.deviceUser?.vehicleName || "N/A")
                 }
                 {
-                  showTextAndValue("time", selectedAckObj?.c_t)
+                  showTextAndValue("time", selectedAckObj?.c_t || "N/A")
                 }
                 {
                   showTextAndValue("acknowledgement", selectedAckObj?.acknowledge ? selectedAckObj?.acknowledge.toString() : "false")

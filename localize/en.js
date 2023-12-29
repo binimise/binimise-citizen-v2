@@ -305,7 +305,14 @@ export default {
   select_task:"Select booking",
   confirm_to_exit : "Confirmation to exit?",
   history_t : "History of",
-  please_select_all : "Please answer all questions"
+  please_select_all : "Please answer all questions",
+  please_select_location_by_clicking : "Please select location by clicking on button in map",
+  please_enter_d_no : "Please enter door number",
+  user_with_same_d_no_exists : "User with same door number exist",
+  d_no : "Door No",
+  cannot_update : "You are not allowed to update this household.Please contact admin",
+  please_enter_d_no_properly : "Please enter door number properly (ABCD123FE)",
+  getting_this_month_report : "Please wait getting current month report"
 
 
 

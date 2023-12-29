@@ -16,6 +16,7 @@ import { useFocusEffect, useIsFocused,useNavigationState } from '@react-navigati
 const initialState = {
     name : "",
     phoneNumber : "",
+    DDN_NO : "",
     userType : "user",
     areaCode : "",
     municipality : APP_CONFIG.MUNICIPALITY_NAME,
@@ -56,9 +57,7 @@ export default ({ navigation }) => {
     const [region, setRegion] = useState(APP_CONFIG.COORDINATES.coords);
     const dispatch = useDispatch();
     const setDataAction = (arg) => dispatch(setData(arg));
-    let { userInfo, updateUserInfoFlag,selectedLanguage } = useSelector(state => state.testReducer) || {};
-    const [updateLocation, setUpdateLocation] = useState({});
-    const [isHideMap, setIsHideMap] = useState(true);
+    let { userInfo } = useSelector(state => state.testReducer) || {};
     const [isExpandLocation, setIsExpandLocation] = useState(false);
     const [isExpandAlert, setIsExpandAlert] = useState(false);
     const [isExpandWard, setIsExpandWard] = useState(false);
@@ -84,13 +83,13 @@ export default ({ navigation }) => {
         return () => backHandler.remove();
       }
   });
-    useEffect(() => {
-      __updateLocationFromDb();
-        if(userInfo?.holdingNo){
-            house_no= (selectedLanguage=="en"?"Your Householding Number is":"आपका हाउसहोल्डिंग नंबर है")+"    "+ userInfo.holdingNo
-            // return showErrorModalMsg(house_no);
-        }
-    }, [isFocus]);
+    // useEffect(() => {
+    //   __updateLocationFromDb();
+    //     // if(userInfo?.holdingNo){
+    //     //     house_no= (selectedLanguage=="en"?"Your Householding Number is":"आपका हाउसहोल्डिंग नंबर है")+"    "+ userInfo.holdingNo
+    //     //     // return showErrorModalMsg(house_no);
+    //     // }
+    // }, [isFocus]);
 
     const __updateLocationFromDb = () => {
         let obj = { 
@@ -125,14 +124,22 @@ export default ({ navigation }) => {
           <Text c={Color.themeColor} le={2} s={14}  b lh={18} t={"location"}/>
         </Touch>
         <MapView
+          ref={ref => (this.mapView = ref)}
           language={"hn"}
           mapType={"hybrid"}
           followUserLocation = {true}
           // showsUserLocation = {true}
           style={{ alignSelf: 'stretch', height: 120,width:"100%" }}
-          initialRegion={region || APP_CONFIG.COORDINATES.coords}
+          initialRegion={{
+            latitude : userInfo?.lat || APP_CONFIG.COORDINATES.coords.latitude,
+            longitude : userInfo?.long || APP_CONFIG.COORDINATES.coords.longitude,
+            latitudeDelta: 0.01, longitudeDelta: 0.01
+          }}
         >
-          <Marker coordinate={{ ...region }} draggable />
+          <Marker coordinate={{  
+            latitude : userInfo?.lat || APP_CONFIG.COORDINATES.coords.latitude,
+            longitude : userInfo?.long || APP_CONFIG.COORDINATES.coords.longitude,
+            latitudeDelta: 0.01, longitudeDelta: 0.01 }} draggable />
         </MapView>
       </View>
     )
@@ -192,7 +199,7 @@ export default ({ navigation }) => {
     )
 
     const editIcon = () =>(
-      <IconAnt size={24}
+      !userInfo?.DDN_NO&&<IconAnt size={24}
         name={"edit"}
         color={"white"}
         style={{position:"absolute",right:"15%"}}
@@ -223,6 +230,9 @@ export default ({ navigation }) => {
             getProfileView('phoneNumber', '9954672326', 'phoneNumber', userInfo?.phoneNumber, "numeric", 10)
           }
           {
+            getProfileView('d_no', 'ABC12365D32', 'DDN_NO', userInfo?.DDN_NO)
+          }
+          {
             getProfileView('emailid', 'email', 'email', userInfo?.email)
           }
           {
@@ -250,12 +260,12 @@ export default ({ navigation }) => {
             />
             <Text t={"make_my_profile_private"} mt={8}  c={"#666666"} b />
           </View>
-            <View row mb={16} mt={20} width={"90%"}>
+            {!userInfo?.DDN_NO&&<View row mb={16} mt={20} width={"90%"}>
               <Touch ai jc h={48} br={4} s={16} b c={Color.themeFontColor} bc={Color.themeColor} 
                 onPress={() => {navigation.navigate(PAGES.USERDETAIL)}}
                   t={"editprofile"} 
               />
-            </View>
+            </View>}
         </ScrollView>
       </View>
             
@@ -267,7 +277,6 @@ export default ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
       flex: 1,
-      alignItems: "center",
       backgroundColor : "white"
     }
 });

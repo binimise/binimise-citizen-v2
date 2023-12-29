@@ -560,12 +560,19 @@ const getAcknowledge = async(dateString, document) => {
       
 //       .get();
 //   }
-
+const getDoorInfo = async (doorNo) =>{
+    let data = await getUserRef().where("DDN_NO", '==', doorNo).get();
+    if(data.docs.length > 0){
+        data = data.docs[0].data();
+        return decryptCitizenData(data);
+    }
+    return ;
+}
 export { getUserData, addUserData, getDevicesInWard, blockNotificationForUser, getPlaces, deleteTask,getCtpt,
          getAllAreas, getNotifications, deleteComplaint, getUserBlockedNotifications, getUserTasks, updateTasks,
          updateUserToken, updateUserLocationInWard, updateComplaints, getUserComplaints, driverLocationsInWard,
          addSuggestion,getAllVehicles,getVehiclesGeo,addFeedbackData,getAllSuggestions,getActiveComplaints,getAssignedComplaints,
          getClosedComplaints,getDevices,getSettingsData, getVehicleGeo,getSurvey,updateTaskPayments,getTaskPayments,sendOTP,
          getComplaintsFromSettings,getTasksFromSettings,getAppSettings,addObjectsInFeedback,getFeedback,addAppSettings,
-         updateSaathiWorkDoneImage,getAcknowledge,getManagerDetails
+         updateSaathiWorkDoneImage,getAcknowledge,getManagerDetails,getDoorInfo
     }

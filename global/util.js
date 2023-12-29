@@ -193,3 +193,12 @@ export const FEATURES = {
         phoneNumber : "18004190608"
     }
 }
+
+export const  containsNonSpace = (text) => {
+    return /\S/.test(text);
+}
+
+export const containsSmallLetters = (str) => {
+    let regex = /[a-z]/;
+    return regex.test(str);
+  }

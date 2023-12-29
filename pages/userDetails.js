@@ -6,8 +6,9 @@ import { setData } from "./../redux/action";
 import { View, Text, Touch, TextInput, PickerModal ,Loading} from "./../ui-kit";
 import { Checkbox } from 'react-native-paper';
 import * as Location from 'expo-location';
-import { addUserData, getAllAreas, getUserData ,getAppSettings,} from "./../repo/repo";
-import { Color, PAGES, PHONENUMBER, APP_CONFIG, USERINFO, AUTHUID, TOKEN } from '../global/util';
+import { addUserData, getAllAreas, getUserData ,getAppSettings,getDoorInfo} from "./../repo/repo";
+import { Color, PAGES, PHONENUMBER, APP_CONFIG, USERINFO, AUTHUID, TOKEN,
+    containsNonSpace,containsSmallLetters } from '../global/util';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import IconAnt from 'react-native-vector-icons/AntDesign';
 import IconF from 'react-native-vector-icons/FontAwesome5';
@@ -31,6 +32,7 @@ const RESET = "reset";
 const initialState = {
     name : "",
     phoneNumber : "",
+    DDN_NO : "",
     userType : "app_user",
     email:"",
     address : "",
@@ -281,6 +283,14 @@ export default ({ navigation }) => {
         if (!containsOnlyNumbers(state?.phoneNumber) || state?.phoneNumber.length != 10) {
             return showErrorModalMsg("please_enter_10_digit_phonenumber")
         }
+        if(!state.DDN_NO) {
+            showErrorModalMsg("please_enter_d_no");
+            return true;
+        }
+        if(state?.DDN_NO && !containsNonSpace(state.DDN_NO) || containsSmallLetters(state.DDN_NO)){
+            showErrorModalMsg("please_enter_d_no_properly")
+            return true;
+        }
         if(!updateLocation?.latitude){
             showErrorModalMsg("error_in_getting_location_please_set_location_in_map");
             return true
@@ -313,6 +323,15 @@ export default ({ navigation }) => {
                                         lat: updateLocation?.latitude, long: updateLocation?.longitude,
                                         userTags,isAlertOn,isNotificationOn,isPrivate });
             userInfo.profile = userInfo.profile || "";
+            userInfo.DDN_NO = userInfo?.DDN_NO?.trim();
+            
+            let dInfo = await getDoorInfo(userInfo.DDN_NO);
+            
+            if(dInfo){
+                userInfo.lat = dInfo?.lat || userInfo.lat;
+                userInfo.long = dInfo.long || userInfo.long;
+            }
+            
             await addUserData(userInfo);
             let uInfo = await getUserData(userInfo.phoneNumber);
             if(!uInfo){
@@ -380,8 +399,8 @@ export default ({ navigation }) => {
         )
     }
 
-    toggleAlertSwitch = () => setIsAlertOn(previousState => !previousState);
-    toggleNotificationSwitch = () => setIsNotificationOn(previousState => !previousState);
+    const toggleAlertSwitch = () => setIsAlertOn(previousState => !previousState);
+    const toggleNotificationSwitch = () => setIsNotificationOn(previousState => !previousState);
 
     const showLocation = ()=>(
         <View w={"100%"} mb={20} bw={1} bc={'#F0F0F0'}>
@@ -678,7 +697,7 @@ export default ({ navigation }) => {
         setSelectedValue(data)
         formOnChangeText(key,data)
     }
-    console.log("map",isHideMap)
+    
     if(isHideMap){
         return <View style={Styles.edContainer}>
             <IconAnt size={32} name={"closecircle"} style={{marginTop:20}}
@@ -722,6 +741,9 @@ export default ({ navigation }) => {
 
                         {
                             getSignUpView('phoneNumber', '9954672326', 'phoneNumber', state?.phoneNumber,true, "numeric", 10)
+                        }
+                        {
+                            getSignUpView('d_no', 'ABC12365D32', 'DDN_NO', state?.DDN_NO,true)
                         }
                         {
                             getSignUpView('emailid', 'email', 'email', state?.email)
