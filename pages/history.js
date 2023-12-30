@@ -152,10 +152,11 @@ export default ({ navigation }) => {
           }
       })
       setDatesObj(obj);
-      if(monthlyreport?.length>0){
-        let dateStirng = monthlyreport[monthlyreport.length-1].id ||getCurrentDateFmt();
-        _onDayPress(dateStirng,monthlyreport);
-    }
+      setDataAction({ loading: { show:false } });
+      // if(monthlyreport?.length>0){
+      //   let dateStirng = monthlyreport[monthlyreport.length-1].id ||getCurrentDateFmt();
+      //   _onDayPress(dateStirng,monthlyreport);
+      // }
 
     }catch(e){
       setDataAction({ loading: { show:false } });

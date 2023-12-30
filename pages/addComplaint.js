@@ -36,6 +36,7 @@ export default ({ navigation }) => {
   const storageRef = firebase().firebase.storage();
   const [typesOfGarbageDump,setTypesOfGarbageDump] = useState([]);
   const isFocus = useIsFocused();
+  const [complaintAddress,setComplaintAddress] = useState("");
   let { userInfo,selectedLanguage} = useSelector(state => state.testReducer) || {};
 
   const loadingInAddComplaint = show => {
@@ -74,7 +75,12 @@ export default ({ navigation }) => {
       getCurrentLocation();
     }else{
       setComplaintObj({});
-      setImageUrl("")
+      setImageUrl("");
+      setComplaintAddress("");
+      setImageModal(false);
+      setIsPickerShow(false);
+      setStartCamera(false);
+      loadingInAddComplaint(false);
     }
   },[isFocus])
 
@@ -93,12 +99,25 @@ export default ({ navigation }) => {
     setTypesOfGarbageDump(complaintsArray);
   }
 
+  const getAddressFromLocation = async(locObj)=>{
+    
+    await Location.reverseGeocodeAsync({latitude:locObj.latitude,longitude: locObj.longitude}).
+      then(result => {
+        let address = result[0];
+        let city=address?.city |"",district=address?.region||"",country=address?.country||"",
+            name=address?.name||"",postalCode=address?.postalCode||""
+        let _address =  name+", "+city+", "+district+"  "+postalCode+", "+country;
+        setComplaintAddress(_address);
+      });
+  };
+
   const getCurrentLocation = async () => {  
         let location = await Location.getLastKnownPositionAsync({enableHighAccuracy: true});
             let lat = location?.coords?.latitude ||APP_CONFIG.COORDINATES.coords.latitude ;
             let long = location?.coords?.longitude ||APP_CONFIG.COORDINATES.coords.longitude ;
             let _latlng = { latitude : lat, longitude : long };
             formOnChangeComText("location",_latlng);
+            getAddressFromLocation(_latlng);
      
   };
 
@@ -111,7 +130,7 @@ export default ({ navigation }) => {
     _userObj["areaCode"] = userInfo.areaCode;
     _userObj["ward"] = userInfo.areaCode;
     _userObj["ward_id"] = userInfo.areaCode;
-    _userObj["address"] = userInfo.address || "";
+    _userObj["address"] = complaintAddress || userInfo.address || "N/A";
     _userObj["municipality"] = userInfo.municipality || "chatrapur";
     return _userObj;
   }
@@ -139,6 +158,7 @@ export default ({ navigation }) => {
     loadingInAddComplaint(false);
     errorModal("we_shall_contact_you_soon");
     setImageUrl("");
+    setComplaintAddress("");
     setComplaintObj(Object.assign({}, complaintObj, {typesOfComplaint:null,message:"" }));
     navigation.navigate(PAGES.COMPLAINT);
     

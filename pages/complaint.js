@@ -3,7 +3,7 @@ import { Dimensions, FlatList, Image,ScrollView,RefreshControl,BackHandler,Style
 import { useSelector, useDispatch } from 'react-redux';
 import { setData } from "./../redux/action";
 import { View, Text, Touch,TextInput } from "./../ui-kit";
-import { Color, PAGES } from '../global/util';
+import { APP_CONFIG, Color, PAGES } from '../global/util';
 import Header from "../components/header";
 import { getUserComplaints,updateSaathiWorkDoneImage } from "./../repo/repo";
 import { useNavigationState,useIsFocused } from '@react-navigation/native';
@@ -116,7 +116,13 @@ export default ({ navigation }) => {
     const updateWorkDone = async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       let location = await Location.getLastKnownPositionAsync({enableHighAccuracy: true});
-      let obj = { imageUrl, comment, lat: location?.coords?.latitude, long: location?.coords?.longitude, date: new Date().getTime() };
+      let obj = { 
+        imageUrl, 
+        comment, 
+        lat: location?.coords?.latitude || APP_CONFIG.COORDINATES.coords.latitude,
+        long: location?.coords?.longitude || APP_CONFIG.COORDINATES.coords.longitude, 
+        date: new Date().getTime() 
+      };
       updateSaathiWorkDoneImage(selectedComplaint.id, obj);
       getComplaintsList();
     }
@@ -199,7 +205,7 @@ export default ({ navigation }) => {
                   }
                   return(
                      each.show?
-                     <Touch mh={"6%"} key={index + "s"} mt={"2%"}  h={40} br={2} bw={2} w={"90%"} boc={"#CCCCCC"} 
+                     <Touch mh={"5%"} key={index + "s"} mt={"2%"}  h={40} br={2} bw={2} w={"90%"} boc={"#CCCCCC"} 
                         bc={"#fbfbfb"} onPress={() =>{
                           let obj = JSON.parse(JSON.stringify(complaint));
                           obj[index].show = !obj[index].show;

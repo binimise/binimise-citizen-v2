@@ -297,7 +297,7 @@ export default {
   satelite : "Satelite",
   failed_to_insert_user: "Failed to insert user",
   please_select_c_type : "Select complaint type",
-  please_enter_comment : "",
+  please_enter_comment : "Please enter comment",
   comment : "Comment",
   please_select_b_type : "Select booking type",
   please_select_waste_type: "Please select booking type",
@@ -311,8 +311,11 @@ export default {
   user_with_same_d_no_exists : "User with same door number exist",
   d_no : "Door No",
   cannot_update : "You are not allowed to update this household.Please contact admin",
-  please_enter_d_no_properly : "Please enter door number properly (ABCD123FE)",
-  getting_this_month_report : "Please wait getting current month report"
+  please_enter_d_no_properly : "Door number should be in alphanumeric capital letter (EX:ABCD123FE)",
+  getting_this_month_report : "Please wait getting current month report",
+  please_switch_location : "Please switch on your location in mobile",
+  switch_on_location : "Switch on your location",
+  location_permission : 'Please check location in your phone and select "Allow all the time" to close this modal',
 
 
 

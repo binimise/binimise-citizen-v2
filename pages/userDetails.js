@@ -195,7 +195,11 @@ export default ({ navigation }) => {
     }
 
     const updateLocationFromDb = () => {
-        let obj = { latitude: userInfo?.lat, longitude: userInfo?.long, latitudeDelta: 0.01, longitudeDelta: 0.01};
+        let obj = { 
+            latitude: userInfo?.lat || APP_CONFIG.COORDINATES.coords.latitude, 
+            longitude: userInfo?.long || APP_CONFIG.COORDINATES.coords.longitude, 
+            latitudeDelta: 0.01, longitudeDelta: 0.01
+        };
         if(userInfo?.authUid){
             setUpdateLocation(obj);
             setRegion(obj);
@@ -272,7 +276,7 @@ export default ({ navigation }) => {
             if(!skipValidationFields(key) && !state[key]){
                 let newKey = KeyFromObj[key] || key;
                 message.push(newKey);
-                let tempTxt = newKey == "areaCode"?"select_your_ward":message;
+                let tempTxt = newKey == "areaCode"?"select_your_ward":(newKey =="DDN_NO"?"please_enter_d_no":message);
                 showErrorModalMsg(tempTxt);
                 return true
             }
@@ -291,6 +295,7 @@ export default ({ navigation }) => {
             showErrorModalMsg("please_enter_d_no_properly")
             return true;
         }
+        
         if(!updateLocation?.latitude){
             showErrorModalMsg("error_in_getting_location_please_set_location_in_map");
             return true
@@ -363,8 +368,8 @@ export default ({ navigation }) => {
         await Location.reverseGeocodeAsync({latitude:locObj.latitude,longitude: locObj.longitude}).
           then(result => {
             let address = result[0];
-            let city=address.city |"",district=address.locObj||"",country=address.country||"",
-                name=address.name||"",postalCode=address.postalCode||""
+            let city= address?.city |"",district = address?.region||"", country = address?.country||"",
+                name=address?.name||"",postalCode=address?.postalCode||""
             let _address = name+", "+city+", "+district+"  "+postalCode+", "+country
             formOnChangeText("address",_address)
           });
