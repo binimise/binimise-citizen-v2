@@ -1,6 +1,6 @@
 import React, { useState, useEffect}  from 'react';
 import { SliderBox } from "react-native-image-slider-box";
-import {Dimensions,StyleSheet,ScrollView,Image,Alert,BackHandler} from "react-native";
+import {Dimensions,StyleSheet,ScrollView,Image,Alert,BackHandler,Linking} from "react-native";
 import { useSelector,useDispatch } from 'react-redux';
 import { View,Text,Touch} from "../ui-kit";
 import Header from "../components/header";
@@ -10,6 +10,8 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import IconMaterial from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useIsFocused, useNavigationState} from '@react-navigation/native';
 import * as Location from 'expo-location';
+import NetInfo from '@react-native-community/netinfo';
+import { Camera } from 'expo-camera';
 import { SwiperFlatList } from 'react-native-swiper-flatlist';
 let {width,height } = Dimensions.get("window");
 import { PAGES,ONESIGNAL_ID, APP_CONFIG,TOKEN } from "../global/util";
@@ -57,7 +59,6 @@ export default ({ navigation }) => {
   useEffect(() => {
     getPlacesData();
     getDynamicAppSettings();
-    getLocationPermission();
     if(!userInfo.token){
       oneSignalOperations();
     }
@@ -76,8 +77,67 @@ export default ({ navigation }) => {
         confirmModalInfo : { showModal : false }
       })
     }
-   ;
+    switchOnNetInfo();
   },[focusInHome])
+
+  const switchOnNetInfo = async () => {
+    let state = await NetInfo.fetch();
+    if (!state.isConnected) {
+      setDataAction({ 
+        errorModalInfo: {
+          showModal: true,
+          message: "you_are_offline",
+          onClose : ()=>switchOnNetInfo()
+        }
+      });
+    }else{
+      await getLocationPermission();
+    }
+  };
+
+  const getLocationPermission = async () => {
+    const foregroundPermission = await Location.requestForegroundPermissionsAsync();
+    if(foregroundPermission.status === "granted"){
+      setDataAction({ 
+        errorModalInfo: {
+          showModal: false,
+        }
+      });
+      await getCameraPermission();
+    }else{
+      showErrorModalMsg("location_permission");
+    }
+  };
+
+  const getCameraPermission = async () => {
+    const { status } = await Camera.requestCameraPermissionsAsync();
+    if (status === "granted") {
+      setDataAction({ 
+        errorModalInfo: {
+          showModal: false,
+        }
+      });
+    }else{
+      showErrorModalMsg("camera_permission");
+    }
+  };
+
+  const showErrorModalMsg = (message, title = "message") => {
+    setDataAction({ 
+      errorModalInfo: {
+        showModal: true,
+        title,
+        message,
+        onClose: () =>onCloseEvent() // Ask for permissions again
+      }
+    });
+  };
+
+  const onCloseEvent = async() =>{
+    console.log("onCLiose")
+    Linking.openSettings();
+    await getLocationPermission();
+  }
 
   const oneSignalOperations = async () => {
     OneSignal.setAppId(ONESIGNAL_ID);
@@ -98,18 +158,6 @@ export default ({ navigation }) => {
     setDataAction({tokenFromOneSignal:id ||""},{userInfo}); 
     updateUserToken(userInfo, id);
   }
-
-  const getLocationPermission = async () => {
-    try {
-       await Location.requestForegroundPermissionsAsync();
-       await Location.enableNetworkProviderAsync();
-    }catch(e){
-      console.log(e);
-    }
-  }
-
-  
-  
 
   const getPlacesData = async () => {
     let places = await getPlaces();

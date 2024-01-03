@@ -113,8 +113,8 @@ export default StyleSheet.create({
     backgroundColor: '#F0F0F0',
     position: 'absolute', 
     bottom: 0, 
-    borderTopLeftRadius:50,
-    borderTopRightRadius:50,
+    borderTopLeftRadius:10,
+    borderTopRightRadius:10,
     overflow: 'hidden'
 }
 });

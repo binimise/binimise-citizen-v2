@@ -160,7 +160,7 @@ export default ({ navigation }) => {
                     <Text s={12} ml={16} c={Color.lightGrayColor} t={"age"} />
                     <TextInput ml nl={4}  pl={16} h={24}
                        onChangeText={ (field, value)=>setNumber(value)}
-                       value={number}
+                       value={number}  k={"numeric"} maxLength={2}
                     /> 
                 </View>
             
@@ -170,8 +170,8 @@ export default ({ navigation }) => {
                         s={16} c={Color.themeFontColor} bc={Color.themeColor} b t={"submit"} />
             </View>
            
-           
         </View>
+   
     );
 }
 const styles = StyleSheet.create({

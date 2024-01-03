@@ -1,5 +1,5 @@
 import React, { useState, useRef,useEffect } from "react";
-import { Dimensions, Image,BackHandler,Alert } from "react-native";
+import { Dimensions, Image,BackHandler,Alert,Linking } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useSelector, useDispatch } from "react-redux";
 import { setData } from "./../redux/action";
@@ -126,7 +126,6 @@ export default PhoneVerification = ({ navigation }) => {
   };
 
   const onCloseEvent = async() =>{
-    console.log("onCLiose")
     Linking.openSettings();
     await getLocationPermission();
   }
@@ -297,6 +296,7 @@ export default PhoneVerification = ({ navigation }) => {
       <View row mt={8}>
         <Touch h={48} fl={1}
           onPress={() => {
+            setCode("");
             sendVerification("resend");
           }}
         >
@@ -305,6 +305,7 @@ export default PhoneVerification = ({ navigation }) => {
         <Touch h={48} fl={1} jc row
           onPress={() => {
             setAuthUid("");
+            setCode("")
             setOtpStatus(OTP_STATUS.NOT_SENT);
           }}
         >

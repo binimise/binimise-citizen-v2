@@ -111,7 +111,7 @@ others: "ଅନ୍ୟ",
 drain_not_cleaned: "ଡ୍ରେନ୍‌ ସଫାଇ ନାହିଁ",
 please_grant_location_permission_c: "ଦୟାକରି ସ୍ଥାନ ଅନୁମୋଦନ ଦିଅନ୍ତୁ",
 error_in_getting_current_location: "ସ୍ଥାନ ପାଇଁ ଭୁଲ",
-error_in_getting_location_please_set_location_in_map: "ସ୍ଥାନ ପାଇଁ ଭୁଲ। ଦୟାକରି ନକ୍ଶାରେ ସ୍ଥାନ ସେଟ୍ କରନ୍ତୁ।",
+error_in_getting_location_please_set_location_in_map: "ଦୟାକରି ଆପଣଙ୍କର ସାମ୍ପ୍ରତିକ ଅବସ୍ଥାନ ପ୍ରଦାନ କରନ୍ତୁ |",
 or_c: "ଅଥବା",
 select_location: "ଲୋକେସନ ଚୟନ କରନ୍ତୁ",
 select_location_from_map: "ନକ୍ଶାରୁ ଲୋକେସନ ଚୟନ କରନ୍ତୁ",
@@ -320,7 +320,7 @@ select_task: "ବୁକିଂ ଚୟନ କରନ୍ତୁ",
 confirm_to_exit: "ବାହାରିବା ପୁଷ୍ଟି?",
 history_t: "ଇତିହାସ",
 please_select_all: "ସମସ୍ତ ପ୍ରଶ୍ନ ଉତ୍ତର ଦିଅନ୍ତୁ",
-please_select_location_by_clicking: "ମାନଚିତ୍ରରେ ବଟନ୍ କ୍ଲିକ କରିପାରି ସ୍ଥାନ ଚୟନ କରନ୍ତୁ",
+please_select_location_by_clicking: "ନାଲି ରଙ୍ଗର 'ଅବସ୍ଥାନ' ବଟନ୍ ଉପରେ କ୍ଲିକ୍ କର ଏବଂ ତୁମର ସାମ୍ପ୍ରତିକ ଅବସ୍ଥାନ ସଞ୍ଚୟ କର |",
 please_enter_d_no: "ଦରବାର ନମ୍ବର ଦୟାକରି ଦିଅନ୍ତୁ",
 user_with_same_d_no_exists: "ସମାନ ଦରବାର ନମ୍ବରରେ ବ୍ୟବହାରକର୍ତ୍ତା ଅଛନ୍ତି",
 d_no: "ଦରବାର ନମ୍ବର",
@@ -330,6 +330,11 @@ please_enter_d_no_properly : "କବାଟ ସଂଖ୍ୟା ନିଶ୍ଚି
 please_switch_location : "ଦୟାକରି ମୋବାଇଲରେ ଆପଣଙ୍କର ଅବସ୍ଥାନ ଟର୍ନ୍ ଅନ୍ କରନ୍ତୁ |",
 switch_on_location : "ତୁମର ଅବସ୍ଥାନ ଟର୍ନ୍ ଅନ୍ କର |",
 location_permission : 'ଦୟାକରି ଆପଣଙ୍କ ଫୋନରେ ଅବସ୍ଥାନ ଯାଞ୍ଚ କରନ୍ତୁ ଏବଂ ଏହି ମୋଡ୍ ବନ୍ଦ କରିବାକୁ "ସବୁବେଳେ ଅନୁମତି ଦିଅନ୍ତୁ" ଚୟନ କରନ୍ତୁ |',
+camera_permission : "ଆପଣ ଆପକୁ କ୍ୟାମେରା ଅନୁମତି ଦେଇନାହାଁନ୍ତି | ତେଣୁ ଦୟାକରି ଆପରୁ କ୍ୟାମେରା ଅନୁମତି ଦିଅନ୍ତୁ |",
+please_assign_tag_to_you : "ଦୟାକରି ଆପଣଙ୍କୁ ଟ୍ୟାଗ୍ ନିର୍ଦ୍ଦିଷ୍ଟ କରନ୍ତୁ |",
+permission_to_acess_storage : "ଆପଣ ଆପ୍ ପାଇଁ ଷ୍ଟୋରେଜ୍ ଅନୁମତି ଦେଇନାହାଁନ୍ତି | ତେଣୁ ଦୟାକରି ଆପରୁ ଷ୍ଟୋରେଜ୍ ଅନୁମତି ଦିଅନ୍ତୁ |",
+all : "ସମସ୍ତ"
+
 
 
    

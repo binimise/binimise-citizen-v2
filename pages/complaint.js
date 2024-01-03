@@ -21,10 +21,11 @@ export default ({ navigation }) => {
 
     const dispatch = useDispatch();
     const setDataAction = (arg) => dispatch(setData(arg));
-    const [complaint, setComplaint] = useState({});
-    const [activeComplaints, setActiveComplaints] = useState({});
-    const [assignedComplaints, setAssignedCompliants] = useState({});
-    const [closedComplaints, setClosedCompliants] = useState({});
+    const [complaint, setComplaint] = useState([]);
+    const [originalData,setOriginalData] = useState([]);
+    const [activeComplaints, setActiveComplaints] = useState([]);
+    const [assignedComplaints, setAssignedCompliants] = useState([]);
+    const [closedComplaints, setClosedCompliants] = useState([]);
     let userInfo = useSelector(state => state.testReducer.userInfo) || {};
     const [refreshing, setRefreshing] = useState(false);
     const [comment, setComment] = useState("");
@@ -105,12 +106,27 @@ export default ({ navigation }) => {
           setAssignedCompliants(Assigned);
           setClosedCompliants(Closed);
           setComplaint(complaints);
+          setOriginalData(complaints);
         }
         loadingInComplaint(false);
         setRefreshing(false);
       }catch(e){
         console.log("e",e)
       }
+    }
+
+    const getSelectedComplaints = (type) =>{
+      if(type === "ALL"){
+        setComplaint(originalData);
+        return;
+      }
+      let temp = [];
+      originalData.map((eachDoc)=>{
+        if(eachDoc.state === type){
+          temp.push(eachDoc);
+        }
+      });
+      setComplaint(temp || []);
     }
 
     const updateWorkDone = async () => {
@@ -169,19 +185,33 @@ export default ({ navigation }) => {
     return <View  w={width} h={height} c={"white"}>
     <Header navigation={navigation} headerText={"complaint"} />
 
-    <View style={{display:"flex",flexWrap: 'wrap',flexDirection:"row"}} w={'90%'} mt={"10%"} mh={"6%"}>
-      <View ai jc c={"blue"} br={6} w={"30%"} h={100}>
-        <Text s={22} b c={"white"} t={activeComplaints.length}/>
+    <View style={{display:"flex",flexWrap: 'wrap',flexDirection:"row"}} w={'90%'} mt={"10%"} mh={"5%"}>
+      <Touch ai jc bc = {"skyblue"} br={6} w ={"24%"} h={100} 
+        onPress = {()=>getSelectedComplaints("ALL")}
+      >
+        <Text s={22} b c={"white"} 
+          t={(activeComplaints.length||0)+(assignedComplaints.length||0)+(closedComplaints.length ||0 )}
+        />
+        <Text t={"all"} s={14} c={"white"}/>
+      </Touch>
+      <Touch ai jc bc={"blue"} br={6} w={"24%"}ml={"1%"} h={100}
+        onPress = {()=>getSelectedComplaints("ACTIVE")}
+      >
+        <Text s={22} b c={"white"} t={activeComplaints.length || 0}/>
         <Text t={"active"} s={14} c={"white"}/>
-      </View>
-      <View  ai jc c={"red"} br={6}  ml={"4%"} w={"30%"} h={100}>
-        <Text  t={assignedComplaints.length} b s={22} c={"white"}/>
+      </Touch>
+      <Touch  ai jc bc={"red"} br={6}  ml={"1%"} w={"24%"} h={100}
+       onPress = {()=>getSelectedComplaints("ASSIGNED")}
+      >
+        <Text  t={assignedComplaints.length || 0} b s={22} c={"white"}/>
         <Text t={"assign"} s={14} c={"white"}/>
-      </View>
-      <View  ai jc c={"#009900"}  br={6} ml={"4%"} w={"30%"} h={100}>
-        <Text  t={closedComplaints.length}  b s={22} c={"white"}/>
+      </Touch>
+      <Touch  ai jc bc={"#009900"}  br={6} ml={"1%"} w={"24%"} h={100}
+       onPress = {()=>getSelectedComplaints("CLOSED")}
+      >
+        <Text  t={closedComplaints.length || 0}  b s={22} c={"white"}/>
         <Text t={"close"}  s={14} c={"white"}/>
-      </View>
+      </Touch>
     </View>
 
     <View row mt={29} mh={"6%"} mb={20} w={"90%"}>
@@ -228,13 +258,16 @@ export default ({ navigation }) => {
                       }}>
                         <View row mt={6} ml={10}>
                          <Text s={14} b lh={18} t={each.typesOfComplaint ||each.typesOfGarbageDump || "N/A"}/>
-                         <IconAnt 
-                            size={18}
-                            color={"red"}
-                            name={"closecircle"}
-                            style={{position:"absolute",right:"10%"}}
-                            onPress={()=>{setSelectedComplaint(each);setShowDoneModal(true);}}
-                          />
+                         {each.state!="CLOSED" &&
+                            <IconAnt 
+                              size={18}
+                              color={"red"}
+                              name={"closecircle"}
+                              style={{position:"absolute",right:"10%"}}
+                              onPress={()=>{setSelectedComplaint(each);setShowDoneModal(true);}}
+                            />
+                         }
+                         
                           <Icon size={18}
                             style={{position:"absolute",right:"3%"}}
                             name={"angle-up"}

@@ -89,10 +89,11 @@ export default (props) => {
                 <Text center b s={16} t="mapView" w={"50%"} />
                 <Touch s={16} c={"red"} t={"close_m"} w={"50%"} onPress={() => handleMapClose()} ai />
             </View> */}
-            <View>
-                
+            
+            <Text t = {"please_select_location_by_clicking"} b c= {Color.themeColor} h={"3%"} s={14} mh={"2%"}/>
+            <View >
                 <MapView
-                    style={{height: "100%",width: '100%'}}
+                    style={{height: "97%",width: '100%'}}
                     ref = {ref => (this.mapView = ref)}
                     mapType = {typeOfMap}
                     zoomEnabled = {true}
@@ -124,7 +125,7 @@ export default (props) => {
                 </View>
             </View>
             {showSubmitButton && 
-            <Touch jc bc={Color.themeColor}  a h={48} style={{bottom:20}}
+            <Touch jc bc={Color.themeColor}  a h={48} style={{bottom:10}}
                 c={Color.themeFontColor} w={'80%'} br={4} ml={40} 
                 onPress={() =>{ setShowSubmitButton(false);
                     handleLocationSelected(mapCoordinates)}

@@ -82,11 +82,42 @@ export default ({ navigation }) => {
       setStartCamera(false);
       loadingInAddComplaint(false);
     }
+    getCameraPermission();
   },[isFocus])
 
   useEffect(() => {
    getComplaintsSettings();
   }, []);
+
+  const getCameraPermission = async () => {
+    const { status } = await Camera.requestCameraPermissionsAsync();
+    if (status === "granted") {
+      setDataAction({ 
+        errorModalInfo: {
+          showModal: false,
+        }
+      });
+    }else{
+      showErrorModalMsg("camera_permission");
+    }
+  };
+
+  const showErrorModalMsg = (message, title = "message") => {
+    setDataAction({ 
+      errorModalInfo: {
+        showModal: true,
+        title,
+        message,
+        onClose: () =>onCloseEvent() // Ask for permissions again
+      }
+    });
+  };
+
+  const onCloseEvent = async() =>{
+    console.log("onCLiose")
+    Linking.openSettings();
+    await getCameraPermission();
+  }
 
 
   const getComplaintsSettings = async() => {

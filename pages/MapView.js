@@ -84,6 +84,10 @@ export default ({ navigation,route }) => {
                 }
             });
             let location = await Location.getLastKnownPositionAsync({enableHighAccuracy: true});
+            if(!location){
+              getLiveLocationOfUser();
+              return;
+            }
             let lat = location?.coords?.latitude ||APP_CONFIG.COORDINATES.coords.latitude ,
             long = location?.coords?.longitude ||APP_CONFIG.COORDINATES.coords.longitude ;
             setLiveLocation({latitude:lat,longitude:long});
@@ -157,7 +161,7 @@ export default ({ navigation,route }) => {
                     latitudeDelta: 0.01, longitudeDelta: 0.01 
                   }}
         >
-          {route?.params?.id == "GarbageVan"?<UserMarker userInfo={userInfo} />:null}
+          <UserMarker userInfo={userInfo} />
           <Marker
             coordinate={{latitude: liveLocation?.latitude||userInfo?.lat || APP_CONFIG.COORDINATES.coords.latitude, 
               longitude: liveLocation?.longitude||userInfo?.long || APP_CONFIG.COORDINATES.coords.longitude
@@ -183,7 +187,7 @@ export default ({ navigation,route }) => {
               t={"refresh"} br={10} c={Color.white} w={80}
               onPress = {()=>getLiveLocationOfUser()}
           />
-        <View style={{ position: "absolute", bottom: "20%", right:10 }}c={"white"} row w={"40%"}>
+        <View style={{ position: "absolute", bottom: "20%", right:10 }}c={"white"} row w={"40%"} br={16}>
           <Touch jc ai t={"Map"} h={48} w={"48%"} c={_mapType =="standard"?"green":"black"} onPress={()=>setMapType("standard")}/>
           <View w={1} c={"black"}/>
           <Touch jc ai t={"Satelite"} h={48} w={"50%"}c={_mapType =="hybrid"?"green":"black"} onPress={()=>setMapType("hybrid")}/>

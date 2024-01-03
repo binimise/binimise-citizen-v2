@@ -115,7 +115,7 @@ export default {
   drain_not_cleaned : "Drain not cleaned",
   please_grant_location_permission_c : "PLEASE GRANT LOCATION PERMISSION",
   error_in_getting_current_location: "Error in getting current location",
-  error_in_getting_location_please_set_location_in_map : "Error in getting location. Please set location in map.",
+  error_in_getting_location_please_set_location_in_map : "Please provide your current location.",
   or_c : "OR",
   select_location : "Select Location",
   select_location_from_map : "Select Location from map",
@@ -291,7 +291,6 @@ export default {
   please_enter_number : "Please enter phoneNumber",
   please_enter_valid_info : "Please enter OTP",
   please_select_image : "Please select image",
-  permission_to_acess_storage : "Permission to access storage is required.Please select 'Allow access to media only' in Storage. ",
   while_storing_image : "Oops!! there is an error while storing image",
   map : "Map",
   satelite : "Satelite",
@@ -306,7 +305,7 @@ export default {
   confirm_to_exit : "Confirmation to exit?",
   history_t : "History of",
   please_select_all : "Please answer all questions",
-  please_select_location_by_clicking : "Please select location by clicking on button in map",
+  please_select_location_by_clicking : "click on red colour 'location' button and save your current location",
   please_enter_d_no : "Please enter door number",
   user_with_same_d_no_exists : "User with same door number exist",
   d_no : "Door No",
@@ -315,7 +314,11 @@ export default {
   getting_this_month_report : "Please wait getting current month report",
   please_switch_location : "Please switch on your location in mobile",
   switch_on_location : "Switch on your location",
-  location_permission : 'Please check location in your phone and select "Allow all the time" to close this modal',
+  location_permission : 'You have not given location permission for the app. so kindly give the location permission from the app',
+  camera_permission : "You have not given camera permission for the app. so kindly give the camera permission from the app",
+  please_assign_tag_to_you : "Please assign tags to you.",
+  permission_to_acess_storage : "You have not given storage permission for the app. so kindly give the storage permission from the app",
+  all : "All"
 
 
 

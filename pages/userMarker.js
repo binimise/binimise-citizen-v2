@@ -32,32 +32,25 @@ export default props => {
         onSnapshot(data => {
             data = data.docs || [];
             data = data.map(item => item.data());
-            mergeData(data)
-            // setDriverLocations(data);
+            setDriverLocations(data);
         });
     }
 
-    const mergeData = (data)=>{
-        let mergedArr = [],locations=[]
-        deviceList.length>0&&deviceList.map((eachDevice)=>{
-            data.map((eachData)=>{
-                if(eachDevice.id === eachData.imei){
-                    let obj={}
-                    obj.vehicle_name = eachDevice.vehicle_name
-                    obj.phone_num = eachDevice.phone_num
-                    obj.geo =eachData.geo
-                    mergedArr.push(obj);
-                    locations.push(eachData.geo);
-                }
-            })
-        })
-        setDriverLocations(locations);
-        setDriverDetails(mergedArr);
-    }
+
     
     if(driverLocations == null || driverLocations.length === 0)
         return null;
 
+    const getTitleOfVehicle = (item) =>{
+        let title = deviceList.find((eachDoc) =>eachDoc.id === item.imei);
+        return title?.vehicle_name || "N/A";
+    }
+
+    const getPhnNumOfVehicle = (item) =>{
+        let title = deviceList.find((eachDoc) =>eachDoc.id === item.imei);
+        return title?.phone_num|| "N/A";
+    }
+    
     return ( <View> 
         {
             driverLocations
@@ -65,11 +58,12 @@ export default props => {
                 <View key={index}>
                     <Marker
                         coordinate={{
-                            latitude: item?._latitude || APP_CONFIG.COORDINATES.coords.latitude, 
-                            longitude: item?._longitude || APP_CONFIG.COORDINATES.coords.latitude
+                            latitude: item?.geo?.latitude || APP_CONFIG.COORDINATES.coords.latitude, 
+                            longitude: item?.geo?.longitude || APP_CONFIG.COORDINATES.coords.latitude
                         }}
-                        title={driverDetails[index]?.vehicle_name}
-                        description={driverDetails[index]?.phone_num}
+                        tracksViewChanges = {false}
+                        title = {getTitleOfVehicle(item)}
+                        description = {getPhnNumOfVehicle(item)}
                     >
 
                         <Image source={require('./../assets-images/car.webp')} style={{ width: 30, height: 30 }} />

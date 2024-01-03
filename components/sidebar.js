@@ -16,7 +16,7 @@ let arrayOfItems = [
     {id : PAGES.PLACES, name : "places", icon : "th-large", type: "fontAwesome"},
     {id : PAGES.MAPVIEW, name : "mapView", icon : "map-o", type: "fontAwesome"},
     {id : PAGES.TOILETLOCATOR, name : "toilets", icon :"toilet",type:"MaterialCommunityIcons"},
-    {id : PAGES.GARBAGEVAN, name : "garbageVan" ,icon :"truck" ,type: "fontAwesome"},
+    // {id : PAGES.GARBAGEVAN, name : "garbageVan" ,icon :"truck" ,type: "fontAwesome"},
     {id : PAGES.SUGGESTION, name : "suggestion", icon : "vcard-o", type: "fontAwesome"},
     {id : PAGES.BOOKING, name : "booking", icon : "file-text-o", type: "fontAwesome"},
     {id : PAGES.HISTORY, name : "history", icon : "history", type: "fontAwesome"},

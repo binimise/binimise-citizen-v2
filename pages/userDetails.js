@@ -160,6 +160,7 @@ export default ({ navigation }) => {
     });
 
     useEffect(()=>{
+        setUserTags([]);
         setIsPickerShow(false);
         setIsHideMap(false);
         setIsExpandLocation(false);
@@ -299,6 +300,10 @@ export default ({ navigation }) => {
         if(!updateLocation?.latitude){
             showErrorModalMsg("error_in_getting_location_please_set_location_in_map");
             return true
+        }
+        if(userTags!=undefined && userTags.length<=0){
+            showErrorModalMsg("please_assign_tag_to_you");
+            return true;
         }
         return false
     }
@@ -498,10 +503,10 @@ export default ({ navigation }) => {
                     <Touch boc={"#F0F0F0"} bc={Color.themeColor} b jc  ai  h={30} br={4} s={16} w={"90%"} mt={4}
                         c={Color.themeFontColor}  ml={20}  onPress={addNewTagIntoBackend}  t={"submit"} 
                     />
-                </View>: 
-                <Touch boc={"#F0F0F0"} bc={Color.themeColor} b jc  ai  h={30} br={4} s={16} w={"90%"} 
-                    c={Color.themeFontColor}  ml={20} onPress={() =>{setIsExpandBox(true)}} t={"add_newtag"} mt={4}
-                />
+                </View>: null
+                // <Touch boc={"#F0F0F0"} bc={Color.themeColor} b jc  ai  h={30} br={4} s={16} w={"90%"} 
+                //     c={Color.themeFontColor}  ml={20} onPress={() =>{setIsExpandBox(true)}} t={"add_newtag"} mt={4}
+                // />
             }
             <CustomMultiPicker
                 options={selectedItems}
@@ -812,6 +817,7 @@ export default ({ navigation }) => {
                                 onPress={() =>{setIsExpandTags(true)}}>
                                 <View row>
                                     <Text c={"black"} s={14} b lh={18} t={"_tags"}/>
+                                    <Text s={12} t={"*"} c={Color.red} b/>
                                     <IconF 
                                         size={24}
                                         style={{position:"absolute",right:8}}
