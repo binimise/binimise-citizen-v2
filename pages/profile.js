@@ -15,6 +15,7 @@ import { useFocusEffect, useIsFocused,useNavigationState } from '@react-navigati
 
 const initialState = {
     name : "",
+    father_name : "",
     phoneNumber : "",
     DDN_NO : "",
     userType : "user",
@@ -73,7 +74,11 @@ export default ({ navigation }) => {
     useEffect(() => {
       if(routeName === PAGES.PROFILE){
         const backAction = () => {
-          navigation.navigate(PAGES.HOME);
+          if(userInfo?.authUid){
+            navigation.navigate(PAGES.HOME);
+          }else{
+            BackHandler.exitApp();
+          }
           return true;
         };
         const backHandler = BackHandler.addEventListener(
@@ -220,11 +225,14 @@ export default ({ navigation }) => {
               source={userInfo?.profile?{ uri:userInfo.profile}:require("./../assets/blankavatar.png")}
               style = {{height:"100%",width:110,borderRadius:30,
               borderWidth:2,borderColor:"black",alignSelf:"center"
-              }} resizeMode="cover"
+              }} resizeMode="stretch"
             />
           </View>
           {
             getProfileView('name', 'firstName_lastName', 'name', userInfo?.name)
+          }
+           {
+            getProfileView('father_name', 'firstName_lastName', 'father_name', userInfo?.father_name)
           }
           {
             getProfileView('phoneNumber', '9954672326', 'phoneNumber', userInfo?.phoneNumber, "numeric", 10)

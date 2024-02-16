@@ -46,6 +46,7 @@ export default ({ navigation }) => {
     if(routeName === PAGES.ADDNEWBOOKING){
       const backAction = () => {
         if(isBookingListShow){
+          setSelectedWasteType({});
           setIsBookingListShow(false);
           return true;
         }

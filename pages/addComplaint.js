@@ -15,6 +15,7 @@ import IconAnt from 'react-native-vector-icons/AntDesign';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import MaterialIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useIsFocused, useNavigationState} from '@react-navigation/native';
+import CameraDiv from "../components/camera";
 let { width, height } = Dimensions.get("window");
 
 
@@ -47,6 +48,7 @@ export default ({ navigation }) => {
     if(routeName === "AddComplaint"){
       const backAction = () => {
         if(ispickerShow){
+          formOnChangeComText("typesOfComplaint", "")
           setIsPickerShow(false);
           return true;
         }
@@ -194,7 +196,7 @@ export default ({ navigation }) => {
     navigation.navigate(PAGES.COMPLAINT);
     
   }
-  console.log("cc",complaintObj)
+  
   const errorModal = message => {
     setDataAction({
       errorModalInfo : {
@@ -208,31 +210,7 @@ export default ({ navigation }) => {
 
   const formOnChangeComText = (field, value) => setComplaintObj(Object.assign({}, complaintObj, {[field] : value}));
  
-  const takePicture = async () => {
-    if (!camera) return;
-    try {
-      const options = { quality: 0.05 };
-      const photo = await camera.takePictureAsync(options);
-      // setStartCamera(false);
-      loadingInAddComplaint(true,"image_loading");
-      const reference = storageRef.ref("complaints/" + new Date().toLocaleDateString().split("/").join("-") + "/" + new Date().getTime() + '.jpg');
-      reference.putFile(photo.uri).then(()=> {
-        reference.getDownloadURL().then(url => {
-          loadingInAddComplaint(false);
-          setImageUrl(url);
-          setImageModal(true);
-          
-        }).catch((error) => { 
-          loadingInAddComplaint(false); 
-          errorModal("oops_there_is_an_error_while_getting_image_url");
-        });
-      }).catch(() => {
-        loadingInAddComplaint(false);
-        errorModal("Oops!! there is an error while storing image"); 
-      });
-    } catch(e) {}
-    setStartCamera(false);
-  }
+
 
   const showUserDetails = (text, ph, name, value, h) => {
     return (
@@ -263,7 +241,7 @@ export default ({ navigation }) => {
             <View w={"90%"} bw={0.5} mh={"5%"} bc={"black"} mb={"4%"}/>
             <ScrollView>
               {typesOfGarbageDump.length>0&&typesOfGarbageDump.map((each,index)=>{
-                console.log("e",each)
+                
                 return(
                   <Touch h={40} w={"90%"} ml={"5%"} row key={index} ai
                     onPress={() => {formOnChangeComText("typesOfComplaint", each.name)}}>
@@ -306,42 +284,22 @@ export default ({ navigation }) => {
     </View> 
   } 
 
-  if (startCamera) {
-    return (
-      <Camera
-        style={{ height: "100%", width: "100%" }}
-        type={type}
-        ref={(ref) => setCamera(ref)}
-      >
-        <Touch a to={20} le={20} h={60} bc={Color.white}
-          br={32} w={60} jc ai onPress={() => setStartCamera(false)}
-        >
-          <IconAnt size={36}
-            name={"close"}
-            color={Color.themeColor}
-          />
-        </Touch>
-        <Touch a bo={10} le={20} h={60} bc={Color.white} br={32} w={60} jc ai
-          onPress={() => { type == CameraType.front ? setType(CameraType.back) : setType(CameraType.front) }}
-        >
-          <MaterialIcons size={36}
-            name={"camera-flip-outline"}
-            color={Color.themeColor}
-          />
-        </Touch>
-        <Touch a bo={10} h={60} bc={Color.white} br={32} w={60} jc ai
-          style={{ alignSelf: "center" }} onPress={takePicture}
-        >
-          <IconAnt size={36}
-            name={"camera"}
-            color={Color.themeColor}
-          />
-        </Touch>
-      </Camera>
-    )
+  const complaintImageOnLoad = async (url) => {
+    setImageUrl(url);
+    setStartCamera(false);
   }
 
- console.log("c_type",complaintObj.typesOfComplaint)
+  if (startCamera) {
+      return(
+        <CameraDiv
+          onLoadOp = {complaintImageOnLoad}
+          handleCloseCam = {() =>{setImageUrl("");setStartCamera(false)}}
+          imageRef = {"complaints/" + new Date().toLocaleDateString().split("/").join("-") + "/" + new Date().getTime() + '.jpg'}
+        />
+      )
+  }
+
+
   
   return (
     <ScrollView>
@@ -383,7 +341,7 @@ export default ({ navigation }) => {
           
           <View w={"90%"} mh={"5%"}>
             <Text s={12} c={"black"} t={"capture_image"} b/>
-            <Touch bw={1} bs={"dashed"} br={4} s={16} mb={12} h={100}w={'100%'} ai jc
+            <Touch bw={1} bs={"dashed"} br={4} s={16} mb={12} h={100}w={'100%'} ai jc 
               boc={Color.lightGrayColor}  bc={"#FFFFFF"} onPress={()=> {setStartCamera(true);}}
             > 
               {imageUrl?
@@ -393,7 +351,7 @@ export default ({ navigation }) => {
                   style ={{width:"100%",height:"100%"}} 
                 />:
                 <View>
-                  <Icon size={18}
+                  <Icon size={36}
                     name={"camera"}
                     color={"#979797"} 
                     style={{alignSelf:"center"}}

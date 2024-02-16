@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setData } from "../redux/action";
 import { View, Text, Touch } from "../ui-kit";
 import Header from "../components/header";
-
+import Styles from '../styles/styles';
 import {getAcknowledge,getVehicleGeo } from "./../repo/repo";
 import {Calendar,LocaleConfig} from 'react-native-calendars';
 import {Color,getCurrentDateFmt,getCurrentDate,PAGES} from "./../global/util";
@@ -90,7 +90,7 @@ export default ({ navigation }) => {
     let selectedMonth = new Date(selectedDate);
     let currentDate = new Date();
     if (
-      selectedMonth.getFullYear() <= currentDate.getFullYear() ||
+      selectedMonth.getFullYear() < currentDate.getFullYear() ||
       (selectedMonth.getFullYear() === currentDate.getFullYear() &&
         selectedMonth.getMonth() <= currentDate.getMonth())
     ) {
@@ -225,11 +225,28 @@ export default ({ navigation }) => {
           markedDates={datesObj}
           markingType={'custom'}
         />
+         <View row ml={"4%"} mt={30} >
+          <Text h={20} w={20} bc={Color.themeColor} style={{borderRadius:10}}/>
+          <Text h={20} ml={10} t={"garbage_collected"}/>
+        </View>
+        <View row  ml={"4%"} mt={10}>
+          <Text h={20} w={20} bc={'#F6BE00'} style={{borderRadius:10}}/>
+          <Text h={20} ml={10} t={"garbage_segregation"}/>
+        </View>
+        <View row  ml={"4%"} mt={10}>
+          <Text h={20} w={20} bc={"#4169e1"} style={{borderRadius:10}}/>
+          <Text h={20} ml={10} t={"garbage_picker_present"}/>
+        </View>
+        <View row ml={"4%"} mt={10}>
+          <Text h={20} w={20} bc={"#800000"} style={{borderRadius:10}}/>
+          <Text h={20} ml={10} t={"garbage_picker_absent"}/>
+        </View>
         <View mt={10} />
          {Object.keys(selectedAckObj).length === 0?null:
         
-        <View ml={"5%"}>
-                <Text t={["history_t","  ",selectedAckObj?.dateId]} b s={20} />
+        <View style = {Styles.hiistoryView}>
+          <Text t={["history_t","  ",selectedAckObj?.dateId]} b s={20} style={{marginLeft:"5%"}} />
+          <View mh={"5%"} bw={1} w={"90%"} bc={"#CCCCCC"}/>
                 {
                   showTextAndValue("name", selectedAckObj?.name || "N/A")
                 }
@@ -256,7 +273,7 @@ export default ({ navigation }) => {
         
                 
         }
-       
+       <View h={40}/>
       </ScrollView>
     </View>
   )

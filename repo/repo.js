@@ -1,5 +1,5 @@
 import firebase from "./../repo/firebase";
-import { getCurrentDateFmt, APP_CONFIG, AUTHUID,PHONENUMBER, getCurrentDate } from "./../global/util";
+import { getCurrentDateFmt, APP_CONFIG, AUTHUID,PHONENUMBER, getCurrentDate,getCurrentDateNormalFmt } from "./../global/util";
 import CryptoJS from 'crypto-js';
 export const HASH = "6fb74b35af6ce0";
 
@@ -332,6 +332,50 @@ const getAllVehicles = async () => {
     return data.docs.map(item => Object.assign({}, {id : item.id}, item.data()));
 } 
 
+const getVehiclesInWard = async wardId => {
+    let data = await getVehicleRef().where("ward_id", "array-contains-any", wardId).get();
+    return data;
+    
+}
+
+const getRoutesOfVehicles = (vehicleHistory) =>{
+    let routes_array = [];
+    vehicleHistory.forEach((item, index) => {
+      if(item?._latitude){
+        routes_array.push({
+          latitude :item?._latitude,
+          longitude : item?._longitude,
+          // time:item.time
+      })
+      }
+        
+    });
+    return routes_array;
+    
+}
+
+const getEachDriverLocation = (id) =>{
+    return getDeviceGeoRef()
+    .where('date', '==', getCurrentDateNormalFmt())
+    .where('imei', '==', id)
+}
+
+const getRouteOfVehicle = async(vehicleInfo) => {
+    let obj ={
+        name: vehicleInfo.name || "",
+        phoneNumber: vehicleInfo.phoneNumber || "",
+        ward_id : vehicleInfo.ward_id || []
+    };
+    let data = await getEachDriverLocation(vehicleInfo.device_id).get();
+    data?.docs?.map((eachDoc)=>{
+        obj["geo"] = {...eachDoc?.data?.()?.geo || {}};
+        obj["routes"] = eachDoc?.data?.()?.history?.length>0&&
+                        getRoutesOfVehicles(eachDoc?.data()?.history)||[];
+    })
+    
+    return obj;
+
+}
 
 const updateUserToken = (userInfo, token) => {
     // console.log("userIn",userInfo,"t",token)
@@ -574,5 +618,5 @@ export { getUserData, addUserData, getDevicesInWard, blockNotificationForUser, g
          addSuggestion,getAllVehicles,getVehiclesGeo,addFeedbackData,getAllSuggestions,getActiveComplaints,getAssignedComplaints,
          getClosedComplaints,getDevices,getSettingsData, getVehicleGeo,getSurvey,updateTaskPayments,getTaskPayments,sendOTP,
          getComplaintsFromSettings,getTasksFromSettings,getAppSettings,addObjectsInFeedback,getFeedback,addAppSettings,
-         updateSaathiWorkDoneImage,getAcknowledge,getManagerDetails,getDoorInfo
+         updateSaathiWorkDoneImage,getAcknowledge,getManagerDetails,getDoorInfo,getVehiclesInWard,getRouteOfVehicle
     }

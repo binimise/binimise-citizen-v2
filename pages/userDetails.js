@@ -21,6 +21,7 @@ import { Camera,CameraType } from 'expo-camera';
 import MapViewModal from '../components/mapViewModal';
 import firebase from "./../repo/firebase";
 import Styles from '../styles/styles';
+import CameraDiv from "../components/camera";
 let {height,width} =Dimensions.get("window");
 
 const KeyFromObj = {
@@ -31,6 +32,7 @@ const KeyFromObj = {
 const RESET = "reset";
 const initialState = {
     name : "",
+    father_name : "",
     phoneNumber : "",
     DDN_NO : "",
     userType : "app_user",
@@ -97,7 +99,7 @@ export default ({ navigation }) => {
     const [_mapType,setMapType] = useState("hybrid"); 
     const navigationValue = useNavigationState(state => state);
     const routeName = (navigationValue.routeNames[navigationValue.index]);
-    let { tokenFromOneSignal } = useSelector(state => state.testReducer) || {};
+    let { tokenFromOneSignal,errorModalInfo,loading,confirmModalInfo } = useSelector(state => state.testReducer) || {};
     const [showImageLibrary,setShowImageLibrary] = useState(false);
     const [startCamera, setStartCamera] = useState(false);
     const [type, setType] = useState(CameraType.back);
@@ -108,12 +110,48 @@ export default ({ navigation }) => {
     useEffect(() => {
         if(routeName === "UserDetails"){
           const backAction = () => {
+            if(loading.show){
+                toggleLoading(false);
+                return true;
+            }
+            if(errorModalInfo.showModal){
+                setDataAction({ 
+                    errorModalInfo : { showModal : false }
+                })
+                return true;
+            }
+
+            if(confirmModalInfo.showModal){
+                setDataAction({ 
+                    confirmModalInfo : { showModal : false }
+                })
+                return true;
+            }
+            if(startCamera){
+                setStartCamera(false);
+                return true;
+            }
+            if(showImageLibrary){
+                setShowImageLibrary(false);
+                return true;
+            }
+            
             if(isPickerShow){
                 setIsPickerShow(false);
+                formOnChangeText("areaCode","");
                 return true;
             }
             if(isHideMap){
                 setIsHideMap(false);
+                return true;
+            }
+            if(showImageLibrary){
+                setShowImageLibrary(false);
+                return true;
+            }
+            if(isExpandWard){
+                setIsExpandWard(false);
+                return true;
             }
             if(isExpandLocation){
                 setIsExpandLocation(false);
@@ -123,14 +161,11 @@ export default ({ navigation }) => {
                 setIsExpandAlert(false);
                 return true;
             }
-            if(isExpandWard){
-                setIsExpandWard(false);
-                return true;
-            }
+           
             if(isExpandTags){
                 setIsExpandTags(false);
                 return true;
-            }
+            }                        
             if(isExpandBox){
                 setIsExpandBox(false);
                 return true;
@@ -144,9 +179,19 @@ export default ({ navigation }) => {
                 return true;
             }
             if(userInfo?.authUid){
-                navigation.navigate(PAGES.PROFILE)
+                navigation.navigate(PAGES.PROFILE);
             }else{
-                BackHandler.exitApp();
+                setDataAction({ 
+                    confirmModalInfo : {
+                        showModal : true,
+                        title : "message",
+                        message : "confirm_to_exit",
+                        primaryAction : () =>{
+                            setDataAction({confirmModalInfo:{showModal: false}});
+                            BackHandler.exitApp();
+                        }
+                    }
+                })
             }
             
             return true;
@@ -244,16 +289,6 @@ export default ({ navigation }) => {
         dispatchStateAction({ field, value });
     }
 
-    const getCurrentLocation = async () => {
-        try {
-            await Location.enableNetworkProviderAsync().then().catch(_ => null);
-            let location = await Location.getLastKnownPositionAsync({enableHighAccuracy: true});
-            return location.coords;
-        }catch(e){
-            showErrorModalMsg("error_in_getting_current_location");
-        }
-    }
-
     const showErrorModalMsg = (message, title = "message") => {
         setDataAction({ 
             errorModalInfo : {
@@ -272,21 +307,29 @@ export default ({ navigation }) => {
     }
     
     const validateUserInfo = () => {
-        let message = ["please_enter", " "];
-        for(let key in initialState) {
-            if(!skipValidationFields(key) && !state[key]){
-                let newKey = KeyFromObj[key] || key;
-                message.push(newKey);
-                let tempTxt = newKey == "areaCode"?"select_your_ward":(newKey =="DDN_NO"?"please_enter_d_no":message);
-                showErrorModalMsg(tempTxt);
-                return true
-            }
+        if(!state?.name){
+            showErrorModalMsg("please_enter_name");
+            return true;
+        }
+        if(state?.name && !containsNonSpace(state?.name)){
+            showErrorModalMsg("please_enter_name_properly");
+            return true;
+        }
+        if(!state?.father_name){
+            showErrorModalMsg("please_enter_fatherName");
+            return true;
+        }
+        if(state?.father_name && !containsNonSpace(state?.father_name)){
+            showErrorModalMsg("please_enter_fatherName_properly");
+            return true;
         }
         if (!state?.phoneNumber) {
-            return showErrorModalMsg("please_enter_number")
+            showErrorModalMsg("please_enter_number");
+            return true;
         }
         if (!containsOnlyNumbers(state?.phoneNumber) || state?.phoneNumber.length != 10) {
-            return showErrorModalMsg("please_enter_10_digit_phonenumber")
+            showErrorModalMsg("please_enter_10_digit_phonenumber");
+            return true;
         }
         if(!state.DDN_NO) {
             showErrorModalMsg("please_enter_d_no");
@@ -296,7 +339,14 @@ export default ({ navigation }) => {
             showErrorModalMsg("please_enter_d_no_properly")
             return true;
         }
-        
+        if(!state?.address){
+            showErrorModalMsg("please_enter_address");
+            return true;
+        }
+        if(!state?.areaCode){
+            showErrorModalMsg("select_your_ward");
+            return true;
+        }
         if(!updateLocation?.latitude){
             showErrorModalMsg("error_in_getting_location_please_set_location_in_map");
             return true
@@ -421,7 +471,7 @@ export default ({ navigation }) => {
                 </View>
             </Touch>
             <View row>
-                <Text s={18} t={"add_location"} c={"black"} b/>
+                <Text s={18} t={updateLocation?.latitude?"edit_location":"add_location"} c={"black"} b/>
                 <View row style={{position:"absolute",right:0}} ai>
                     <Icon size={16} name={"crosshairs"} color={"green"}/> 
                     <Touch h={20} onPress={() =>{setIsHideMap(true)}}>
@@ -486,10 +536,10 @@ export default ({ navigation }) => {
                     mv={10} pa={6} row style={{display:"flex",flexWrap: 'wrap',}}
                 > 
                     {userTags.map((each,index)=>(
-                        <Touch key={index} mh={4} boc={'#F0F0F0'} h={30} w={"30%"} 
-                            br={10} bw={2} mt={4}
+                        <Touch key={index} mh={4} boc={'#F0F0F0'} mv={4} w={"30%"} jc ai
+                            br={10} bw={2} style ={{minHeight:"30px",height:"auto"}}
                         >
-                            <Text c={Color.themeColor} center  t={each}/>
+                            <Text c={Color.themeColor} center  t={each} pa={4}/>
                         </Touch>
                     ))}
                 </View>
@@ -594,7 +644,6 @@ export default ({ navigation }) => {
         
         let image_url = pickerResult?.assets?.[0]?.uri;
         if(!image_url){
-            showErrorModalMsg("please_select_image");
             return;
         }
         
@@ -720,22 +769,42 @@ export default ({ navigation }) => {
             /> 
         </View>
     }
+    const onImageClicked = async (url) => {
+        formOnChangeText("profile",url);
+        setStartCamera(false);
+        setShowImageLibrary(false);
+    }
+
+    if(startCamera){
+        return(
+            <CameraDiv
+                onLoadOp = {onImageClicked}
+                handleCloseCam = {() =>{
+                    formOnChangeText("profile", "");
+                    setStartCamera(false);
+                }}
+                imageRef = {"profile/" + new Date().toLocaleDateString().split("/").join("-") + "/" + new Date().getTime() + '.jpg'}
+            />
+        )
+    }
+    console.log("state",state.profile,state?.profile?.length)
     return (
         <View style={Styles.edContainer}>  
-           
 
                 <View h={"100%"} w={"100%"}>
-                    <Header navigation={navigation} headerText={"editprofile"} b_Text={"gotoProfile"}/>
+                    <Header navigation={navigation} headerText={userInfo?.authUid?"editprofile":"createAccount"} b_Text={"gotoProfile"}/>
+                    
+                    
                     <ScrollView 
                         contentContainerStyle={{ paddingHorizontal: 16,paddingTop:10}}
                         showsVerticalScrollIndicator={false}
                     >
                         <View w={"100%"} h={110} mt={20}>
                             <Image 
-                                source = {state?.profile?{ uri:state?.profile}:require("./../assets/blankavatar.png")}
+                                source = {state?.profile?.length>0?{ uri:state?.profile}:require("./../assets/blankavatar.png")}
                                 style = {{height:"100%",width:110,borderRadius:20,
                                 borderWidth:2,borderColor:"black",alignSelf:"center"
-                                }} resizeMode="cover"
+                                }} resizeMode="stretch"
                             />
                             <Touch h={40} w={40} a br={8} ml={(55*width)/100} mt={85}
                                 onPress={() => {setShowImageLibrary(true)}}
@@ -743,10 +812,12 @@ export default ({ navigation }) => {
                                 <Icon size={30} name={"camera"} color={"#979797"}/>
                             </Touch>
                         </View>
-                        
 
                         {
                             getSignUpView('name', 'firstName_lastName', 'name', state?.name,true)
+                        }
+                        {
+                            getSignUpView('father_name', 'firstName_lastName', 'father_name', state?.father_name, true)
                         }
 
                         {
@@ -759,7 +830,7 @@ export default ({ navigation }) => {
                             getSignUpView('emailid', 'email', 'email', state?.email)
                         }
                         {
-                            getSignUpView('address', 'address', 'address', state?.address,true,"","","crosshairs","Locate Me")
+                            getSignUpView('address', 'stAndArea', 'address', state?.address,true,"","","crosshairs","Locate Me")
                         }
 
                         <View bw={1} w={"100%"}  bc={'#F0F0F0'} mb={20}/>
@@ -783,7 +854,7 @@ export default ({ navigation }) => {
                             <Touch h={40} w={"100%"} boc={"#F0F0F0"} 
                                 onPress={() =>{setIsExpandLocation(true)}}>
                                 <View row>
-                                    <Text c={"black"} s={14} b lh={18} t={"add_location"}/>
+                                    <Text c={"black"} s={14} b lh={18} t={updateLocation?.latitude?"edit_location":"add_location"}/>
                                     <Text s={12} t={"*"} c={Color.red} b/>
                                     <IconF 
                                         size={24}
@@ -846,7 +917,7 @@ export default ({ navigation }) => {
                                         updateUserInfo();
                                     }
                                 }}
-                                t={userInfo?.authUid? 'update' : 'signup'} 
+                                t={userInfo?.authUid? 'update' : 'signup'}
                             />
                         </View>
                     </ScrollView>
@@ -855,9 +926,9 @@ export default ({ navigation }) => {
             {
                 showImageLibrary?showImageOptionList():null
             }
-            {
+            {/* {
                 startCamera ?showOpenCamera():null
-            }
+            } */}
              {isPickerShow&&selectedArray.length>0?
                 <PickerModal 
                     items={selectedArray} 
@@ -866,7 +937,6 @@ export default ({ navigation }) => {
                     selectedPicker={selectedPickerData}
                     isClosedModal={()=>setIsPickerShow(false)} 
                 />:null}
-          
-        </View>
+        </View>  
     )
 }

@@ -5,12 +5,14 @@ import { View,Touch,Text} from "./../ui-kit";
 import UserMarker from "./userMarker";
 import Header from "../components/header";
 import { Color,APP_CONFIG, PAGES } from '../global/util';
-import { Linking,Image,Dimensions,StyleSheet, ScrollView,BackHandler } from 'react-native';
+import { Image,Dimensions,BackHandler } from 'react-native';
 import { getCtpt} from "./../repo/repo";
 import * as Location from 'expo-location';
 import { useNavigationState,useIsFocused } from '@react-navigation/native';
 import { setData } from "../redux/action";
-let {width,height } = Dimensions.get("window");
+import IconAnt from 'react-native-vector-icons/AntDesign';
+import TrackViewMarker from '../Markers/TVMarker';
+
 
 export default ({ navigation,route }) => {
 
@@ -22,12 +24,17 @@ export default ({ navigation,route }) => {
   const navigationValue = useNavigationState(state => state);
   const routeName = (navigationValue.routeNames[navigationValue.index]);
   let userInfo = useSelector(state => state.testReducer.userInfo) || {};
+  let { loading } = useSelector(state => state.testReducer) || {};
   let pageHeader = route?.params?.Text || "mapView";
   const isFocus = useIsFocused();
 
   useEffect(() => {
     if(routeName === PAGES.MAPVIEW){
       const backAction = () => {
+        if(loading.show){
+          loaderInMapview(false);
+          return true;
+        }
         navigation.navigate(PAGES.HOME);
         return true;
       };
@@ -39,13 +46,14 @@ export default ({ navigation,route }) => {
     }
   });
 
+  const loaderInMapview = (show,message) => {
+    setDataAction({"loading": {show,message}});
+  }
+
   useEffect(() => {
-    if(isFocus){
-      getLiveLocationOfUser();
-      getAllToilets();
-    }
-    
-  }, [isFocus]);
+    getLiveLocationOfUser(true);
+    getAllToilets();
+  }, []);
 
   const LocalNullModal = (message, title = "message") =>{
     setDataAction({ 
@@ -64,45 +72,59 @@ export default ({ navigation,route }) => {
         showModal: true,
         title : "message",
         message,
-        onClose: () =>onCloseEvent() // Ask for permissions again
       }
     });
   };
 
-  const onCloseEvent = async(text) =>{
-    Linking.openSettings();
-    getLiveLocationOfUser();
-  }
-
-  const getLiveLocationOfUser = async () => {
-    try {
-        let providerStatus = await Location.getProviderStatusAsync();
-        if (providerStatus.locationServicesEnabled) {
-            setDataAction({ 
-                errorModalInfo: {
-                  showModal: false
-                }
-            });
-            let location = await Location.getLastKnownPositionAsync({enableHighAccuracy: true});
-            if(!location){
-              getLiveLocationOfUser();
-              return;
+  const getLiveLocationOfUser = async (flag) => {
+    let providerStatus = await Location.getProviderStatusAsync();
+    if (providerStatus.locationServicesEnabled) {
+        setDataAction({
+            errorModalInfo: {
+                showModal: false
             }
+        });
+        loaderInMapview(true,"fetching_location");
+
+        try {
+            let location = await Promise.race([
+                Location.getLastKnownPositionAsync({ enableHighAccuracy: false }),
+                new Promise((resolve, reject) => {
+                    setTimeout(() => reject(new Error('Location request timed out')), 2000);
+                })
+            ]);
+            if (!location) {
+                location = await Promise.race([
+                    Location.getCurrentPositionAsync({ enableHighAccuracy: false }),
+                    new Promise((resolve, reject) => {
+                        setTimeout(() => reject(new Error('Current location request timed out')), 3000);
+                    })
+                ]);
+
+                if (!location) {
+                    showErrorModalMsg("unable_to_fetch_exact_location");
+                    return;
+                }
+            }
+
+            loaderInMapview(false);
             let lat = location?.coords?.latitude ||APP_CONFIG.COORDINATES.coords.latitude ,
             long = location?.coords?.longitude ||APP_CONFIG.COORDINATES.coords.longitude ;
             setLiveLocation({latitude:lat,longitude:long});
-        } else {
-            return LocalNullModal("please_switch_location","switch_on_location");
+        } catch (e) {
+            loaderInMapview(false);
+            showErrorModalMsg("unable_to_fetch_exact_location");
         }
-        
-    }catch(e){
-        showErrorModalMsg("location_permission") ; 
+    } else {
+      return LocalNullModal("please_switch_location","switch_on_location");
+      
     }
+
   }
 
 
-  const getAllToilets = async()=>{
-    let _ctpt =await getCtpt();
+  const getAllToilets = async() => {
+    let _ctpt = await getCtpt();
     getTopThreeToilets(_ctpt);
   }
 
@@ -123,15 +145,14 @@ export default ({ navigation,route }) => {
   }
 
   function getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
-    var R = 6371; // Radius of the earth in km
-    var dLat = deg2rad(lat2-lat1);  // deg2rad below
-    var dLon = deg2rad(lon2-lon1);
-    var a =
-    Math.sin(dLat/2) * Math.sin(dLat/2) +
-    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
-    Math.sin(dLon/2) * Math.sin(dLon/2);
-    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    var d = R * c; // Distance in km
+    let R = 6371; // Radius of the earth in km
+    let dLat = deg2rad(lat2-lat1);  // deg2rad below
+    let dLon = deg2rad(lon2-lon1);
+    let a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+      Math.sin(dLon/2) * Math.sin(dLon/2);
+    let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    let d = R * c; // Distance in km
     return d;  // distance returned
   }
 
@@ -140,98 +161,103 @@ export default ({ navigation,route }) => {
   }
 
  
-  const ctptfun = (eachCtpt)=>{
-    let imageArr=[eachCtpt.insideImage,eachCtpt.outsideImage];
-    eachCtpt.imageArr=imageArr;
+  const onMarkerPressed = (eachCtpt)=>{
+    console.log("c")
+    let imageArr = [eachCtpt.insideImage,eachCtpt.outsideImage];
+    eachCtpt.imageArr = imageArr;
     navigation.navigate(PAGES.TOILETDETAILS,{
       selectedCtpt : eachCtpt
     })
   }
  
   
-  return <View c={"white"}>
+  return <View c={Color.white}>
       <Header navigation={navigation} headerText={pageHeader} />
-      <View mh={"5%"} w={"90%"} bc={"#CCCCCC"} mt={"5%"}>
+      <View mh={"5%"} w={"90%"} mt={"3%"}>
+
+        <View c={"#CCCCCC"} w={"100%"} pa={4} mb={4}>
+          <Text 
+            t = {"please_select_location_by_clicking"} 
+            b c= {Color.themeColor} h={"3%"} s={14}
+          />
+        </View>
+        
+       
+        
         <MapView
-          language={"hn"}
+          language = {"hn"}
           mapType = {_mapType}
-          style={{ alignSelf: 'stretch', height: '100%' }}
-          region={{ latitude: liveLocation?.latitude||userInfo?.lat || APP_CONFIG.COORDINATES.coords.latitude, 
-                    longitude: liveLocation?.longitude||userInfo?.long || APP_CONFIG.COORDINATES.coords.longitude,  
-                    latitudeDelta: 0.01, longitudeDelta: 0.01 
-                  }}
+          style = {{ alignSelf: 'stretch', height: '95%' }}
+          region = {{ 
+            latitude: liveLocation?.latitude||userInfo?.lat || APP_CONFIG.COORDINATES.coords.latitude, 
+            longitude: liveLocation?.longitude||userInfo?.long || APP_CONFIG.COORDINATES.coords.longitude,  
+            latitudeDelta: 0.01, longitudeDelta: 0.01 
+          }}
         >
+           
           <UserMarker userInfo={userInfo} />
           <Marker
-            coordinate={{latitude: liveLocation?.latitude||userInfo?.lat || APP_CONFIG.COORDINATES.coords.latitude, 
+            coordinate={{
+              latitude: liveLocation?.latitude||userInfo?.lat || APP_CONFIG.COORDINATES.coords.latitude, 
               longitude: liveLocation?.longitude||userInfo?.long || APP_CONFIG.COORDINATES.coords.longitude
             }} 
           >
             <Image  source={require("./../assets/blueicon.png")}  style = {{height: 40, width:40}}/>
           </Marker>
           
-          {route?.params?.id == "Toilets"&&toiletsList.length>0&&toiletsList.map((eachCtpt,index)=>(
-            <Marker
-              key={index}
-              coordinate={{latitude: eachCtpt.lat,longitude: eachCtpt.long}}
-              onPress={() => {ctptfun(eachCtpt)}}
-              title={eachCtpt.title}
-            >
-              <Image  source={[0,1,2].includes(index)?require("./../assets/toilet.png"):require("./../assets/toilet-b.png")}
-                style = {{height: 24, width:24}}
+          {route?.params?.id == "Toilets"&&
+            toiletsList.length>0&&toiletsList.map((eachCtpt,index)=>(
+              <TrackViewMarker
+                index = {index}
+                id = {index}
+                coord ={{latitude: eachCtpt.lat,longitude: eachCtpt.long}}
+                name = {eachCtpt.title}
+                phoneNumber = {eachCtpt.contactNo || "N/A"}
+                handlePressCallout = {() =>onMarkerPressed(eachCtpt)}
               />
-            </Marker>
           ))}
         </MapView>
-          <Touch a ri={10} h={20} to = {20} bc={Color.themeColor} 
-              t={"refresh"} br={10} c={Color.white} w={80}
-              onPress = {()=>getLiveLocationOfUser()}
+
+        <Touch a bo = {"20%"} le ={20} onPress = {()=>getLiveLocationOfUser()}>
+          <Image 
+            source={require("./../assets/currentLocation.webp")} 
+            style={{ width: 50, height: 50 }} 
           />
-        <View style={{ position: "absolute", bottom: "20%", right:10 }}c={"white"} row w={"40%"} br={16}>
-          <Touch jc ai t={"Map"} h={48} w={"48%"} c={_mapType =="standard"?"green":"black"} onPress={()=>setMapType("standard")}/>
-          <View w={1} c={"black"}/>
-          <Touch jc ai t={"Satelite"} h={48} w={"50%"}c={_mapType =="hybrid"?"green":"black"} onPress={()=>setMapType("hybrid")}/>
+        </Touch>
+
+        <View a to={60} w={100} ml = {"5%"} h={40} c={Color.white} row br={16}jc ai>
+          <Text t={userInfo?.ward} c={Color.themeColor} b/>
         </View>
+        {
+            route?.params?.id == "Toilets" && 
+            <Touch 
+              a ri={10} bc={Color.themeColor} jc ai 
+              br={10} h={40} row w={80} to = {60}
+              onPress = {()=>getAllToilets()}
+            >
+              <IconAnt 
+                size = {18} 
+                name = {"reload1"}
+                color = {Color.white} 
+              />
+              <Text t = {"refresh"} ml = {8} c = {Color.white}/>
+            </Touch>
+        }
+
+        <View a bo={'20%'} ri={10} c={Color.white} row w={"40%"} br={16}>
+          <Touch 
+            jc ai t={"map"} h={48} w={"48%"} 
+            c = {_mapType =="standard"?Color.themeColor:Color.black} 
+            onPress={()=>setMapType("standard")}
+          />
+          <View w={1} c={Color.black}/>
+          <Touch 
+            jc ai t={"satelite"} h={48} w={"50%"}
+            c={_mapType =="hybrid"?Color.themeColor:Color.black} 
+            onPress={()=>setMapType("hybrid")}
+          />
+        </View>
+
       </View>
     </View>
 }
-
-
-
-
-const styles = StyleSheet.create({
-  bottomView: {
-      width: '100%',
-      height: "90%",
-      backgroundColor: '#fbfbfb',
-      position: 'absolute', 
-      bottom: 0, 
-      borderTopLeftRadius:50,
-      borderTopRightRadius:50,
-      overflow: 'hidden'
-  },
-  paginationStyle :{
-      position: "relative",
-      bottom: 0,
-      padding: 0,
-      alignItems: "center",
-      alignSelf: "center",
-      justifyContent: "center",
-      paddingVertical: 10
-  },
-  imageStyle :{
-    borderRadius: 6, 
-    width: '90%', 
-    marginTop: "6%",
-     
-  },
-  boxDotStyle: {
-    width: 20,
-    height: 4,
-    borderRadius: 4,
-    marginHorizontal: 0,
-    padding: 0,
-    margin: 0,
-    backgroundColor: "rgba(128, 128, 128, 0.92)"
-  }
-});

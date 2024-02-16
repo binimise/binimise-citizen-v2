@@ -116,5 +116,45 @@ export default StyleSheet.create({
     borderTopLeftRadius:10,
     borderTopRightRadius:10,
     overflow: 'hidden'
-}
+  },
+  radioCircle: {
+    marginTop: 4,
+    height: 20,
+    width: 20,
+    borderRadius: 70,
+    borderWidth: 2,
+    borderColor: '#808080',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  selectedRb: {
+    width: 10,
+    height: 10,
+    borderRadius: 50,
+    backgroundColor: '#808080',
+  },
+  feedBackView : {
+    width:"100%",
+    backgroundColor: "white",
+    borderRadius: 15,
+    shadowColor: "green",
+    shadowOffset: {width: 0, height: 0},
+    shadowOpacity: 1,
+    shadowRadius: 8,
+    elevation: 8,
+    padding : 10
+  },
+  hiistoryView : {
+    width:"92%",
+    marginHorizontal : "4%",
+    backgroundColor: "white",
+    borderRadius: 15,
+    shadowColor: "green",
+    shadowOffset: {width: 0, height: 0},
+    shadowOpacity: 1,
+    shadowRadius: 8,
+    elevation: 8,
+    padding : 10
+  }
+  
 });

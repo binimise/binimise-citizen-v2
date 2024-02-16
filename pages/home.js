@@ -91,7 +91,26 @@ export default ({ navigation }) => {
         }
       });
     }else{
+      await checkGPSStatus();
+    }
+  };
+  const LocalNullModal = (message, title = "message") =>{
+    setDataAction({ 
+        errorModalInfo: {
+          showModal: true,
+          title,
+          message ,
+          onClose: ()=>checkGPSStatus()
+        }
+    });
+  }
+
+  const checkGPSStatus = async () => {
+    let providerStatus = await Location.getProviderStatusAsync();
+    if (providerStatus.locationServicesEnabled) {
       await getLocationPermission();
+    } else {
+      LocalNullModal("please_switch_location","switch_on_location");
     }
   };
 
@@ -211,7 +230,7 @@ export default ({ navigation }) => {
       <Touch mt={6} mr={20} h={32} w={34} onPress={()=>{navigation.navigate(PAGES.PROFILE)}}>   
         <Image source={{ uri:userInfo.profile}}
           style = {{height: 32,marginRight: 20,width:34,borderRadius:12,borderColor:"#CCCCCC"}}
-          resizeMode="contain"
+          resizeMode="stretch"
         />
       </Touch>:
       <Touch mt={6} mr={20} h={32} w={34} onPress={()=>{navigation.navigate(PAGES.PROFILE)}}>   

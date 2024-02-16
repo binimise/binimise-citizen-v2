@@ -44,7 +44,7 @@ export default () => {
     const [screenType, setScreenType] = useState("");
     const dispatch = useDispatch();
     const setDataAction = arg => dispatch(setData(arg));
-    let { tokenFromOneSignal } = useSelector(state => state.testReducer) || {};
+    let { tokenFromOneSignal,userInfo } = useSelector(state => state.testReducer) || {};
 
    const setLanguage = async () => {
         let selectedLanguage = await AsyncStorage.getItem(SELECTEDLANGUAGE);
@@ -138,7 +138,14 @@ export default () => {
                 <Drawer.Screen component={GarbageVan} name={PAGES.GARBAGEVAN} />
                 <Drawer.Screen component={ToiletLocator} name={PAGES.TOILETLOCATOR} />
                 <Drawer.Screen component={ToiletDetails} name={PAGES.TOILETDETAILS} />
-                <Drawer.Screen component={UserDetail} name={PAGES.USERDETAIL} />
+                <Drawer.Screen 
+                    component={UserDetail} 
+                    name={PAGES.USERDETAIL}
+                    options={{
+                        gestureEnabled: userInfo?.authUid?true:false, // Disable gesture navigation
+                        swipeEnabled : userInfo?.authUid?true:false
+                    }} 
+                />
                 <Drawer.Screen component={Suggestions} name={PAGES.SUGGESTION} />
                 <Drawer.Screen component={AddComplaint} name={PAGES.ADDCOMPLAINT} />
                 <Drawer.Screen component={Complaint} name={PAGES.COMPLAINT} />

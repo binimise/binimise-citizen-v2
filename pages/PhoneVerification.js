@@ -15,7 +15,8 @@ import {
   AUTHUID,
   TOKEN,
   generateUUID,
-  APP_CONFIG
+  APP_CONFIG,
+  onlyNumbers
 } from "./../global/util";
 
 import { getUserData, updateUserToken, sendOTP, getTasksFromSettings } from "./../repo/repo";
@@ -47,16 +48,17 @@ export default PhoneVerification = ({ navigation }) => {
 
     if (routeName == PAGES.LOGINPAGE) {
       const backAction = () => {
-        Alert.alert("Hold on!", "Are you sure  want to go back?", [
-          {
-            text: "Cancel",
-            onPress: () => null,
-            style: "cancel"
-          },
-          { 
-            text: "YES", onPress: () => BackHandler.exitApp() 
+        setDataAction({ 
+          confirmModalInfo : {
+            showModal : true,
+            title : "message",
+            message : "confirm_to_exit",
+            primaryAction : () =>{
+              setDataAction({confirmModalInfo:{showModal: false}})
+              BackHandler.exitApp();
+            }
           }
-        ]);
+        })
         return true;
       };
       const backHandler = BackHandler.addEventListener(
@@ -69,7 +71,7 @@ export default PhoneVerification = ({ navigation }) => {
   });
 
  
-
+ 
 
 
   const switchOnNetInfo = async () => {
@@ -83,23 +85,29 @@ export default PhoneVerification = ({ navigation }) => {
         }
       });
     }else{
+      await checkGPSStatus();
+    }
+  };
+
+  const checkGPSStatus = async () => {
+    let providerStatus = await Location.getProviderStatusAsync();
+    if (providerStatus.locationServicesEnabled) {
       await getLocationPermission();
+    } else {
+      LocalNullModal("please_switch_location","switch_on_location");
     }
   };
-  
-  const getLocationPermission = async () => {
-    const foregroundPermission = await Location.requestForegroundPermissionsAsync();
-    if(foregroundPermission.status === "granted"){
-      setDataAction({ 
+
+  const LocalNullModal = (message, title = "message") =>{
+    setDataAction({ 
         errorModalInfo: {
-          showModal: false,
+          showModal: true,
+          title,
+          message ,
+          onClose: ()=>checkGPSStatus()
         }
-      });
-      await getCameraPermission();
-    }else{
-      showErrorModalMsg("location_permission");
-    }
-  };
+    });
+  }
 
   const getCameraPermission = async () => {
     const { status } = await Camera.requestCameraPermissionsAsync();
@@ -110,26 +118,50 @@ export default PhoneVerification = ({ navigation }) => {
         }
       });
     }else{
-      showErrorModalMsg("camera_permission");
+      showErrorModalMsg("camera_permission","isFromCamera");
     }
   };
-  
-  const showErrorModalMsg = (message, title = "message") => {
+
+  const showErrorModalMsg = (message,conText) => {
     setDataAction({ 
       errorModalInfo: {
         showModal: true,
-        title,
+        title : "message",
         message,
-        onClose: () =>onCloseEvent() // Ask for permissions again
+        onClose: () =>onCloseEvent(conText) // Ask for permissions again
       }
     });
   };
 
-  const onCloseEvent = async() =>{
+  const onCloseEvent = async(text) =>{
     Linking.openSettings();
-    await getLocationPermission();
+    if(text === "isFromLocation"){
+      getLocationPermission();
+    }else{
+      getCameraPermission();
+    }
+    
+  } 
+
+  const getLocationPermission = async () =>{
+    try {
+      const foregroundPermission = await Location.requestForegroundPermissionsAsync();
+      if(foregroundPermission.status === "granted"){
+          await getCameraPermission();
+      }else{
+          showErrorModalMsg("location_permission","isFromLocation") ; 
+      }
+    } catch(err){
+      setDataAction({ 
+        errorModalInfo: {
+          showModal: true,
+          message: "failed_to_get_location"
+        }
+      });
+    }
   }
 
+  
 
 
 
@@ -158,7 +190,7 @@ export default PhoneVerification = ({ navigation }) => {
       showErrorModal("please_enter_number");
       return false;
     }
-    if (!phoneNumber || phoneNumber.length != 10) {
+    if (!phoneNumber || phoneNumber.length != 10 || !onlyNumbers(phoneNumber)) {
       showErrorModal("please_enter_valid_phoneNumber");
       return false;
     }
@@ -261,7 +293,7 @@ export default PhoneVerification = ({ navigation }) => {
 
   const sendOtpView = () => (
     <View  mh={"5%"} w={"90%"}  mt={"20%"} mb={"20%"}>
-      <Text t="enter_mobile_number" s={16} w={"100%"}/>
+      <Text t={"enter_mobile_number"} s={16} w={"100%"}/>
       <TextInput maxLength={10} h={45} ph="phoneNumber"
         value={phoneNumber} k="phone-pad" w={"100%"} br={2}
         onChangeText={(field, value) => setPhoneNumber(value)}

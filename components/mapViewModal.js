@@ -17,7 +17,29 @@ export default (props) => {
     const setDataAction = (arg) => dispatch(setData(arg));
     const [mapCoordinates,setMapCoordiantes] = useState({...props?.intialCoordinates});
     const [typeOfMap,setTypeOfMap] = useState("hybrid");
-    const [showSubmitButton,setShowSubmitButton] = useState(false)
+    const [showSubmitButton,setShowSubmitButton] = useState(false);
+
+    useEffect(() =>{
+        checkGPSStatus();
+    },[])
+
+    const loaderInMapview = (show,message) => {
+        setDataAction({"loading": {show,message}});
+    }
+
+    const checkGPSStatus = async () => {
+        let providerStatus = await Location.getProviderStatusAsync();
+        if (providerStatus.locationServicesEnabled) {
+            setDataAction({ 
+                errorModalInfo: {
+                  showModal: false
+                }
+            });
+            // await getCurrentLocation();
+        } else {
+          LocalNullModal("please_switch_location","switch_on_location");
+        }
+    };
 
     const LocalNullModal = (message, title = "message") =>{
         setDataAction({ 
@@ -25,43 +47,55 @@ export default (props) => {
               showModal: true,
               title,
               message ,
-              onClose: ()=>getCurrentLocation()
+              onClose: ()=>checkGPSStatus()
             }
         });
     }
 
-    
-
     const getCurrentLocation = async () => {
-        try {
-            let providerStatus = await Location.getProviderStatusAsync();
-            console.log("pp",providerStatus.locationServicesEnabled)
-            if (providerStatus.locationServicesEnabled) {
-                console.log("inside");
-                setDataAction({ 
-                    errorModalInfo: {
-                      showModal: false
-                    }
-                });
-                await Location.enableNetworkProviderAsync().then().catch(_ => null);
-                let location = await Location.getLastKnownPositionAsync({enableHighAccuracy: true});
-                if(!location){
-                    getCurrentLocation();
-                    return;
+        let providerStatus = await Location.getProviderStatusAsync();
+        if (providerStatus.locationServicesEnabled) {
+            setDataAction({
+                errorModalInfo: {
+                    showModal: false
                 }
+            });
+            loaderInMapview(true,"fetching_location");
+
+            try {
+                let location = await Promise.race([
+                    Location.getLastKnownPositionAsync({ enableHighAccuracy: false }),
+                    new Promise((resolve, reject) => {
+                        setTimeout(() => reject(new Error('Location request timed out')), 2000);
+                    })
+                ]);
+                if (!location) {
+                    setShowSubmitButton(false);
+                    location = await Promise.race([
+                        Location.getCurrentPositionAsync({ enableHighAccuracy: false }),
+                        new Promise((resolve, reject) => {
+                            setTimeout(() => reject(new Error('Current location request timed out')), 3000);
+                        })
+                    ]);
+
+                    if (!location) {
+                        loaderInMapview(false);
+                        showErrorModalMsg("unable_to_fetch_exact_location");
+                        return;
+                    }
+                }
+
                 setShowSubmitButton(true);
+                loaderInMapview(false);
                 return location?.coords;
-            } else {
-                setShowSubmitButton(false);
-                console.log("notOk")
-                return LocalNullModal("please_switch_location","switch_on_location");
+            } catch (e) {
+                loaderInMapview(false);
+                showErrorModalMsg("unable_to_fetch_exact_location");
             }
-            
-        }catch(e){
-            setShowSubmitButton(false)
-            console.log("e",e)
-            showErrorModalMsg("location_permission") ; 
+        } else {
+            LocalNullModal("please_switch_location", "switch_on_location");
         }
+
     }
 
 
@@ -72,16 +106,11 @@ export default (props) => {
             showModal: true,
             title : "message",
             message,
-            onClose: () =>onCloseEvent() // Ask for permissions again
           }
         });
       };
     
-    const onCloseEvent = async(text) =>{
-        Linking.openSettings();
-        getCurrentLocation();
-    }
-    
+  
    console.log("mapCor",mapCoordinates)
 
     return <View style={Styles.mapView}>

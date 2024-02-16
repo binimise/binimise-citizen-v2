@@ -28,6 +28,10 @@ export default ({ navigation }) => {
   const isFocusedBooking = useIsFocused();
   const navigationValue = useNavigationState(state => state);
   const routeName = (navigationValue.routeNames[navigationValue.index]);
+  const [originalData,setOriginalData] = useState([]);
+  const [activeTasks, setActiveTasks] = useState([]);
+  const [assignedTasks, setAssignedTasks] = useState([]);
+  const [closedTasks, setClosedTasks] = useState([]);
 
   const loadingInBooking = show => {
     setDataAction({"loading": {show:show,message:"loading_book"}});
@@ -86,15 +90,28 @@ export default ({ navigation }) => {
   }
 
   const getMonthWiseBookings =async(allDatesOfMonth)=>{
-    let filteredBookings=[]
+    let filteredBookings = [],Active = [],Assigned = [],Closed = [];
     let bookings = await getUserTasks(userInfo);
           //  console.log("bb",bookings)
     bookings.length>0&&bookings.map((item)=>{
       if(allDatesOfMonth.includes(item.created_date)){
         filteredBookings.push(item)
       }
+      if(item.state == "ACTIVE"){
+        Active.push(item)
+      }
+      if(item.state == "ASSIGNED"){
+        Assigned.push(item);
+      }
+      if(item.state == "CLOSED"){
+        Closed.push(item);
+      }
     })
     setBookings(filteredBookings);
+    setOriginalData(filteredBookings);
+    setActiveTasks(Active);
+    setAssignedTasks(Assigned);
+    setClosedTasks(Closed);
     setRefreshing(false);
     loadingInBooking(false);
   }
@@ -165,109 +182,152 @@ export default ({ navigation }) => {
       setRefreshing(true);
       getDateAndMonth();
   }, []);
-
-  
-  // useFocusEffect(
-  //     React.useCallback(() => {
-  //       setTimeout(() => {
-  //         getDateAndMonth()
-  //     }, 5000);
-  //     }, [])
-  // );
    
-  
-  return <View c={"white"} h={"100%"} W={"100%"}>
-    <Header navigation={navigation} headerText={"booking"}/>
-    <View row mt={29} mh={"5%"} w={"90%"}>
-      <Touch boc={'green'} h={30} bw={1} w={"40%"} br={6} 
-        onPress={()=>{navigation.navigate(PAGES.ADDNEWBOOKING)}}
-      >
-        <Text c={Color.themeColor} s={16} center ai t={"new_booking"}/>
-      </Touch>
-      <View row a ri={2} h={30}>
-        <Icon size={28} name={"angle-left"}
-          color={Color.themeColor}
-          onPress={()=>{onDecrementMonth(month-1)}} 
-        /> 
-        <Text t={displayDate} s={22} mh={6}/>
-        <Icon size={28} name={"angle-right"}
-          color={Color.themeColor}
-          onPress={()=>{onIncrementMonth(month+1)}}
-        /> 
-      </View>
-    </View>
-    <ScrollView 
-      refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          onRefresh={onRefresh}
-        />
-      }>
-        {Array.isArray(bookings)?
-          bookings.map((each, index)=>{
-            let bookedDate= each.created_date.split("-").reverse().join("/")
-            let bookedForDate =!each.bookingFor?"N/A":each.bookingFor
-            let task_id =!each.t_id?"N/A":each.t_id
-            let tasktype =!each.taskType?"N/A" :each.taskType
-            let state_type =!each.state?"ACTIVE":each.state
+  const getSelectedTasks = (type) =>{
+    if(type === "ALL"){
+      setBookings(originalData);
+      return;
+    }
+    let temp = [];
+    originalData.map((eachDoc)=>{
+      if(eachDoc.state === type){
+        temp.push(eachDoc);
+      }
+    });
+    setBookings(temp || []);
+  }
 
-            return <Touch key={index} mh={"2%"} w={"96%"} h={120} mt={40} br={2} bw={2} 
-                      boc={"#CCCCCC"} bc={"#fbfbfb"}  
-                      onPress ={()=>{setIsViewDetails(true);setIndex(index);}}
-                    >
-                      <View row pa={10}>
-                        <Text t={each?.selectedWasteType?.name || "N/A"} b/>
-                        <Text t={state_type} a c={"white"} center w={140} to={10} ri={4} style={{borderRadius:10}}
-                          bc={ state_type === "ACTIVE"?"blue": state_type === "ASSIGNED"?"red":"#009900"} 
-                        />
-                      </View>
-                      <View bw={1} w={"100%"} bc={"#CCCCCC"}/>
-                      {
-                        showTaskDetails("tId",task_id,"taskType",each?.selectedWasteType?.name || N/A)
-                      }
-                      {
-                        showTaskDetails("bookedOn",bookedDate,"bookedFor",bookedForDate)
-                      }
-                    </Touch>
-          }):null
+  const showTouchBar = (touchColor,selectedType,taskCount,text) => {
+    return (
+        <Touch ai jc bc = {touchColor} br = {6} w = {"24%"} h = {100}
+          onPress={() => getSelectedTasks(selectedType)}
+        >
+          <Text 
+            s = {22} b c = {Color.white}
+            t = {taskCount}
+          />
+          <Text t = {text} s = {14} c = {Color.white} />
+        </Touch>
+    )
+  }
+  
+  return (
+    <View c = {Color.white} h = {"100%"} w = {"100%"}>
+      <Header navigation = {navigation} headerText = {"booking"}/>
+      
+
+      <View 
+        style={{ display: "flex", flexWrap: 'wrap', flexDirection: "row" }} 
+        w = {'90%'} mt = {"10%"} mh = {"5%"}
+      >
+        {
+          showTouchBar(Color.skyBlue,"ALL",(originalData.length || 0),"all")
         }
-        <View h={40}/>
+        {
+          showTouchBar(Color.blue,"ACTIVE",(activeTasks.length || 0),"active")
+        }
+        {
+          showTouchBar(Color.red,"ASSIGNED",(assignedTasks.length || 0),"assign")
+        }
+        {
+          showTouchBar("#009900","CLOSED",(closedTasks.length || 0),"close")
+        }
+      </View>
+
+      <View row mt={29} mh={"5%"} w={"90%"}>
+        <Touch boc={Color.themeColor} h={30} bw={1} w={"40%"} br={6}
+          onPress={() => { navigation.navigate(PAGES.ADDNEWBOOKING) }}
+        >
+          <Text c={Color.themeColor} s={16} center ai t={"new_booking"} />
+        </Touch>
+        <View row a ri={2} h={30}>
+          <Icon size={28} name={"angle-left"}
+            color={Color.themeColor}
+            onPress={() => { onDecrementMonth(month - 1) }}
+          />
+          <Text t={displayDate} s={22} mh={6} />
+          <Icon size={28} name={"angle-right"}
+            color={Color.themeColor}
+            onPress={() => { onIncrementMonth(month + 1) }}
+          />
+        </View>
+      </View>
+      
+      <ScrollView
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+          />
+        }>
+        {Array.isArray(bookings) ?
+          bookings.map((each, index) => {
+            let bookedDate = each.created_date.split("-").reverse().join("/")
+            let bookedForDate = !each.bookingFor ? "N/A" : each.bookingFor
+            let task_id = !each.t_id ? "N/A" : each.t_id
+            let tasktype = !each.taskType ? "N/A" : each.taskType
+            let state_type = !each.state ? "ACTIVE" : each.state
+
+            return <Touch key={index} mh={"2%"} w={"96%"} h={120} mt={40} br={2} bw={2}
+              boc={"#CCCCCC"} bc={"#fbfbfb"}
+              onPress={() => { setIsViewDetails(true); setIndex(index); }}
+            >
+              <View row pa={10}>
+                <Text t={each?.selectedWasteType?.name || "N/A"} b />
+                <Text t={state_type} a c={"white"} center w={140} to={10} ri={4} style={{ borderRadius: 10 }}
+                  bc={state_type === "ACTIVE" ? "blue" : state_type === "ASSIGNED" ? "red" : "#009900"}
+                />
+              </View>
+              <View bw={1} w={"100%"} bc={"#CCCCCC"} />
+              {
+                showTaskDetails("tId", task_id, "taskType", each?.selectedWasteType?.name || N / A)
+              }
+              {
+                showTaskDetails("bookedOn", bookedDate, "bookedFor", bookedForDate)
+              }
+            </Touch>
+          }) : null
+        }
+        <View h={40} />
       </ScrollView>
-      {isViewDetails? 
-        <View a c={'#00000066'} jc ai h={"100%"}  w={"100%"}>
+      {isViewDetails ?
+        <View a c={'#00000066'} jc ai h={"100%"} w={"100%"}>
           <View style={styles.bookingbottomView}>
             <View mt={20} mb={20}>
-              <Text s={20} c={"black"} b  center t={bookings[index].t_id || "N/A"}/>
+              <Text s={20} c={"black"} b center t={bookings[index].t_id || "N/A"} />
             </View>
             <View mt={20} ml={40}>
               {
-                showTaskList("full_name",userInfo.name,0)
+                showTaskList("full_name", userInfo.name, 0)
               }
               {
-                showTaskList("mobile_num",userInfo.phoneNumber,8)
+                showTaskList("mobile_num", userInfo.phoneNumber, 8)
               }
               {
-                showTaskList("req_veh",bookings[index]?.selectedWasteType?.name || "N/A",8)
+                showTaskList("req_veh", bookings[index]?.selectedWasteType?.name || "N/A", 8)
               }
               {
-                showTaskList("bookedOn",bookings[index]?.created_date?.split("-").reverse().join("/"),8)
+                showTaskList("bookedOn", bookings[index]?.created_date?.split("-").reverse().join("/"), 8)
               }
               {
-                showTaskList("bookedFor",bookings[index]?.bookingFor ||"N/A",8)
+                showTaskList("bookedFor", bookings[index]?.bookingFor || "N/A", 8)
               }
               {
-                showTaskList("assignedTo",bookings[index]?.assigneeName ||"N/A",8)
+                showTaskList("assignedTo", bookings[index]?.assigneeName || "N/A", 8)
               }
             </View>
             <IconAnt size={32}
               color={"red"}
               name={"closecircle"}
-              style={{position:"absolute",top:18,right:16}}
-              onPress={()=>{setIsViewDetails(false)}} 
+              style={{ position: "absolute", top: 18, right: 16 }}
+              onPress={() => { setIsViewDetails(false) }}
             />
-            <View h={40}/>
-          </View>    
-        </View> :null 
-      } 
+            <View h={40} />
+          </View>
+        </View> : null
+      }
     </View>
+
+  ) 
+  
 }

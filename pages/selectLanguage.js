@@ -26,6 +26,7 @@ export default PhoneVerification = ({ navigation }) => {
   const setDataAction = (arg) => dispatch(setData(arg));
   const state = useNavigationState(state => state);
   const routeName = (state.routeNames[state.index]);
+  let { selectedLanguage } = useSelector(state => state.testReducer) || {};
 
   useEffect(() => {
     getLanguagesFromSettings();
@@ -45,7 +46,7 @@ export default PhoneVerification = ({ navigation }) => {
           navigation.navigate(PAGES.HOME);
           return true;
         }
-        () =>BackHandler.exitApp();
+        BackHandler.exitApp();
         return true;
       };
       const backHandler = BackHandler.addEventListener(
@@ -54,7 +55,20 @@ export default PhoneVerification = ({ navigation }) => {
       );
       return () => backHandler.remove();
     }
-});
+  });
+
+  const getMuncipalityName = (selLang) =>{
+    if(selLang == "en"){
+      return `${APP_CONFIG.MUNICIPALITY_NAME_Ch} NAC`;
+    }else if(selLang === "hn"){
+      return "छत्रपुर एनएसी";
+    }else if(selLang === "or"){
+      return "ଚାଟପୁର NAC";
+    }else{
+      return `${APP_CONFIG.MUNICIPALITY_NAME_Ch} NAC`;
+    }
+    
+  }
 
   const setLanguage = (lang) => {
     console.log("l", lang);
@@ -71,14 +85,14 @@ export default PhoneVerification = ({ navigation }) => {
 
   return (
     <View h={height} w={width} c={"white"}>
-      <View h={150} mt={"10%"}>
+      <View h={200} mt={"40%"}>
         <Image
           source={require("./../assets/Chatrapur.png")}
           resizeMode="contain"
           style={{flex:1,alignSelf:"center" }}
         />
       </View>
-      <Text t={`${APP_CONFIG.MUNICIPALITY_NAME_Ch} NAC`}  b c={Color.themeColor} s={18} center />
+      <Text t={getMuncipalityName(selectedLanguage)}  b c={Color.themeColor} s={18} center />
       {/* <Text t={"nam"} s={10} center/> */}
 
       <View style={styles.bottomView}>
@@ -89,9 +103,10 @@ export default PhoneVerification = ({ navigation }) => {
             <Touch key={index} ml={2} bc={"#FFFFFF"} 
               fl={0.8} br={10} bw={2} h={48} boc={"#F0F0F0"}
               onPress={() => setLanguage(item.language)}
+              jc ai
             >
-              <Text c={Color.themeColor} center
-                to={10} t={item.displayName}
+              <Text c={Color.themeColor} 
+                 t={item.displayName}
               />
             </Touch>
           )):null}

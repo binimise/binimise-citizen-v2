@@ -68,7 +68,9 @@ export const Color = {
     backgroundThemeColor : "#eee",
     backgroundModalColor : "rgba(52, 52, 52, 0.6)",
     lightGrayColor : "#bbb",
-    red : "red"
+    red : "red",
+    skyBlue : "skyblue",
+    blue : "blue"
 }
 
 export const Font = {
@@ -201,4 +203,9 @@ export const  containsNonSpace = (text) => {
 export const containsSmallLetters = (str) => {
     let regex = /[a-z]/;
     return regex.test(str);
-  }
+}
+
+export  const onlyNumbers = (str) => {
+    // Use a regular expression to match only numeric characters (0-9)
+    return /^\d+$/.test(str);
+}

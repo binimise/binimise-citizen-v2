@@ -1,51 +1,31 @@
 import React from 'react';
-import { Linking } from 'react-native';
+import { Image } from 'react-native';
 import { Marker } from 'react-native-maps';
 import { View } from '../ui-kit';
 
-const CarPin = ({ coord, id, name, phoneNumber, type, count }) => {
+const CarPin = ({ coord, id, name, phoneNumber,handlePressCallout,index }) => {
 
-  const dialCall = (touchedNum) => {
-    let phoneNumber = '';
-
-    if (Platform.OS === 'android') {
-      phoneNumber = 'tel:$' + touchedNum;
-    }
-    else {
-      phoneNumber = 'telprompt:$' + touchedNum;
-    }
-
-    Linking.openURL(phoneNumber);
-  };
-
-  return (<View>
-    {count == "final" &&
-      <Marker
-        key={id}
-        tracksViewChanges={false}
-        coordinate={coord}
-        title={name}
-        description={phoneNumber}
-        onCalloutPress={() => dialCall(phoneNumber)}
-        icon={type == "vehicle"?{ uri: 'http://maps.google.com/mapfiles/kml/paddle/go.png' }:require('./../assets/offlineSaathi.png')}
+  return (
+    <Marker
+      key = {id+phoneNumber}
+      tracksViewChanges = {false}
+      coordinate = {coord}
+      title = {name}
+      description = {phoneNumber}
+      onPress = {handlePressCallout}
+    >
+      <Image  
+        source = {[0,1,2].includes(index)?
+                require("./../assets/toilet.png"):require("./../assets/toilet-b.png")
+          }
+        style = {{height: 24, width:24}}
       />
-    }
-    {count == "intial" &&
-      <Marker
-        key={id}
-        tracksViewChanges={false}
-        coordinate={coord}
-        title={name}
-        description={phoneNumber}
-        icon={type == "vehicle" && require('./../assets/car.png') ||require('./../assets/onlineSaathi.png')}
-        onCalloutPress={() => dialCall(phoneNumber)}
-      />
-    }
+    </Marker>
+  )
+    
 
 
-  </View>
-
-  );
+  
 };
 
 // Use React.memo to memoize the CarPin component
