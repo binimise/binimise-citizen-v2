@@ -137,7 +137,7 @@ export const SELECTEDLANGUAGE = "selectedLanguage";
 export const APP_VERSION = "1.0"
 
 // prod
-export const ONESIGNAL_ID = "fbbe319f-6c8d-4aec-afbf-4d01b9bccc2c"; //needs to changed
+export const ONESIGNAL_ID = "935eb4d0-603d-4682-b47f-6b091b26f9cc"; //needs to changed
 
 
 export const SHOW_LANGUAGE = [
@@ -166,15 +166,15 @@ export const APP_INFO = {
         hn : " का स्वागत करते हैं "
     },
     aboutUsText : {
-        en : " presents 'Swachh Chatrapur' mobile app to its citizens under Digital India initiative.\n\nThrough this app, citizens can directly connect with the Municipal Council and can avail desired information and services.\n\nThis app will give citizens an early notification about the arrival of garbage vehicles and citizens can also track the vehicle through GPS live feed.\n\nIt gives citizens an easy way to register their complaints with the  Municipal Council and  Municipal Council can provide information to citizens on timely manner.\n\nThis small initiative of Chatrapur  Municipal Council affords to make a big contribution to the civic services.\n\nMake our city clean and beautiful with help of this app. Our city is our home.\n\nMy Chatrapur, Clean Chatrapur.",
+        en : " presents 'Swachh Dehri' mobile app to its citizens under Digital India initiative.\n\nThrough this app, citizens can directly connect with the Municipal Council and can avail desired information and services.\n\nThis app will give citizens an early notification about the arrival of garbage vehicles and citizens can also track the vehicle through GPS live feed.\n\nIt gives citizens an easy way to register their complaints with the  Municipal Council and  Municipal Council can provide information to citizens on timely manner.\n\nThis small initiative of Dehri  Municipal Council affords to make a big contribution to the civic services.\n\nMake our city clean and beautiful with help of this app. Our city is our home.\n\nMy Dehri, Clean Dehri.",
         hn : "बक्सर नगर परिषद डिजिटल इंडिया पहल के तहत अपने नागरिकों को 'स्वच्छ बक्सर' मोबाइल ऐप प्रस्तुत करता है।\n\nइस ऐप के माध्यम से, नागरिक सीधे परिषद से जुड़ सकते हैं और वांछित जानकारी और सेवाओं का लाभ उठा सकते हैं।\n\nयह ऐप नागरिकों को जल्द से जल्द कचरा वाहनों के आगमन के बारे में अधिसूचना और नागरिक जीपीएस लाइव फीड के माध्यम से भी वाहन को ट्रैक कर सकते हैं।\n\nयह नागरिकों को परिषद के साथ अपनी शिकायत दर्ज करने का एक आसान तरीका देता है और परिषद नागरिकों को समय पर जानकारी प्रदान कर सकता है।\n\nयह बक्सर नगर परिषद की छोटी सी पहल नागरिक सेवाओं में एक बड़ा योगदान देती है।\n\nइस ऐप की मदद से हमारे शहर को स्वच्छ और सुंदर बनाएं। हमारा शहर हमारा घर है।\n\nमेरा बक्सर, स्वच्छ बक्सर"
     },
     nagar_nigam_c : {
-        en : "Chatrapur Municipal Council",
+        en : "Dehri Municipal Council",
         hn : "बक्सर नगर परिषद"
     },
     notif_default_msg : {
-        en : "Welcome !!! \n\n Chatrapur welcomes you.",
+        en : "Welcome !!! \n\n Dehri welcomes you.",
         hn : "स्वागत !!! \n\n बक्सर आपका स्वागत करता है।",
         or : "ସ୍ୱାଗତ !!! \ n \ n ଚାଟପୁର ଆପଣଙ୍କୁ ସ୍ୱାଗତ କରୁଛି।"
     }

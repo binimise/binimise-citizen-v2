@@ -10,8 +10,6 @@ import VehicleMarker from '../Markers/vehicleMarker';
 export default props => {
 
     const [driverLocations, setDriverLocations] = useState([]);
-    const [driverDetails, setDriverDetails] = useState([]);
-    const [deviceList, setDeviceList] = useState([]);
 
     useEffect(() => {
         syncMap(props.userInfo.ward);
@@ -23,7 +21,7 @@ export default props => {
         let veh_data = [];
         vehicles?.docs?.map(item =>{
             let obj = {};
-            obj["name"] =item?.data?.()?.vehicle_name || "",
+            obj["name"] = item?.data?.()?.vehicle_name || "",
             obj["phoneNumber"] = item?.data?.()?.phone_num || "",
             obj["device_id"] = item?.data?.()?.device_id
             obj["ward_id"] =  item?.data?.()?.ward_id

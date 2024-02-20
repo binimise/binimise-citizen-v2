@@ -208,13 +208,13 @@ const updateTaskPayments = (newObj, userInfo ) => {
  }
 
  const getAppSettings = async () => {
-    let data = await getSettingsAppRef().doc("aW6v6b4vlYxlbWxVUFGc").get();
+    let data = await getSettingsAppRef().doc(APP_CONFIG.MUNICIPALITY_NAME).get();
     return data?.data?.() || {};
 }
 
 const getManagerDetails = async (ward_id)=>{
     let data = await getSettingsAppRef()
-                    .doc("aW6v6b4vlYxlbWxVUFGc")
+                    .doc(APP_CONFIG.MUNICIPALITY_NAME)
                     .collection(COLLECTIONS.WARD_MANAGER)
                     .doc(ward_id)
                     .get();
@@ -333,7 +333,7 @@ const getAllVehicles = async () => {
 } 
 
 const getVehiclesInWard = async wardId => {
-    let data = await getVehicleRef().where("ward_id", "array-contains-any", wardId).get();
+    let data = await getVehicleRef().where("ward_id", "array-contains-any", [wardId]).get();
     return data;
     
 }

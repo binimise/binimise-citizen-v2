@@ -42,7 +42,7 @@ export default ({ navigation }) => {
             source={place.pictures ? { uri: place.pictures } : require("./../assets/dehri.png")}
             style={{ height: "100%" }} 
             />
-          <Text b s={24} t={place?.placeName?.[selectedLanguage]} a bo={14} ml={10}  c={"white"}/>
+          <Text b s={24} t={place?.placeName?.[selectedLanguage]} a bo={14} ml={30}  c={"white"}/>
           <Touch ml={10} a h={48}
             onPress={()=> {navigation.navigate(PAGES.PLACES)}}
           >

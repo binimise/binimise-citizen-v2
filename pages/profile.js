@@ -204,7 +204,7 @@ export default ({ navigation }) => {
     )
 
     const editIcon = () =>(
-      !userInfo?.DDN_NO&&<IconAnt size={24}
+      !userInfo?.DDN_NO && <IconAnt size={24}
         name={"edit"}
         color={"white"}
         style={{position:"absolute",right:"15%"}}

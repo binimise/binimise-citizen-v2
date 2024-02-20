@@ -200,7 +200,7 @@ export default ({ navigation }) => {
   const showTouchBar = (touchColor,selectedType,taskCount,text) => {
     return (
         <Touch ai jc bc = {touchColor} br = {6} w = {"24%"} h = {100}
-          onPress={() => getSelectedTasks(selectedType)}
+          onPress={() => getSelectedTasks(selectedType)} ml = {"1%"} 
         >
           <Text 
             s = {22} b c = {Color.white}

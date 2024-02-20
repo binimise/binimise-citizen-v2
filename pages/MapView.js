@@ -162,14 +162,13 @@ export default ({ navigation,route }) => {
 
  
   const onMarkerPressed = (eachCtpt)=>{
-    console.log("c")
+   
     let imageArr = [eachCtpt.insideImage,eachCtpt.outsideImage];
     eachCtpt.imageArr = imageArr;
     navigation.navigate(PAGES.TOILETDETAILS,{
       selectedCtpt : eachCtpt
     })
   }
- 
   
   return <View c={Color.white}>
       <Header navigation={navigation} headerText={pageHeader} />
@@ -177,7 +176,7 @@ export default ({ navigation,route }) => {
 
         <View c={"#CCCCCC"} w={"100%"} pa={4} mb={4}>
           <Text 
-            t = {"please_select_location_by_clicking"} 
+            t = {"please_select_location_by_clicking_mapview"} 
             b c= {Color.themeColor} h={"3%"} s={14}
           />
         </View>
@@ -207,14 +206,17 @@ export default ({ navigation,route }) => {
           
           {route?.params?.id == "Toilets"&&
             toiletsList.length>0&&toiletsList.map((eachCtpt,index)=>(
-              <TrackViewMarker
-                index = {index}
-                id = {index}
-                coord ={{latitude: eachCtpt.lat,longitude: eachCtpt.long}}
-                name = {eachCtpt.title}
-                phoneNumber = {eachCtpt.contactNo || "N/A"}
-                handlePressCallout = {() =>onMarkerPressed(eachCtpt)}
-              />
+              <View key = {index}>
+                <TrackViewMarker
+                  index = {index}
+                  id = {index}
+                  coord ={{latitude: eachCtpt.lat,longitude: eachCtpt.long}}
+                  name = {eachCtpt.title}
+                  phoneNumber = {eachCtpt.contactNo || "N/A"}
+                  handlePressCallout = {() =>onMarkerPressed(eachCtpt)}
+                />
+              </View>
+              
           ))}
         </MapView>
 

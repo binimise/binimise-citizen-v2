@@ -307,6 +307,7 @@ export default {
   history_t : "History of",
   please_select_all : "Please answer all questions",
   please_select_location_by_clicking : "click on red colour 'location' button and save your current location",
+  please_select_location_by_clicking_mapview : "click on red colour 'location' button to view your current location",
   please_enter_d_no : "Please enter door number",
   user_with_same_d_no_exists : "User with same door number exist",
   d_no : "Door No",

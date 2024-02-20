@@ -81,10 +81,6 @@ export default ({ navigation }) => {
         navigation.closeDrawer();
     }
 
-    const showErrorModalMsg = (message, title = "message") => {
-        
-    };
-
     const exitFromApp = ()=>{
         setDataAction({ 
             confirmModalInfo : {
