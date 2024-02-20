@@ -351,10 +351,10 @@ export default ({ navigation }) => {
             showErrorModalMsg("error_in_getting_location_please_set_location_in_map");
             return true
         }
-        if(userTags!=undefined && userTags.length<=0){
-            showErrorModalMsg("please_assign_tag_to_you");
-            return true;
-        }
+        // if(userTags!=undefined && userTags.length<=0){
+        //     showErrorModalMsg("please_assign_tag_to_you");
+        //     return true;
+        // }
         return false
     }
 
@@ -531,7 +531,7 @@ export default ({ navigation }) => {
                     style={{position:"absolute",right:8}}
                 /> 
             </Touch>
-            {Array.isArray(userTags)&&userTags.length>0?
+            {Array.isArray(userTags) && userTags.length>0?
                 <View w={"90%"} mh={"5%"} bc={"#757575"} bw={2} c={"white"}
                     mv={10} pa={6} row style={{display:"flex",flexWrap: 'wrap',}}
                 > 
@@ -787,7 +787,7 @@ export default ({ navigation }) => {
             />
         )
     }
-    console.log("state",state.profile,state?.profile?.length)
+  
     return (
         <View style={Styles.edContainer}>  
 
@@ -888,7 +888,7 @@ export default ({ navigation }) => {
                                 onPress={() =>{setIsExpandTags(true)}}>
                                 <View row>
                                     <Text c={"black"} s={14} b lh={18} t={"_tags"}/>
-                                    <Text s={12} t={"*"} c={Color.red} b/>
+                                    {/* <Text s={12} t={"*"} c={Color.red} b/> */}
                                     <IconF 
                                         size={24}
                                         style={{position:"absolute",right:8}}
