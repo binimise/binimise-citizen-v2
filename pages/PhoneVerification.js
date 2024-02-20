@@ -351,7 +351,7 @@ export default PhoneVerification = ({ navigation }) => {
     <View  h={height} w={width} c={"#ffffff"}>
       <View h={150} mt={"10%"}>
         <Image
-          source={require("./../assets/Chatrapur.png")}
+          source={require("./../assets/dehri.png")}
           resizeMode="contain"
           style={{flex:1,alignSelf:"center" }}
         />

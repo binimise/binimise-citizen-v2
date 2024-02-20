@@ -39,7 +39,7 @@ export default ({ navigation }) => {
       <ScrollView>
         <View h={250}>
           <RNImageView 
-            source={place.pictures ? { uri: place.pictures } : require("./../assets/Chatrapur.png")}
+            source={place.pictures ? { uri: place.pictures } : require("./../assets/dehri.png")}
             style={{ height: "100%" }} 
             />
           <Text b s={24} t={place?.placeName?.[selectedLanguage]} a bo={14} ml={10}  c={"white"}/>
@@ -87,7 +87,7 @@ export default ({ navigation }) => {
               }} 
             >
             <RNImageView 
-                source={place.pictures ? { uri: place.pictures } : require("./../assets/Chatrapur.png")} 
+                source={place.pictures ? { uri: place.pictures } : require("./../assets/dehri.png")} 
               // source={place.pictures ? { uri: place.pictures } : require("./../assets/icon.jpg")} 
                 style={{ height: 40, width: 40,borderRadius:20,borderColor:"red",borderWidth:2 }} 
             /> 

@@ -1,4 +1,4 @@
-rootProject.name = 'binimisevendor'
+rootProject.name = 'dehri'
 
 
 include ':react-native-onesignal'

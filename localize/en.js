@@ -287,7 +287,7 @@ export default {
   dear_user : "Dear User",
   location_updated : "Your location sucessfully updated",
   pick_image : "Upload Image",
-  home_message : "Keep our chatrapur clean",
+  home_message : "Keep our Dehri clean",
   upload_image : "Please upload image",
   please_enter_number : "Please enter your phone number",
   please_enter_valid_info : "Please enter OTP",

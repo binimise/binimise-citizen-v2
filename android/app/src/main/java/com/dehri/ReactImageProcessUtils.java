@@ -1,4 +1,4 @@
-package com.binimisevendor;
+package com.dehri;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -9,8 +9,8 @@ import android.util.Log;
 
 
 import com.facebook.react.bridge.Promise;
-import com.binimisevendor.database.User;
-import com.binimisevendor.database.UserUtils;
+import com.dehri.database.User;
+import com.dehri.database.UserUtils;
 import com.google.mlkit.vision.face.Face;
 
 import org.tensorflow.lite.Interpreter;

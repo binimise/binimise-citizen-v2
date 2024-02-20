@@ -1,4 +1,4 @@
-package com.binimisevendor;
+package com.dehri;
 
 import android.annotation.SuppressLint;
 import android.provider.Settings;

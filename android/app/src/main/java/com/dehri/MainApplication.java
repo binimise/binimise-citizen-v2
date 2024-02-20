@@ -1,4 +1,4 @@
-package com.binimisevendor;
+package com.dehri;
 
 import android.app.Application;
 import android.content.res.Configuration;

@@ -97,7 +97,7 @@ export default ({ navigation }) => {
                             return <Touch w={"48%"} mb={"4%"} mr={"2%"} br={4} h={200} bc={"white"} key={index.toString()}
                                      onPress={() => { showPlaceDetail(item); }}>
                                 <RNImageView 
-                                    source={item.pictures ? { uri: item.pictures } : require("./../assets/Chatrapur.png")} 
+                                    source={item.pictures ? { uri: item.pictures } : require("./../assets/dehri.png")} 
                                     resizeMode="cover" style={{ height:"75%",width: "100%" }} 
                                 /> 
                                 <Text t={item.placeName?.[selectedLanguage]} ml={"2%"} b mt={"2%"}/>

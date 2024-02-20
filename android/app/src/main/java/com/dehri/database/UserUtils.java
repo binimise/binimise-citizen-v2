@@ -1,11 +1,11 @@
-package com.binimisevendor.database;
+package com.dehri.database;
 
 import android.content.Context;
 
 import androidx.room.Room;
 
 
-import com.binimisevendor.ConverterFloatToString;
+import com.dehri.ConverterFloatToString;
 
 import java.util.List;
 import java.util.Random;

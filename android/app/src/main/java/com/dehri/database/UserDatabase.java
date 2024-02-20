@@ -1,4 +1,4 @@
-package com.binimisevendor.database;
+package com.dehri.database;
 
 import androidx.room.Database;
 import androidx.room.RoomDatabase;

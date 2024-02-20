@@ -104,7 +104,7 @@ export default ({ navigation }) => {
 
     return <SafeAreaView style={{ flex : 1}}>
         <View h={240} w={'100%'} pb={40} ai jc>
-            <Image source={require("./../assets/Chatrapur.png")} resizeMode="contain" style={{marginTop:20,height:200,width:"100%"}} />
+            <Image source={require("./../assets/dehri.png")} resizeMode="contain" style={{marginTop:20,height:200,width:"100%"}} />
             <Text s={12} t={"Powered By - Binimise Labs"} /> 
         </View>
         <View row  ai pl={10} c={"#F8F8F8"} w={"100%"} h={40}>

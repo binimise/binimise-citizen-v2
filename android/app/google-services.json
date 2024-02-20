@@ -444,6 +444,64 @@
     },
     {
       "client_info": {
+        "mobilesdk_app_id": "1:149629247619:android:2fd3b0fb765c72e0933bb6",
+        "android_client_info": {
+          "package_name": "com.dehri"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "149629247619-411m6b0plkvcdckj55si5dr0208930sh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAQ27zdfbWC5LrX7AyuyFK_fPZHigkkAZ8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "149629247619-411m6b0plkvcdckj55si5dr0208930sh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:149629247619:android:087bb71270d94002933bb6",
+        "android_client_info": {
+          "package_name": "com.dehristaff"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "149629247619-411m6b0plkvcdckj55si5dr0208930sh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAQ27zdfbWC5LrX7AyuyFK_fPZHigkkAZ8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "149629247619-411m6b0plkvcdckj55si5dr0208930sh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:149629247619:android:05d1c1573e16a5ca933bb6",
         "android_client_info": {
           "package_name": "com.gopalpur"

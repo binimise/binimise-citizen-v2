@@ -84,13 +84,13 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
-    namespace "com.binimisevendor"
+    namespace "com.dehri"
     defaultConfig {
-        applicationId "com.binimisevendor"
+        applicationId "com.dehri"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 2
-        versionName "1.0.2"
+        versionCode 1
+        versionName "1.0.1"
 
         buildConfigField("boolean", "REACT_NATIVE_UNSTABLE_USE_RUNTIME_SCHEDULER_ALWAYS", (findProperty("reactNative.unstable_useRuntimeSchedulerAlways") ?: true).toString())
     }
@@ -101,23 +101,23 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
-        release {
-            storeFile file('chatrapur-citizen.keystore')
-            storePassword 'chatrapur-citizen'
-            keyAlias 'chatrapur-citizen'
-            keyPassword 'chatrapur-citizen'
-        }
+        // release {
+        //     storeFile file('chatrapur-citizen.keystore')
+        //     storePassword 'chatrapur-citizen'
+        //     keyAlias 'chatrapur-citizen'
+        //     keyPassword 'chatrapur-citizen'
+        // }
     }
     buildTypes {
         debug {
-            // signingConfig signingConfigs.debug
-            signingConfig signingConfigs.release
+            signingConfig signingConfigs.debug
+            // signingConfig signingConfigs.release
         }
         release {
             // Caution! In production, you need to generate your own keystore file.
             // see https://reactnative.dev/docs/signed-apk-android.
-            // signingConfig signingConfigs.debug
-            signingConfig signingConfigs.release
+            signingConfig signingConfigs.debug
+            // signingConfig signingConfigs.release
             shrinkResources (findProperty('android.enableShrinkResourcesInReleaseBuilds')?.toBoolean() ?: false)
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"

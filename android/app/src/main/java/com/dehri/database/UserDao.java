@@ -1,4 +1,4 @@
-package com.binimisevendor.database;
+package com.dehri.database;
 
 import androidx.room.Dao;
 import androidx.room.Delete;

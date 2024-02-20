@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "binimisevendor",
-    "slug": "binimisevendor",
+    "name": "dehri",
+    "slug": "dehri",
     "version": "1.0.0",
     "jsEngine": "jsc",
     "ios": {
@@ -16,5 +16,5 @@
       "**/*"
     ]
   },
-  "name": "binimisevendor"
+  "name": "dehri"
 }

@@ -1,4 +1,4 @@
-package com.binimisevendor;
+package com.dehri;
 
 import android.os.Build;
 import android.os.Bundle;
