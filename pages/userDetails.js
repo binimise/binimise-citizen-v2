@@ -22,6 +22,7 @@ import MapViewModal from '../components/mapViewModal';
 import firebase from "./../repo/firebase";
 import Styles from '../styles/styles';
 import CameraDiv from "../components/camera";
+import MapView,{Marker} from 'react-native-maps';
 let {height,width} =Dimensions.get("window");
 
 const KeyFromObj = {
@@ -462,26 +463,6 @@ export default ({ navigation }) => {
     const toggleAlertSwitch = () => setIsAlertOn(previousState => !previousState);
     const toggleNotificationSwitch = () => setIsNotificationOn(previousState => !previousState);
 
-    const showLocation = ()=>(
-        <View w={"100%"} mb={20} bw={1} bc={'#F0F0F0'}>
-            <Touch w={"100%"} boc={"#F0F0F0"}  h={48} bc={"#F8F8F8"} jc onPress={() =>{setIsExpandLocation(false)}}>
-                <View row>
-                    <Text c={Color.themeColor} le={2} s={14}  b lh={18} t={"location"}/>
-                    <IconF size={24} name={"angle-up"} color={"green"} style={{position:"absolute",right:8}}/> 
-                </View>
-            </Touch>
-            <View row>
-                <Text s={18} t={updateLocation?.latitude?"edit_location":"add_location"} c={"black"} b/>
-                <View row style={{position:"absolute",right:0}} ai>
-                    <Icon size={16} name={"crosshairs"} color={"green"}/> 
-                    <Touch h={20} onPress={() =>{setIsHideMap(true)}}>
-                        <Text c={"green"} s={16} t={"locateme"}/>
-                    </Touch>
-                </View>
-            </View>
-        </View>
-    )
-
     const _showAlerts = (text1,text2,text3)=>(
         <View row mb={16} mt={20} width={"90%"}>
             <Text s={18} c={"black"} t={text1} b />
@@ -713,45 +694,6 @@ export default ({ navigation }) => {
         setStartCamera(false);
     }
 
-    const showOpenCamera = ()=>{
-        return(
-            <View a c={Color.backgroundModalColor} jc ai zi={999} to={0} le={0} h={height} w={width}>
-            <View w={width} br={8} c={Color.white} jc  h={"100%"}>
-                <Camera
-                    style={{height:"100%",width:"100%"}}
-                    type={type}
-                    ref={(ref) => setCamera(ref)}
-                >
-                <Touch a to={20} le={20} h={60} bc={Color.white} 
-                  br={32} w={60} jc ai onPress={()=>setStartCamera(false)}
-                >
-                    <IconAnt size={36} 
-                        name={"close"}
-                        color={Color.themeColor}
-                    />
-                </Touch>
-                <Touch a bo={10} le={20} h={60} bc={Color.white} br={32} w={60} jc ai  
-                    onPress={()=>{type == CameraType.front?setType(CameraType.back):setType(CameraType.front)}}
-                >
-                    <MaterialIcons size={36}
-                        name={"camera-flip-outline"}
-                        color={Color.themeColor} 
-                    />
-                </Touch>
-                <Touch a bo={10}  h={60} bc={Color.white} br={32} w={60}  jc ai
-                    style={{alignSelf:"center"}} onPress={takePicture}
-                >
-                    <IconAnt size={36} 
-                        name={"camera"} 
-                        color={Color.themeColor}
-                    />
-                </Touch>
-              </Camera> 
-              </View>
-          </View>
-       )
-    }
-
     const selectedPickerData = (key,data)=>{
         setSelectedValue(data)
         formOnChangeText(key,data)
@@ -793,8 +735,6 @@ export default ({ navigation }) => {
 
                 <View h={"100%"} w={"100%"}>
                     <Header navigation={navigation} headerText={userInfo?.authUid?"editprofile":"createAccount"} b_Text={"gotoProfile"}/>
-                    
-                    
                     <ScrollView 
                         contentContainerStyle={{ paddingHorizontal: 16,paddingTop:10}}
                         showsVerticalScrollIndicator={false}
@@ -829,9 +769,27 @@ export default ({ navigation }) => {
                         {
                             getSignUpView('emailid', 'email', 'email', state?.email)
                         }
+
+                    <View w={"100%"} mb={"4%"} bc={Color.black} bw={1} c={Color.white}>
                         {
-                            getSignUpView('address', 'stAndArea', 'address', state?.address,true,"","","crosshairs","Locate Me")
+                            getSignUpView('address', 'stAndArea', 'address', state?.address,true)
                         }
+                        <Text t={updateLocation?.latitude ? "edit_location" : "add_location"} b />
+                        <View w={"100%"} bw={1} bc={"#CCCCCC"} />
+                        <Touch h={120} onPress={() => {setIsHideMap(true)}}>
+                            <MapView
+                                language={"hn"}
+                                mapType={"hybrid"}
+                                style={{ alignSelf: 'stretch', height: "100%" }}
+                                region={{ latitude: region.latitude, longitude: region.longitude, latitudeDelta: 0.01, longitudeDelta: 0.01 }}
+                            >
+                                <Marker coordinate={{ ...region }} draggable />
+                            </MapView>
+                        </Touch>
+                        <Text t={updateLocation?.latitude ? "location_captured" : ""} b s={20}
+                            h={40} ml={10} c={"green"}
+                        />
+                    </View>
 
                         <View bw={1} w={"100%"}  bc={'#F0F0F0'} mb={20}/>
                         {isExpandWard?showWards():
@@ -850,21 +808,8 @@ export default ({ navigation }) => {
                             </Touch>
                         }
                         <View bw={1} w={"100%"}  bc={'#F0F0F0'} mb={20}/>
-                        {isExpandLocation?showLocation():
-                            <Touch h={40} w={"100%"} boc={"#F0F0F0"} 
-                                onPress={() =>{setIsExpandLocation(true)}}>
-                                <View row>
-                                    <Text c={"black"} s={14} b lh={18} t={updateLocation?.latitude?"edit_location":"add_location"}/>
-                                    <Text s={12} t={"*"} c={Color.red} b/>
-                                    <IconF 
-                                        size={24}
-                                        style={{position:"absolute",right:8}}
-                                        name={"angle-down"}
-                                        color={"black"} 
-                                    /> 
-                                </View>
-                            </Touch>
-                        }
+
+                       
 
                         <View bw={1} w={"100%"}  bc={'#F0F0F0'} mb={20}/>
                         {isExpandAlert?showAlerts():
@@ -926,10 +871,7 @@ export default ({ navigation }) => {
             {
                 showImageLibrary?showImageOptionList():null
             }
-            {/* {
-                startCamera ?showOpenCamera():null
-            } */}
-             {isPickerShow&&selectedArray.length>0?
+             {isPickerShow && selectedArray.length>0?
                 <PickerModal 
                     items={selectedArray} 
                     selectedKey ={selectedKey} 

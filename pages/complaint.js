@@ -12,9 +12,11 @@ import * as Location from 'expo-location';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import IconF from 'react-native-vector-icons/FontAwesome';
 import IconAnt from 'react-native-vector-icons/AntDesign';
+import Styles from '../styles/styles';
+import CalenderCom from '../components/calendarCom';
 const { width, height } = Dimensions.get('window');  
 
-const months =["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+const months =["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 
 export default ({ navigation }) => {
@@ -29,12 +31,14 @@ export default ({ navigation }) => {
     let userInfo = useSelector(state => state.testReducer.userInfo) || {};
     const [refreshing, setRefreshing] = useState(false);
     const [comment, setComment] = useState("");
+    const [currentDate,setCurrentDate] = useState("");
     const [showDoneModal, setShowDoneModal] = useState(false);
     const [imageUrl, setImageUrl] = useState("");
     const [selectedComplaint,setSelectedComplaint] = useState({})
     const isFocused = useIsFocused();
     const navigationValue = useNavigationState(state => state);
     const routeName = (navigationValue.routeNames[navigationValue.index]);
+    const [isCalendarShow,setIsCalendarShow] = useState(false);
     
     const loadingInComplaint = show => {
       setDataAction({"loading": {show,message:"loading_com"}});
@@ -56,6 +60,11 @@ export default ({ navigation }) => {
             setShowDoneModal(false)
             return true;
           }
+          if(isCalendarShow){
+            setCurrentDate("");
+            setIsCalendarShow(false);
+            return true;
+          }
           navigation.navigate(PAGES.HOME);
           return true;
         };
@@ -70,11 +79,13 @@ export default ({ navigation }) => {
     useEffect(() => {
       if(isFocused){
         loadingInComplaint(true);
-        // setTimeout(() => {
+        setTimeout(() => {
           getComplaintsList();
-        // }, 2000);
+        }, 5000);
       }else{
         loadingInComplaint(false);
+        setIsCalendarShow(false);
+        setCurrentDate("");
       }
       
     }, [isFocused]);
@@ -115,7 +126,15 @@ export default ({ navigation }) => {
       }
     }
 
+    const onSelectDate = (day) => {
+      let filteredArr = (originalData || []).filter((eachDoc) => eachDoc.created_date === day);
+      setComplaint(filteredArr);
+      setCurrentDate(day?.split("-").reverse().join("-") || day);
+      setIsCalendarShow(false);
+    }
+
     const getSelectedComplaints = (type) =>{
+      setCurrentDate("");
       if(type === "ALL"){
         setComplaint(originalData);
         return;
@@ -214,11 +233,24 @@ export default ({ navigation }) => {
       </Touch>
     </View>
 
-    <View row mt={29} mh={"6%"} mb={20} w={"90%"}>
-      <Touch ml={2} boc={'green'}  h={30}  bw={1} w={140}  br={6} jc ai t={"new_complaint"} s={16}
-        onPress={()=>{navigation.navigate(PAGES.ADDCOMPLAINT)}}  c={Color.themeColor}
-      />
-    </View>
+
+      <View row mt={29} mh={"5%"} mb={20} w={"90%"} style={{ position: "relative" }}>
+        <Touch ml={2} boc={'green'} h={30} bw={1} w={140} br={6} jc ai t={"new_complaint"} s={16}
+          onPress={() => { navigation.navigate(PAGES.ADDCOMPLAINT) }} c={Color.themeColor}
+        />
+        <Touch style={Styles.touchStyle}
+          onPress={() => setIsCalendarShow(true)}
+        >
+          <IconAnt
+            size={16}
+            name={"calendar"}
+            color = {Color.themeColor}
+            style={{  right: 6 }}
+            // onPress={() => { setIsCalendarShow(true) }}
+          />
+          <Text t={currentDate || "calendar"} s={16} b le = {4} c={Color.themeColor} />
+        </Touch>
+      </View>
 
     <ScrollView
       refreshControl={
@@ -326,6 +358,11 @@ export default ({ navigation }) => {
                    <View h={40}/>
     </ScrollView>
     { showDoneModal ? _showDoneModal() : null }
+    <CalenderCom 
+      show = {isCalendarShow}
+      handleCloseCalendar = {() => setIsCalendarShow(false)}
+      handleSelectDate = {onSelectDate}
+    />
             
   </View>
           

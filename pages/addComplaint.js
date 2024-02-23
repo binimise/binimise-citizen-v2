@@ -12,10 +12,10 @@ import * as Location from 'expo-location';
 import MapView,{Marker} from 'react-native-maps';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import IconAnt from 'react-native-vector-icons/AntDesign';
-import AntDesign from 'react-native-vector-icons/AntDesign';
-import MaterialIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import Styles from "../styles/styles";
 import {useIsFocused, useNavigationState} from '@react-navigation/native';
 import CameraDiv from "../components/camera";
+import MapViewModal from "../components/mapViewModal";
 let { width, height } = Dimensions.get("window");
 
 
@@ -27,18 +27,17 @@ export default ({ navigation }) => {
   const [complaintObj, setComplaintObj] = useState({});
   const navigationValue = useNavigationState(state => state);
   const routeName = (navigationValue.routeNames[navigationValue.index]);
-  const [type, setType] = useState(Camera.Constants.Type.back);
-  const [camera, setCamera] = useState({});
   const [imageUrl, setImageUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [startCamera, setStartCamera] = useState(false);
   const [imageModal, setImageModal] = useState(false);
   const [ispickerShow,setIsPickerShow] = useState(false);
-  const storageRef = firebase().firebase.storage();
   const [typesOfGarbageDump,setTypesOfGarbageDump] = useState([]);
   const isFocus = useIsFocused();
   const [complaintAddress,setComplaintAddress] = useState("");
-  let { userInfo,selectedLanguage} = useSelector(state => state.testReducer) || {};
+  const [isHideMap,setIsHideMap] = useState(false);
+  const [region, setRegion] = useState(APP_CONFIG.COORDINATES.coords);
+  let { userInfo} = useSelector(state => state.testReducer) || {};
 
   const loadingInAddComplaint = show => {
     setDataAction({"loading": {show:show,message:"image_loading"}});
@@ -74,7 +73,6 @@ export default ({ navigation }) => {
   useEffect(() =>{
     if(isFocus){
       setComplaintObj(Object.assign({}, complaintObj, {name:userInfo.name, phoneNumber : userInfo.phoneNumber }));
-      getCurrentLocation();
     }else{
       setComplaintObj({});
       setImageUrl("");
@@ -115,8 +113,19 @@ export default ({ navigation }) => {
     });
   };
 
+  const selectLocationFromMap = (locObj) => {
+   
+    setIsHideMap(false);
+    let lat = locObj?.latitude ||APP_CONFIG.COORDINATES.coords.latitude ;
+    let long = locObj?.longitude ||APP_CONFIG.COORDINATES.coords.longitude ;
+    let _latlng = { latitude : lat, longitude : long };
+    formOnChangeComText("location",_latlng);
+    getAddressFromLocation(_latlng);
+
+  }
+
   const onCloseEvent = async() =>{
-    console.log("onCLiose")
+    
     Linking.openSettings();
     await getCameraPermission();
   }
@@ -144,18 +153,8 @@ export default ({ navigation }) => {
       });
   };
 
-  const getCurrentLocation = async () => {  
-        let location = await Location.getLastKnownPositionAsync({enableHighAccuracy: true});
-            let lat = location?.coords?.latitude ||APP_CONFIG.COORDINATES.coords.latitude ;
-            let long = location?.coords?.longitude ||APP_CONFIG.COORDINATES.coords.longitude ;
-            let _latlng = { latitude : lat, longitude : long };
-            formOnChangeComText("location",_latlng);
-            getAddressFromLocation(_latlng);
-     
-  };
-
   const _updateUserData = ({userInfo}) => {
-    let _userObj={}
+    let _userObj = {};
     _userObj[TOKEN] =userInfo[TOKEN] || "";
     _userObj[AUTHUID] = userInfo[AUTHUID];
     _userObj["name"] = userInfo.name;
@@ -174,6 +173,9 @@ export default ({ navigation }) => {
     }
     if(!complaintObj.typesOfComplaint) {
       return errorModal("please_enter_complaint_typesOfcomplaint");
+    }
+    if(!complaintObj?.location?.latitude){
+      return errorModal("please_select_complaint_location");
     }
     
     if(!complaintObj.message) {
@@ -205,13 +207,8 @@ export default ({ navigation }) => {
       }
     });
   }
-
-  
-
   const formOnChangeComText = (field, value) => setComplaintObj(Object.assign({}, complaintObj, {[field] : value}));
  
-
-
   const showUserDetails = (text, ph, name, value, h) => {
     return (
       <View mt={"4%"} w={'90%'} mh={"5%"}>
@@ -299,37 +296,55 @@ export default ({ navigation }) => {
       )
   }
 
+  if(isHideMap){
+    return <View style={Styles.edContainer}>
+        <IconAnt size={32} name={"closecircle"} style={{marginTop:20}}
+                onPress={()=>{setIsHideMap(false)}} 
+            />
+        <MapViewModal
+            intialCoordinates = {region}
+            handleLocationSelected = {selectLocationFromMap}
+            handleMapClose = {()=> setIsHideMap(false)}
+        /> 
+    </View>
+  }
 
   
   return (
     <ScrollView>
-      <Header navigation={navigation}  headerText={"post_complaint"} b_Text={"gotoComplaints"}/>
-      <View w={"90%"} style={{margin:"5%"}}  br={4} c={"white"}>
-        <Text t={"type_of_complaint"} b  style={{margin:"2%"}}/>
-        <View  w={"100%"}  bw={1} bc={"#CCCCCC"}/>
+      <Header navigation={navigation} headerText={"post_complaint"} b_Text={"gotoComplaints"} />
+      <View w={"90%"} style={{ margin: "5%" }} br={4} c={"white"}>
+        <Text t={"type_of_complaint"} b style={{ margin: "2%" }} />
+        <View w={"100%"} bw={1} bc={"#CCCCCC"} />
         <Touch br={4} s={16} w={'90%'} mh={"5%"} mt={"2%"} mb={"2%"} ai jc bc={"#FFFFFF"} bw={1}
-          onPress={()=> {setIsPickerShow(true)}} h={48}
-          t={complaintObj?.typesOfComplaint ||"select_complaint"}/>
+          onPress={() => { setIsPickerShow(true) }} h={48}
+          t={complaintObj?.typesOfComplaint || "select_complaint"} />
       </View>
-     
+
       {
-        isLoading && <Loading mb={16} isLoading loadingText={"image_loading"}/>
+        isLoading && <Loading mb={16} isLoading loadingText={"image_loading"} />
       }
-      <View w={"90%"} mh={"5%"} mb={"4%"}  br={4} c={"white"}>
-          <Text t={"current_location"} b  style={{margin:"2%"}}/>
-          <View  w={"100%"} bw={1} bc={"#CCCCCC"}/>
-          {complaintObj?.location?
-            <MapView
-              language={"hn"}
-              mapType={"hybrid"}
-              style={{ alignSelf: 'stretch', height: 100 }}
-              region={{ latitude:complaintObj?.location?.latitude, longitude: complaintObj?.location?.longitude,  latitudeDelta: 0.01, longitudeDelta: 0.01 }}
-            >
-              <Marker
-                coordinate={{latitude: complaintObj?.location?.latitude,longitude:complaintObj?.location?.longitude}} 
-              />
-            </MapView>:null
-          }
+      <View w={"90%"} mh={"5%"} mb={"4%"} br={4} c={"white"}>
+        <Text t={"current_location"} b style={{ margin: "2%" }} />
+        <View w={"100%"} bw={1} bc={"#CCCCCC"} />
+      
+        <Touch h={120} onPress={() => { setIsHideMap(true) }}>
+          <MapView
+            language={"hn"}
+            mapType={"hybrid"}
+            style={{ alignSelf: 'stretch', height: "100%" }}
+            region={{ latitude: complaintObj?.location?.latitude || region.latitude, longitude: complaintObj?.location?.longitude || region.longitude, latitudeDelta: 0.01, longitudeDelta: 0.01 }}
+          >
+            <Marker coordinate={{
+              latitude: complaintObj?.location?.latitude || region.latitude,
+              longitude:complaintObj?.location?.longitude || region.longitude
+              }}  
+            />
+          </MapView>
+        </Touch>
+        <Text t={complaintObj?.location?.latitude ? "location_captured" : ""} b s={20}
+          h={40} ml={10} c={"green"}
+        />
       </View>
         
       <View w={"90%"} mh={"5%"} mb={"5%"} br={4} c={"white"}>
@@ -376,8 +391,8 @@ export default ({ navigation }) => {
           bc={Color.themeColor} onPress={storeComplaintMessage} t={"submit"} 
         />  
       </View>
-
-            
+      
+           
      
     </ScrollView>
   )

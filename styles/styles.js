@@ -155,6 +155,20 @@ export default StyleSheet.create({
     shadowRadius: 8,
     elevation: 8,
     padding : 10
+  },
+  touchStyle :{
+    display: "flex",
+    flexDirection : "row",
+    justifyContent : "center",
+    alignItems : "center",
+    width :  140,
+    height :  30,
+    position : "absolute",
+    right : 0,
+    borderColor : "green",
+    borderWidth : 1,
+    borderRadius : 6,
+    padding : 4
   }
   
 });

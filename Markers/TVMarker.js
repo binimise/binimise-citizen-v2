@@ -13,14 +13,13 @@ const CarPin = ({ coord, id, name, phoneNumber,handlePressCallout,index }) => {
       title = {name}
       description = {phoneNumber}
       onPress = {handlePressCallout}
-    >
-      <Image  
-        source = {[0,1,2].includes(index)?
-                require("./../assets/toilet.png"):require("./../assets/toilet-b.png")
-          }
-        style = {{height: 24, width:24}}
-      />
-    </Marker>
+      image={[0,1,2].includes(index)?
+        require("./../assets/toilet.png"):require("./../assets/toilet-b.png")
+      }
+      width = {10}
+      
+    />
+      
   )
     
 

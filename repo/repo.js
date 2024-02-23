@@ -589,6 +589,7 @@ const getAcknowledge = async(dateString, document) => {
     };
     let doc = await acknowledgeUserRef(dateString).doc(document).get();
     obj.item = doc?.data() || {};
+    obj.item.name = doc?.data?.()?.name?.length>15 ? getDecryptedData(doc?.data?.()?.name) : doc?.data?.()?.name?.length>12
     return obj;
 
 }

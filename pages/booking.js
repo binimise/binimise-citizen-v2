@@ -6,11 +6,10 @@ import { View, Text, Touch } from "./../ui-kit";
 import { Color, PAGES } from '../global/util';
 import Header from "../components/header";
 import { useNavigationState,useIsFocused } from '@react-navigation/native';
-import IconF from 'react-native-vector-icons/FontAwesome';
 import IconAnt from 'react-native-vector-icons/AntDesign';
-import Icon from 'react-native-vector-icons/FontAwesome5';
 import { getUserTasks,getTaskPayments} from "./../repo/repo";
-import styles from "./../styles/styles";
+import CalenderCom from '../components/calendarCom';
+import Styles from '../styles/styles';
 
 const months =["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
 export default ({ navigation }) => {
@@ -21,6 +20,7 @@ export default ({ navigation }) => {
   const [bookings,setBookings] =useState([]);
   const [index,setIndex] = useState(0);
   const [displayDate,setDisplayDate] =useState("");
+  const [currentDate,setCurrentDate] = useState("");
   const [month, setMonth] = useState("");
   const [year, setYear] = useState("");
   const [refreshing, setRefreshing] = useState(false);
@@ -32,6 +32,7 @@ export default ({ navigation }) => {
   const [activeTasks, setActiveTasks] = useState([]);
   const [assignedTasks, setAssignedTasks] = useState([]);
   const [closedTasks, setClosedTasks] = useState([]);
+  const [isCalendarShow,setIsCalendarShow] = useState(false);
 
   const loadingInBooking = show => {
     setDataAction({"loading": {show:show,message:"loading_book"}});
@@ -40,6 +41,11 @@ export default ({ navigation }) => {
   useEffect(() => {
     if(routeName === PAGES.BOOKING){
       const backAction = () => {
+        if(isCalendarShow){
+          setCurrentDate("");
+          setIsCalendarShow(false);
+          return true;
+        }
         if(isViewDetails){
           setIsViewDetails(false);
           return true;
@@ -58,45 +64,55 @@ export default ({ navigation }) => {
   useEffect(() => {
     if(isFocusedBooking){
       loadingInBooking(true);
-      // setTimeout(() => {
-        getDateAndMonth();
-      // }, 2000);
+      setTimeout(() => {
+        // getDateAndMonth();
+        getMonthWiseBookings();
+      }, 5000);
     }else{
+      console.log("bont");
       loadingInBooking(false);
+      setIsCalendarShow(false);
+      setCurrentDate("");
+
     }
+    console.log("fd")
   }, [isFocusedBooking]);
-
- 
-  const getDateAndMonth = ()=>{
-    let CurrentDate =new Date();
-    let CurrentMonth =CurrentDate.getMonth();
-    let CurrentYear =CurrentDate.getFullYear();
-    let CombinedMonthAndYear=months[CurrentMonth]+","+CurrentYear;
-    setMonth(CurrentMonth);
-    setYear(CurrentYear);
-    setDisplayDate(CombinedMonthAndYear);
-    getAllDaysOfMonth(CurrentMonth,CurrentYear);
+  console.log("CC",currentDate)
+  const onSelectDate = (day) => {
+    let filteredArr = (originalData || []).filter((eachDoc) => eachDoc.created_date === day);
+    setBookings(filteredArr);
+    setCurrentDate(day?.split("-").reverse().join("-") || day);
+    setIsCalendarShow(false);
   }
 
-  const getAllDaysOfMonth =(selectedMonth,selectedYear)=>{
-    let totalNoDays =new Date(selectedYear,selectedMonth+1, 0).getDate();
-    let mm =selectedMonth+1,allDatesOfMonth=[],i
-    mm =mm<10? "0"+mm:mm
-    for(i=1;i<=totalNoDays;i++){
-     i =i<10? "0"+i:i
-      allDatesOfMonth.push(selectedYear+"-"+mm+"-"+i)
-    }
-    getMonthWiseBookings(allDatesOfMonth);
-  }
+  // const getDateAndMonth = ()=>{
+  //   let CurrentDate =new Date();
+  //   let CurrentMonth =CurrentDate.getMonth();
+  //   let CurrentYear =CurrentDate.getFullYear();
+  //   let CombinedMonthAndYear=months[CurrentMonth]+","+CurrentYear;
+  //   setMonth(CurrentMonth);
+  //   setYear(CurrentYear);
+  //   setDisplayDate(CombinedMonthAndYear);
+  //   getAllDaysOfMonth(CurrentMonth,CurrentYear);
+  // }
+
+  // const getAllDaysOfMonth =(selectedMonth,selectedYear)=>{
+  //   let totalNoDays =new Date(selectedYear,selectedMonth+1, 0).getDate();
+  //   let mm =selectedMonth+1,allDatesOfMonth=[],i
+  //   mm =mm<10? "0"+mm:mm
+  //   for(i=1;i<=totalNoDays;i++){
+  //    i =i<10? "0"+i:i
+  //     allDatesOfMonth.push(selectedYear+"-"+mm+"-"+i)
+  //   }
+  //   getMonthWiseBookings(allDatesOfMonth);
+  // }
 
   const getMonthWiseBookings =async(allDatesOfMonth)=>{
     let filteredBookings = [],Active = [],Assigned = [],Closed = [];
     let bookings = await getUserTasks(userInfo);
           //  console.log("bb",bookings)
-    bookings.length>0&&bookings.map((item)=>{
-      if(allDatesOfMonth.includes(item.created_date)){
+    (bookings || []).map((item) => {
         filteredBookings.push(item)
-      }
       if(item.state == "ACTIVE"){
         Active.push(item)
       }
@@ -151,7 +167,7 @@ export default ({ navigation }) => {
        }
   }
 
-  const showTaskList =(displaytext,value,mt)=>{
+  const showTaskList = (displaytext,value,mt)=>{
   return(
     <View row mt={mt}>
       <Text s={14}  c={"#000000"} t={displaytext}/>
@@ -184,6 +200,7 @@ export default ({ navigation }) => {
   }, []);
    
   const getSelectedTasks = (type) =>{
+    setCurrentDate("");
     if(type === "ALL"){
       setBookings(originalData);
       return;
@@ -234,7 +251,7 @@ export default ({ navigation }) => {
         }
       </View>
 
-      <View row mt={29} mh={"5%"} w={"90%"}>
+      {/* <View row mt={29} mh={"5%"} w={"90%"}>
         <Touch boc={Color.themeColor} h={30} bw={1} w={"40%"} br={6}
           onPress={() => { navigation.navigate(PAGES.ADDNEWBOOKING) }}
         >
@@ -251,6 +268,24 @@ export default ({ navigation }) => {
             onPress={() => { onIncrementMonth(month + 1) }}
           />
         </View>
+      </View> */}
+
+      <View row mt={29} mh={"5%"} mb={20} w={"90%"} style={{ position: "relative" }}>
+        <Touch ml={2} boc={'green'} h={30} bw={1} w={140} br={6} jc ai t={"new_complaint"} s={16}
+          onPress={() => { navigation.navigate(PAGES.ADDNEWBOOKING) }} c={Color.themeColor}
+        />
+        <Touch style={Styles.touchStyle}
+          onPress={() => setIsCalendarShow(true)}
+        >
+          <IconAnt
+            size={16}
+            name={"calendar"}
+            color = {Color.themeColor}
+            style={{  right: 6 }}
+            // onPress={() => { setIsCalendarShow(true) }}
+          />
+          <Text t={currentDate || "calendar"} s={16} b le = {4} c={Color.themeColor} />
+        </Touch>
       </View>
       
       <ScrollView
@@ -292,7 +327,7 @@ export default ({ navigation }) => {
       </ScrollView>
       {isViewDetails ?
         <View a c={'#00000066'} jc ai h={"100%"} w={"100%"}>
-          <View style={styles.bookingbottomView}>
+          <View style={Styles.bookingbottomView}>
             <View mt={20} mb={20}>
               <Text s={20} c={"black"} b center t={bookings[index].t_id || "N/A"} />
             </View>
@@ -326,6 +361,11 @@ export default ({ navigation }) => {
           </View>
         </View> : null
       }
+      <CalenderCom 
+        show = {isCalendarShow}
+        handleCloseCalendar = {() => setIsCalendarShow(false)}
+        handleSelectDate = {onSelectDate}
+      />
     </View>
 
   ) 

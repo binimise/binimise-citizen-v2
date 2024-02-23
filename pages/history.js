@@ -1,17 +1,14 @@
 import React, { useState, useEffect }  from 'react';
-import { BackHandler,Alert,ScrollView ,Dimensions} from 'react-native';
+import { BackHandler,ScrollView } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { setData } from "../redux/action";
-import { View, Text, Touch } from "../ui-kit";
+import { View, Text } from "../ui-kit";
 import Header from "../components/header";
 import Styles from '../styles/styles';
-import {getAcknowledge,getVehicleGeo } from "./../repo/repo";
+import {getAcknowledge } from "./../repo/repo";
 import {Calendar,LocaleConfig} from 'react-native-calendars';
 import {Color,getCurrentDateFmt,getCurrentDate,PAGES} from "./../global/util";
-import { useFocusEffect,useIsFocused,useNavigationState } from '@react-navigation/native';
-const { width, height } = Dimensions.get('window');  
-import IconAnt from 'react-native-vector-icons/AntDesign';
-import Icon from 'react-native-vector-icons/FontAwesome5';
+import { useIsFocused,useNavigationState } from '@react-navigation/native';
 
 LocaleConfig.locales["en"] = {
     monthNames: ["January","February","March","April","May","June","July","August","September","October","November","December"],
@@ -36,6 +33,8 @@ LocaleConfig.locales["or"] = {
   dayNamesShort: ["ରବି", "ସୋମ", "ମଙ୍ଗ", "ବୁଧ", "ଗୁରୁ", "ଶୁକ୍ର", "ଶନି"],
   today: "ଆଜ",
 };
+
+
 
 
 const showTextAndValue = (text,value) =>{
@@ -176,7 +175,7 @@ export default ({ navigation }) => {
   const _onDayPress = async (s_date,acknowledgeArray) => {
     try{
         let filterdata = acknowledgeArray.find(function (element) {
-          return element.id == s_date&&element?.item?.id;
+          return element.id == s_date && element?.item?.id;
       });
      
       if(filterdata?.item){
@@ -230,7 +229,7 @@ export default ({ navigation }) => {
           <Text h={20} ml={10} t={"garbage_collected"}/>
         </View>
         <View row  ml={"4%"} mt={10}>
-          <Text h={20} w={20} bc={'#F6BE00'} style={{borderRadius:10}}/>
+          <Text h={20} w={20} bc={'#ffa500'} style={{borderRadius:10}}/>
           <Text h={20} ml={10} t={"garbage_segregation"}/>
         </View>
         <View row  ml={"4%"} mt={10}>

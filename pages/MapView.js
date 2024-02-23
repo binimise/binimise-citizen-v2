@@ -205,8 +205,8 @@ export default ({ navigation,route }) => {
           </Marker>
           
           {route?.params?.id == "Toilets"&&
-            toiletsList.length>0&&toiletsList.map((eachCtpt,index)=>(
-              <View key = {index}>
+            toiletsList.length>0 && toiletsList.map((eachCtpt,index)=>(
+              <View key = {index} w={40} h= {40}>
                 <TrackViewMarker
                   index = {index}
                   id = {index}
