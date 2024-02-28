@@ -9,7 +9,7 @@ export default {
   phoneNumber : "Phone Number",
   email : "Email",
   address : "Address",
-  select_your_ward : "Please Select Your Are",
+  select_your_ward : "Please Select Your Area",
   update_current_location: "Update Current Location",
   submit: "Submit",
   details : "Details",
