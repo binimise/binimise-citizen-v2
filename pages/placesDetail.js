@@ -18,6 +18,7 @@ export default ({ navigation }) => {
   const routeName = (navigationValue.routeNames[navigationValue.index]);
   let place = useSelector(state => state.testReducer.place) || {};
   let { userInfo,selectedLanguage } = useSelector(state => state.testReducer) || {};
+  place.placeDescription = place.placeDescription || {};
  
   useEffect(() => {
     if(routeName === "PlacesDetails"){
@@ -69,7 +70,7 @@ export default ({ navigation }) => {
         <View w={"92%"} mb={"4%"} mr={"2%"} br={4} c={"white"} mh={"4%"} mt={"6%"}>
           <Text t={"description"} ml={"6%"} mt={"4%"} mb={"2%"} b/>
           <View  bw={1}  bc={"#CCCCCC"}  mb={"4%"}/>
-          <Text t={place.description || "N/A"} ml={"6%"} mb={"2%"}/>
+          <Text t={place?.placeDescription[selectedLanguage] || place.description || "N/A"} ml={"6%"} mb={"2%"}/>
         </View>
 
         <View w={"92%"} mb={"4%"} mr={"2%"} br={4} c={"white"} mh={"4%"} mt={"6%"}>
